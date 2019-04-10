@@ -22,7 +22,7 @@ from gluoncv.utils.metrics.accuracy import Accuracy
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train SSD networks.')
-    parser.add_argument('--network', type=str, default='vgg16_atrous',
+    parser.add_argument('--network', type=str, default='mobilenet1.0',
                         help="Base network name which serves as feature extraction base.")
     parser.add_argument('--data-shape', type=int, default=300,
                         help="Input data shape, use 300, 512.")
@@ -38,7 +38,7 @@ def parse_args():
     parser.add_argument('--epochs', type=int, default=240,
                         help='Training epochs.')
     parser.add_argument('--resume', type=str, default='',
-                        help='Resume from previously saved parameters if not None. '
+                        help='Resume from previously saved parameters if not None.'
                         'For example, you can resume from ./ssd_xxx_0123.params')
     parser.add_argument('--start-epoch', type=int, default=0,
                         help='Starting epoch for resuming, default is 0 for new training.'

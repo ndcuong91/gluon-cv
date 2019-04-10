@@ -34,15 +34,18 @@ class SSDAnchorGenerator(gluon.HybridBlock):
         super(SSDAnchorGenerator, self).__init__(**kwargs)
         assert len(im_size) == 2
         self._im_size = im_size
+        if(len(sizes)==1):
+            self._sizes = (sizes[0],)
+        else:
+            self._sizes = (sizes[0], np.sqrt(sizes[0] * sizes[1]))
         self._clip = clip
-        self._sizes = (sizes[0], np.sqrt(sizes[0] * sizes[1]))
         self._ratios = ratios
         anchors = self._generate_anchors(self._sizes, self._ratios, step, alloc_size, offsets)
         self.anchors = self.params.get_constant('anchor_%d'%(index), anchors)
 
     def _generate_anchors(self, sizes, ratios, step, alloc_size, offsets):
         """Generate anchors for once. Anchors are stored with (center_x, center_y, w, h) format."""
-        assert len(sizes) == 2, "SSD requires sizes to be (size_min, size_max)"
+        #assert len(sizes) == 2, "SSD requires sizes to be (size_min, size_max)"
         anchors = []
         for i in range(alloc_size[0]):
             for j in range(alloc_size[1]):
@@ -51,7 +54,8 @@ class SSDAnchorGenerator(gluon.HybridBlock):
                 # ratio = ratios[0], size = size_min or sqrt(size_min * size_max)
                 r = ratios[0]
                 anchors.append([cx, cy, sizes[0], sizes[0]])
-                anchors.append([cx, cy, sizes[1], sizes[1]])
+                if (len(sizes) > 1):
+                    anchors.append([cx, cy, sizes[1], sizes[1]])
                 # size = sizes[0], ratio = ...
                 for r in ratios[1:]:
                     sr = np.sqrt(r)

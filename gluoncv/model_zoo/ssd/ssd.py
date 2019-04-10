@@ -31,7 +31,8 @@ __all__ = ['SSD', 'get_ssd',
            'ssd_512_resnet152_v2_voc',
            'ssd_512_mobilenet1_0_voc',
            'ssd_512_mobilenet1_0_coco',
-           'ssd_512_mobilenet1_0_custom',]
+           'ssd_512_mobilenet1_0_custom',
+           'ssd_300_mobilenet1_0_voc']
 
 
 class SSD(HybridBlock):
@@ -159,6 +160,15 @@ class SSD(HybridBlock):
             self.anchor_generators = nn.HybridSequential()
             asz = anchor_alloc_size
             im_size = (base_size, base_size)
+
+            print("ssd.py. Change sizes same as Caffe")
+            sizes[0] = (60,)
+            sizes[1] = (105, 150)
+            sizes[2] = (150, 195)
+            sizes[3] = (195, 240)
+            sizes[4] = (240, 285)
+            sizes[5] = (285, 300)
+
             for i, s, r, st in zip(range(num_layers), sizes, ratios, steps):
                 anchor_generator = SSDAnchorGenerator(i, im_size, s, r, st, (asz, asz))
                 self.anchor_generators.add(anchor_generator)
@@ -404,6 +414,33 @@ def get_ssd(name, base_size, features, filters, sizes, ratios, steps, classes,
         full_name = '_'.join(('ssd', str(base_size), name, dataset))
         net.load_parameters(get_model_file(full_name, tag=pretrained, root=root), ctx=ctx)
     return net
+
+def ssd_300_mobilenet1_0_voc(pretrained=False, pretrained_base=True, **kwargs):
+    """SSD architecture with mobilenet1.0 base networks.
+
+    Parameters
+    ----------
+    pretrained : bool or str
+        Boolean value controls whether to load the default pretrained weights for model.
+        String value represents the hashtag for a certain version of pretrained weights.
+    pretrained_base : bool or str, optional, default is True
+        Load pretrained base network, the extra layers are randomized.
+
+    Returns
+    -------
+    HybridBlock
+        A SSD detection network.
+    """
+    classes = VOCDetection.CLASSES
+    print('ssd.py. mxnet model 2 voc')
+    return get_ssd('mobilenet1.0', 300,
+                   features=['relu22_fwd', 'relu26_fwd'],
+                   filters=[256, 128, 128, 64],
+                   sizes=[60, 105, 150, 195, 240, 285, 300],
+                   ratios=[[1, 2, 0.5]] + [[1, 2, 0.5, 3, 1.0 / 3]] * 5,
+                   steps=[16, 32, 64, 128, 256, 512],
+                   classes=classes, dataset='voc', pretrained=pretrained,
+                   pretrained_base=pretrained_base, **kwargs)
 
 def ssd_300_vgg16_atrous_voc(pretrained=False, pretrained_base=True, **kwargs):
     """SSD architecture with VGG16 atrous 300x300 base network for Pascal VOC.

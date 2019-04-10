@@ -139,6 +139,7 @@ class FeatureExpander(SymbolBlock):
         for i, f in enumerate(num_filters):
             if use_1x1_transition:
                 num_trans = max(min_depth, int(round(f * reduce_ratio)))
+                id = 14 + i
                 y = mx.sym.Convolution(
                     y, num_filter=num_trans, kernel=(1, 1), no_bias=use_bn,
                     name='expand_trans_conv{}'.format(i), attr={'__init__': weight_init})
@@ -146,7 +147,7 @@ class FeatureExpander(SymbolBlock):
                     y = mx.sym.BatchNorm(y, name='expand_trans_bn{}'.format(i))
                 y = mx.sym.Activation(y, act_type='relu', name='expand_trans_relu{}'.format(i))
             y = mx.sym.Convolution(
-                y, num_filter=f, kernel=(3, 3), pad=(1, 1), stride=(2, 2),
+                y, num_filter=2*f, kernel=(3, 3), pad=(1, 1), stride=(2, 2),
                 no_bias=use_bn, name='expand_conv{}'.format(i), attr={'__init__': weight_init})
             if use_bn:
                 y = mx.sym.BatchNorm(y, name='expand_bn{}'.format(i))

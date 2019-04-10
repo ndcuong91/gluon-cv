@@ -16,6 +16,7 @@ from gluoncv.data.batchify import Tuple, Stack, Pad
 from gluoncv.data.transforms.presets.ssd import SSDDefaultValTransform
 from gluoncv.utils.metrics.voc_detection import VOC07MApMetric
 from gluoncv.utils.metrics.coco_detection import COCODetectionMetric
+from mxnet import profiler
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Eval SSD networks.')
@@ -31,7 +32,7 @@ def parse_args():
                         help='eval dataset.')
     parser.add_argument('--num-workers', '-j', dest='num_workers', type=int,
                         default=4, help='Number of data workers')
-    parser.add_argument('--num-gpus', type=int, default=0,
+    parser.add_argument('--num-gpus', type=int, default=1,
                         help='number of gpus to use.')
     parser.add_argument('--pretrained', type=str, default='True',
                         help='Load weights from previously saved parameters.')
@@ -69,6 +70,9 @@ def validate(net, val_data, ctx, classes, size, metric):
     if not args.quantized:
         net.set_nms(nms_thresh=0.45, nms_topk=400)
     net.hybridize()
+
+    profiler.set_config(profile_all=True,aggregate_stats=True, filename='profile.json')
+    profiler.set_state('run')
     with tqdm(total=size) as pbar:
         start = time.time()
         for ib, batch in enumerate(val_data):
@@ -96,6 +100,10 @@ def validate(net, val_data, ctx, classes, size, metric):
         end = time.time()
         speed = size / (end - start)
         print('Throughput is %f img/sec.'% speed)
+
+    mx.nd.waitall()
+    profiler.set_state('stop')
+    print(profiler.dumps())
     return metric.get()
 
 if __name__ == '__main__':

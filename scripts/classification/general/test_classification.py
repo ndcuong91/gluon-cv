@@ -3,10 +3,8 @@ import numpy as np
 import os, time, logging, argparse, shutil
 
 from mxnet import gluon, image, init, nd
-from mxnet import autograd as ag
 from mxnet.gluon import nn
 from mxnet.gluon.data.vision import transforms
-from gluoncv.utils import makedirs, TrainingHistory
 from gluoncv.model_zoo import get_model
 from datetime import datetime
 
@@ -50,6 +48,7 @@ def submission(net,params_path, print_process=100):
     finetune_net.load_parameters(params_path)
 
     test_folder='/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/Test_Public'
+    damaged_folder='/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/Test_Public_damaged'
     count=0
     result='id,predicted\n'
 
@@ -74,6 +73,7 @@ def submission(net,params_path, print_process=100):
                     result += str(re_map[topk[k]]) + '\n'
         except:
             print 'damaged file:',f
+            shutil.copy(file_path,os.path.join(os.path.join(damaged_folder, f)))
             result += '1 87 25\n'
             pass
 
@@ -84,49 +84,56 @@ def submission(net,params_path, print_process=100):
 
 
 def test(net, val_data, ctx, topk=5): #0.989236509759 top5  #0.982204362801 top3
-    if(topk==1):
-        metric = mx.metric.Accuracy()
-    else:
-        metric = mx.metric.TopKAccuracy(top_k=topk)
 
-    for i, batch in enumerate(val_data):
-        if(i%50==0 and i>0):
-            print 'Tested:',i,'batches'
-        data = gluon.utils.split_and_load(batch[0], ctx_list=ctx, batch_axis=0, even_split=False)
-        label = gluon.utils.split_and_load(batch[1], ctx_list=ctx, batch_axis=0, even_split=False)
-        outputs = [net(X) for X in data]
-        metric.update(label, outputs)
+    class_folder=get_list_dir_in_folder(val_dir)
+    class_folder=sorted(class_folder)
+    count=0
+    true_pred=0
+    true_class=0
+    for cls in class_folder:
+        count_cls = 0
+        true_pred_cls = 0
+        #print cls
+        files_list = get_list_file_in_folder(os.path.join(val_dir,cls))
+        for f in files_list:
+            #print file
+            file_path=os.path.join(os.path.join(val_dir,cls,f))
+            img = image.imread(file_path)
+            img = transform_test(img)
+            img_gpu = img.copyto(mx.gpu())
+            outputs = net(img_gpu.expand_dims(axis=0))
+            topk= outputs.asnumpy().flatten().argsort()[-1:-4:-1]
+            for k in range(len(topk)):
+                remap_id=re_map[topk[k]]
+                if (remap_id==int(cls)):
+                    true_pred_cls+=1
+                    true_pred+=1
 
-    # class_folder=get_list_dir_in_folder(test_path)
-    # class_folder=sorted(class_folder)
-    # count=0
-    # true_pred=0
-    # true_class=0
-    # for cls in class_folder:
-    #     print cls
-    #     files_list = get_list_file_in_folder(os.path.join(test_path,cls))
-    #     for f in files_list:
-    #         #print file
-    #         file_path=os.path.join(os.path.join(test_path,cls,f))
-    #         img = image.imread(file_path)
-    #         img = transform_test(img)
-    #         img_gpu = img.copyto(mx.gpu())
-    #         outputs = net(img_gpu.expand_dims(axis=0))
-    #         topk= outputs.asnumpy().flatten().argsort()[-1:-4:-1]
-    #         for k in range(len(topk)):
-    #             remap_id=re_map[topk[k]]
-    #             if (remap_id==int(cls)):
-    #                 true_pred+=1
+            count_cls+=1
+            count+=1
+        print 'Class: ',true_class,',true_pred',true_pred_cls,',total',count_cls,',top3: ', float(true_pred_cls) / float(count_cls)
+        true_class+=1
+    print 'True pred:',true_pred,', Total file:',count,'top3 accuracy: ',float(true_pred)/float(count)
+
+    # if (topk == 1):
+    #     metric = mx.metric.Accuracy()
+    # else:
+    #     metric = mx.metric.TopKAccuracy(top_k=topk)
     #
-    #         count+=1
-    #     true_class+=1
-    #     print 'top3 accuracy for class: ',true_class,' is: ', float(true_pred) / float(count)
-    # print 'True pred:',true_pred,', Total file:',count,'top3 accuracy: ',float(true_pred)/float(count)
-    _,test_acc=metric.get()
+    # for i, batch in enumerate(val_data):
+    #     if (i % 50 == 0 and i > 0):
+    #         print 'Tested:', i, 'batches'
+    #     data = gluon.utils.split_and_load(batch[0], ctx_list=ctx, batch_axis=0, even_split=False)
+    #     label = gluon.utils.split_and_load(batch[1], ctx_list=ctx, batch_axis=0, even_split=False)
+    #     outputs = [net(X) for X in data]
+    #     metric.update(label, outputs)
+    #
+    # _,test_acc=metric.get()
+    #
+    # print 'Accuracy (top '+str(topk)+'):',str(test_acc)
+    # print 'Error (top '+str(topk)+'):',str(1-test_acc)
 
-    print 'Accuracy (top '+str(topk)+'):',str(test_acc)
-    print 'Error (top '+str(topk)+'):',str(1-test_acc)
-    return metric.get()
+    return
 
 def setup_logger(log_file_path):
     # set up logger
@@ -167,9 +174,9 @@ def test_network(model, params_path, val_path):
         gluon.data.vision.ImageFolderDataset(val_path).transform_first(transform_test),
         batch_size=batch_size, shuffle=False, num_workers = num_workers)
 
-    test(finetune_net, test_data, ctx, topk=1)
+    #test(finetune_net, test_data, ctx, topk=1)
     test(finetune_net, test_data, ctx, topk=3)
-    test(finetune_net, test_data, ctx, topk=5)
+    #test(finetune_net, test_data, ctx, topk=5)
     print 'Finish'
 
 

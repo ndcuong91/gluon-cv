@@ -6,7 +6,7 @@ from mxnet import gluon, image, init, nd
 from mxnet import autograd as ag
 from mxnet.gluon import nn
 from mxnet.gluon.data.vision import transforms
-from gluoncv.utils import makedirs, TrainingHistory, viz
+from gluoncv.utils import makedirs, TrainingHistory, LRSequential, LRScheduler, viz
 from gluoncv.model_zoo import get_model
 from datetime import datetime
 
@@ -21,6 +21,7 @@ log_interval=200
 dataset='ZaloAILandmark'
 train_path = os.path.join(data_dir, 'train')
 test_path = os.path.join(data_dir, 'val')
+lr_mode='step'
 
 def parse_opts():
     parser = argparse.ArgumentParser(description='Transfer learning on zaloAIchallenge dataset',
@@ -29,7 +30,7 @@ def parse_opts():
                         help='name of the pretrained model from model zoo.')
     parser.add_argument('-j', '--workers', dest='num_workers', default=4, type=int,
                         help='number of preprocessing workers')
-    parser.add_argument('--num-gpus', default=1, type=int,
+    parser.add_argument('--num_gpus', default=1, type=int,
                         help='number of gpus to use, 0 indicates cpu only')
     parser.add_argument('--num_class', default=classes, type=int,
                         help='number of class')
@@ -37,26 +38,42 @@ def parse_opts():
                         help='number of training epochs.')
     parser.add_argument('--input_sz', default=input_sz, type=int,
                         help='resolution of input size')
-    parser.add_argument('-b', '--batch-size', default=batch_size, type=int,
+    parser.add_argument('-b', '--batch_size', default=batch_size, type=int,
                         help='mini-batch size')
-    parser.add_argument('--lr', '--learning-rate', default=0.001, type=float,
+    parser.add_argument('--lr', '--learning_rate', default=0.001, type=float,
                         help='initial learning rate')
     parser.add_argument('--momentum', default=0.9, type=float,
                         help='momentum')
-    parser.add_argument('--weight-decay', '--wd', dest='wd', default=1e-4, type=float,
+    parser.add_argument('--weight_decay', '--wd', dest='wd', default=1e-4, type=float,
                         help='weight decay (default: 1e-4)')
-    parser.add_argument('--lr-factor', default=0.75, type=float,
+    parser.add_argument('--log_interval', default=log_interval, type=int,
                         help='learning rate decay ratio')
-    parser.add_argument('--log-interval', default=log_interval, type=int,
-                        help='learning rate decay ratio')
-    parser.add_argument('--resume-params', type=str, default='',
+
+    parser.add_argument('--warmup_epochs', type=int, default=0,
+                        help='number of warmup epochs.')
+    parser.add_argument('--lr_mode', type=str, default=lr_mode,
+                        help='learning rate scheduler mode. options are step, poly and cosine.')
+    parser.add_argument('--lr_decay', type=float, default=0.75,
+                        help='decay rate of learning rate. default is 0.75.')
+    parser.add_argument('--lr_decay_period', type=int, default=0,
+                        help='interval for periodic learning rate decays. default is 0 to disable.')
+    parser.add_argument('--lr_decay_epoch', type=str, default='3,10,20,30,40,50,70,110,150,200,450,900,1500',
+                        help='epochs at which learning rate decays. default is 40,60.')
+
+    parser.add_argument('--resume_params', type=str, default='',
                         help='path of parameters to load from.')
+    parser.add_argument('--resume_states', type=str, default='',
+                        help='path of trainer state to load from.')
+    parser.add_argument('--resume_epoch', type=int, default=0,
+                        help='epoch to resume training from.')
+
+    parser.add_argument('--save_frequency', type=int, default=1,
+                        help='frequency of model saving.')
     opts = parser.parse_args()
     return opts
 
 # Preparation
 opts = parse_opts()
-lr_step='3,10,20,30,40,50,70,110,150,200,450,900,1500'
 
 model_name = opts.model
 
@@ -64,9 +81,6 @@ lr = opts.lr
 batch_size = opts.batch_size
 momentum = opts.momentum
 wd = opts.wd
-
-lr_factor = opts.lr_factor
-lr_steps = [int(s) for s in lr_step.split(',')] + [np.inf]
 
 num_gpus = opts.num_gpus
 num_workers = opts.num_workers
@@ -172,11 +186,36 @@ def train(train_path, val_path, test_path):
         batch_size=batch_size, shuffle=False, num_workers = num_workers)
 
 
+    #lr_scheduler:
+    lr_decay = opts.lr_decay
+    lr_decay_period = opts.lr_decay_period
+    if opts.lr_decay_period > 0:
+        lr_decay_epoch = list(range(lr_decay_period, opts.num_epochs, lr_decay_period))
+    else:
+        lr_decay_epoch = [int(i) for i in opts.lr_decay_epoch.split(',')]
+    lr_decay_epoch = [e - opts.warmup_epochs for e in lr_decay_epoch]
+    num_batches = num_training_samples // batch_size
+    lr_scheduler = LRSequential([
+        LRScheduler('linear', base_lr=0, target_lr=opts.lr,
+                    nepochs=opts.warmup_epochs, iters_per_epoch=num_batches),
+        LRScheduler(opts.lr_mode, base_lr=opts.lr, target_lr=0,
+                    nepochs=opts.num_epochs - opts.warmup_epochs,
+                    iters_per_epoch=num_batches,
+                    step_epoch=lr_decay_epoch,
+                    step_factor=lr_decay, power=2)
+    ])
+
+    optimizer = 'sgd'
+    optimizer_params = {'wd': opts.wd, 'momentum': opts.momentum, 'lr_scheduler': lr_scheduler}
+
     # Define Trainer
-    trainer = gluon.Trainer(finetune_net.collect_params(), 'sgd', {'learning_rate': lr, 'momentum': momentum, 'wd': wd})
+    #trainer = gluon.Trainer(finetune_net.collect_params(), 'sgd', {'learning_rate': lr, 'momentum': momentum, 'wd': wd})
+    trainer = gluon.Trainer(finetune_net.collect_params(), optimizer, optimizer_params)
+    if opts.resume_states is not '':
+        trainer.load_states(opts.resume_states)
+
     metric_train = mx.metric.Accuracy()
     L = gluon.loss.SoftmaxCrossEntropyLoss()
-    lr_counter = 0
     num_batch = len(train_data)
 
     print 'Begin finetuning', model_name, opts.input_sz
@@ -184,14 +223,7 @@ def train(train_path, val_path, test_path):
 
     logger.info(opts)
     best_acc=0
-    new_lr=trainer.learning_rate
-    for epoch in range(epochs):
-        if epoch == lr_steps[lr_counter]:
-            new_lr=trainer.learning_rate*lr_factor
-            trainer.set_learning_rate(new_lr)
-            lr_counter += 1
-
-        tic = time.time()
+    for epoch in range(opts.resume_epoch, opts.num_epochs):
         metric_train.reset()
         btic = time.time()
         tic = time.time()
@@ -227,7 +259,7 @@ def train(train_path, val_path, test_path):
         train_history.plot(save_path=os.path.join(folder,date_time,'%s_history.png' % (model_name)))
 
         logger.info('[Epoch %d] Train-acc: %.3f, loss: %.3f | Val-acc: %.3f | time: %.1f | Speed: %.2f samples/sec | lr: %.8f' %
-                 (epoch, train_acc, train_loss, val_acc, time.time() - tic, num_training_samples/(time.time()-tic), new_lr))
+                 (epoch, train_acc, train_loss, val_acc, time.time() - tic, num_training_samples/(time.time()-tic), trainer.learning_rate))
         val_acc = float(val_acc)
         if val_acc > best_acc:
             best_acc = val_acc
@@ -235,6 +267,10 @@ def train(train_path, val_path, test_path):
             trainer.save_states(os.path.join(folder, date_time, '%s-%s-best.states' % (dataset, model_name)))
             with open(os.path.join(folder,date_time,'best_map.log'), 'a') as f:
                 f.write('{:04d}:\t{:.4f}\n'.format(epoch, val_acc))
+
+        if opts.save_frequency and (epoch + 1) % opts.save_frequency == 0:
+            finetune_net.save_parameters(os.path.join(folder,date_time,'%s-%s-%d.params' % (dataset, model_name, epoch)))
+            trainer.save_states(os.path.join(folder, date_time, '%s-%s-%d.states' % (dataset, model_name, epoch)))
 
     #_, test_acc = test(finetune_net, test_data, ctx)
     os.rename(folder,'{:s}_{:d}'.format(folder,int(10000*best_acc)))

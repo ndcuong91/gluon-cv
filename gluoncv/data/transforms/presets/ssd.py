@@ -123,6 +123,10 @@ class SSDDefaultTrainTransform(object):
     def __init__(self, width, height, anchors=None, mean=(0.485, 0.456, 0.406),
                  std=(0.229, 0.224, 0.225), iou_thresh=0.5, box_norm=(0.1, 0.1, 0.2, 0.2),
                  **kwargs):
+
+        print 'CuongND. Set preprocessing for training as Caffe for mobilenetSSD300'
+        mean = (0.5, 0.5, 0.5)
+        std = (0.5, 0.5, 0.5)
         self._width = width
         self._height = height
         self._anchors = anchors
@@ -196,6 +200,9 @@ class SSDDefaultValTransform(object):
 
     """
     def __init__(self, width, height, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
+        print 'CuongND. Set preprocessing for validating as Caffe for mobilenetSSD300'
+        mean = (0.5, 0.5, 0.5)
+        std = (0.5, 0.5, 0.5)
         self._width = width
         self._height = height
         self._mean = mean

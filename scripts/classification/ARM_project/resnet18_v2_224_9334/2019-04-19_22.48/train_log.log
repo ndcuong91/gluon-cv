@@ -1,0 +1,12 @@
+Namespace(batch_size=64, data='/media/atsg/Data/datasets/SUN_ARM_project', input_sz=224, lr=0.001, lr_factor=0.75, model='resnet18_v2', momentum=0.9, num_class=2, num_gpus=1, num_workers=4, wd=0.0001)
+[Epoch 0] Train-acc: 0.732, loss: 0.527 | Val-acc: 0.879 | time: 9.2
+[Epoch 1] Train-acc: 0.886, loss: 0.265 | Val-acc: 0.883 | time: 6.6
+[Epoch 2] Train-acc: 0.902, loss: 0.228 | Val-acc: 0.899 | time: 6.7
+[Epoch 3] Train-acc: 0.929, loss: 0.190 | Val-acc: 0.894 | time: 6.6
+[Epoch 4] Train-acc: 0.928, loss: 0.197 | Val-acc: 0.910 | time: 6.5
+[Epoch 5] Train-acc: 0.929, loss: 0.178 | Val-acc: 0.847 | time: 6.7
+[Epoch 6] Train-acc: 0.948, loss: 0.149 | Val-acc: 0.897 | time: 6.6
+[Epoch 7] Train-acc: 0.943, loss: 0.145 | Val-acc: 0.899 | time: 6.5
+[Epoch 8] Train-acc: 0.945, loss: 0.137 | Val-acc: 0.903 | time: 6.5
+[Epoch 9] Train-acc: 0.945, loss: 0.141 | Val-acc: 0.883 | time: 6.6
+[Finished]

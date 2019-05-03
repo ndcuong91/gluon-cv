@@ -9,16 +9,18 @@ from mxnet.gluon.data.vision import transforms
 from gluoncv.utils import makedirs
 from gluoncv.model_zoo import get_model
 
+data_dir='/media/atsg/Data/datasets/minc-2500'
+model='ResNet50_v2'
 def parse_opts():
     parser = argparse.ArgumentParser(description='Transfer learning on MINC-2500 dataset',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--data', type=str, default='',
+    parser.add_argument('--data', type=str, default=data_dir,
                         help='directory for the prepared data folder')
-    parser.add_argument('--model', required=True, type=str,
+    parser.add_argument('--model', type=str,default=model,
                         help='name of the pretrained model from model zoo.')
     parser.add_argument('-j', '--workers', dest='num_workers', default=4, type=int,
                         help='number of preprocessing workers')
-    parser.add_argument('--num-gpus', default=0, type=int,
+    parser.add_argument('--num-gpus', default=1, type=int,
                         help='number of gpus to use, 0 indicates cpu only')
     parser.add_argument('--epochs', default=40, type=int,
                         help='number of training epochs')
@@ -105,6 +107,7 @@ def train(train_path, val_path, test_path):
     finetune_net.collect_params().reset_ctx(ctx)
     finetune_net.hybridize()
 
+    print 'Data loader'
     # Define DataLoader
     train_data = gluon.data.DataLoader(
         gluon.data.vision.ImageFolderDataset(train_path).transform_first(transform_train),
@@ -126,6 +129,7 @@ def train(train_path, val_path, test_path):
     lr_counter = 0
     num_batch = len(train_data)
 
+    print 'Begin training'
     # Start Training
     for epoch in range(epochs):
         if epoch == lr_steps[lr_counter]:

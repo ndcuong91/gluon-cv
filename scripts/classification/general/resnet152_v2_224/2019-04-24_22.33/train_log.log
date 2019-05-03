@@ -1,0 +1,5 @@
+Namespace(batch_size=32, data='/media/atsg/Data/CuongND/challenge/zaloAIchallenge/landmark/data/TrainVal', input_sz=224, lr=0.001, lr_factor=0.75, model='resnet152_v2', momentum=0.9, num_class=102, num_gpus=1, num_workers=4, wd=0.0001)
+Namespace(batch_size=16, data='/media/atsg/Data/CuongND/challenge/zaloAIchallenge/landmark/data/TrainVal', input_sz=224, lr=0.001, lr_factor=0.75, model='resnet152_v2', momentum=0.9, num_class=102, num_gpus=1, num_workers=4, wd=0.0001)
+[Epoch 0] Train-acc: 0.716, loss: 1.082 | Test-acc: 0.808 | time: 1590.7 | Speed: 1.38 samples/sec | lr: 0.00100000
+[Epoch 1] Train-acc: 0.826, loss: 0.588 | Test-acc: 0.849 | time: 1469.5 | Speed: 1.50 samples/sec | lr: 0.00100000
+[Epoch 2] Train-acc: 0.853, loss: 0.476 | Test-acc: 0.860 | time: 1438.5 | Speed: 1.53 samples/sec | lr: 0.00100000

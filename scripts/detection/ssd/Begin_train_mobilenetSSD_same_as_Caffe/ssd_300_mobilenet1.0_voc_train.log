@@ -1,0 +1,624 @@
+INFO:root:Namespace(batch_size=32, data_shape=300, dataset='voc', epochs=240, gpus='0', log_interval=100, lr=0.001, lr_decay=0.1, lr_decay_epoch='160,200', momentum=0.9, network='mobilenet1.0', num_workers=4, resume='', save_interval=10, save_prefix='ssd_300_mobilenet1.0_voc', seed=233, start_epoch=0, syncbn=False, val_interval=1, wd=0.0005)
+INFO:root:Start training from [Epoch 0]
+[11:35:01] src/operator/nn/./cudnn/./cudnn_algoreg-inl.h:97: Running performance tests to find the best convolution algorithm, this can take a while... (setting env variable MXNET_CUDNN_AUTOTUNE_DEFAULT to 0 to disable)
+INFO:root:[Epoch 0][Batch 99], Speed: 63.748 samples/sec, CrossEntropy=11.131, SmoothL1=4.506
+INFO:root:[Epoch 0][Batch 199], Speed: 20.638 samples/sec, CrossEntropy=8.618, SmoothL1=4.047
+INFO:root:[Epoch 0][Batch 299], Speed: 73.344 samples/sec, CrossEntropy=7.491, SmoothL1=3.800
+INFO:root:[Epoch 0][Batch 399], Speed: 25.968 samples/sec, CrossEntropy=6.840, SmoothL1=3.627
+INFO:root:[Epoch 0][Batch 499], Speed: 49.718 samples/sec, CrossEntropy=6.418, SmoothL1=3.490
+INFO:root:[Epoch 0] Training cost: 369.212, CrossEntropy=6.361, SmoothL1=3.476
+[11:46:42] src/operator/nn/./cudnn/./cudnn_algoreg-inl.h:97: Running performance tests to find the best convolution algorithm, this can take a while... (setting env variable MXNET_CUDNN_AUTOTUNE_DEFAULT to 0 to disable)
+INFO:root:[Epoch 0] Validation: 
+aeroplane=0.0795818764569
+bicycle=0.00242424242424
+bird=0.0148902315906
+boat=0.0020202020202
+bottle=0.0
+bus=0.029586203768
+car=0.201104235801
+cat=0.193138509481
+chair=0.127982466709
+cow=0.00274294670846
+diningtable=0.0
+dog=0.143222337434
+horse=0.00193423597679
+motorbike=0.111457036115
+person=0.324561826538
+pottedplant=0.00378787878788
+sheep=0.00139431121026
+sofa=0.00131752305665
+train=0.00080988054262
+tvmonitor=0.010101010101
+mAP=0.062602847736
+/usr/local/lib/python2.7/dist-packages/mxnet/gluon/block.py:345: UserWarning: save_params is deprecated. Please use save_parameters. Note that if you want load from SymbolBlock later, please use export instead. For details, see https://mxnet.incubator.apache.org/tutorials/gluon/save_load_params.html
+  warnings.warn("save_params is deprecated. Please use save_parameters. "
+INFO:root:[Epoch 1][Batch 99], Speed: 172.727 samples/sec, CrossEntropy=4.601, SmoothL1=2.815
+INFO:root:[Epoch 1][Batch 199], Speed: 99.031 samples/sec, CrossEntropy=4.548, SmoothL1=2.758
+INFO:root:[Epoch 1][Batch 299], Speed: 53.874 samples/sec, CrossEntropy=4.503, SmoothL1=2.727
+INFO:root:[Epoch 1][Batch 399], Speed: 53.654 samples/sec, CrossEntropy=4.468, SmoothL1=2.688
+INFO:root:[Epoch 1][Batch 499], Speed: 165.596 samples/sec, CrossEntropy=4.432, SmoothL1=2.667
+INFO:root:[Epoch 1] Training cost: 364.477, CrossEntropy=4.424, SmoothL1=2.657
+INFO:root:[Epoch 1] Validation: 
+aeroplane=0.132142632622
+bicycle=0.0721166787085
+bird=0.176483579263
+boat=0.00241351568785
+bottle=0.0126827184229
+bus=0.0653121023944
+car=0.328936464494
+cat=0.390547535652
+chair=0.162228109978
+cow=0.203020232956
+diningtable=0.00134408602151
+dog=0.263821977604
+horse=0.183285786189
+motorbike=0.193883277217
+person=0.447380842529
+pottedplant=0.0022539444027
+sheep=0.0968075944402
+sofa=0.125775972023
+train=0.0206229502305
+tvmonitor=0.153029457757
+mAP=0.15170447293
+INFO:root:[Epoch 2][Batch 99], Speed: 160.906 samples/sec, CrossEntropy=4.192, SmoothL1=2.464
+INFO:root:[Epoch 2][Batch 199], Speed: 161.188 samples/sec, CrossEntropy=4.174, SmoothL1=2.472
+INFO:root:[Epoch 2][Batch 299], Speed: 43.500 samples/sec, CrossEntropy=4.151, SmoothL1=2.462
+INFO:root:[Epoch 2][Batch 399], Speed: 35.925 samples/sec, CrossEntropy=4.123, SmoothL1=2.436
+INFO:root:[Epoch 2][Batch 499], Speed: 44.214 samples/sec, CrossEntropy=4.100, SmoothL1=2.418
+INFO:root:[Epoch 2] Training cost: 375.380, CrossEntropy=4.098, SmoothL1=2.421
+INFO:root:[Epoch 2] Validation: 
+aeroplane=0.214536229364
+bicycle=0.210449978482
+bird=0.224878612038
+boat=0.00447349654404
+bottle=0.0419810074982
+bus=0.126995866067
+car=0.450690443844
+cat=0.525907252919
+chair=0.199780864318
+cow=0.287287773024
+diningtable=0.0169688755415
+dog=0.394728091048
+horse=0.348362922427
+motorbike=0.253884790387
+person=0.532038247275
+pottedplant=0.000241138172173
+sheep=0.18685758025
+sofa=0.197648742227
+train=0.132443915724
+tvmonitor=0.268537282742
+mAP=0.230934655495
+INFO:root:[Epoch 3][Batch 99], Speed: 160.507 samples/sec, CrossEntropy=3.962, SmoothL1=2.373
+INFO:root:[Epoch 3][Batch 199], Speed: 72.221 samples/sec, CrossEntropy=3.950, SmoothL1=2.355
+INFO:root:[Epoch 3][Batch 299], Speed: 16.153 samples/sec, CrossEntropy=3.934, SmoothL1=2.326
+INFO:root:[Epoch 3][Batch 399], Speed: 14.554 samples/sec, CrossEntropy=3.910, SmoothL1=2.300
+INFO:root:[Epoch 3][Batch 499], Speed: 23.244 samples/sec, CrossEntropy=3.896, SmoothL1=2.291
+INFO:root:[Epoch 3] Training cost: 377.634, CrossEntropy=3.891, SmoothL1=2.290
+INFO:root:[Epoch 3] Validation: 
+aeroplane=0.232272904791
+bicycle=0.281432735544
+bird=0.288680062311
+boat=0.0192391164502
+bottle=0.0485655591864
+bus=0.178144460891
+car=0.542156486912
+cat=0.563316517278
+chair=0.221832044676
+cow=0.268122769555
+diningtable=0.0363192841084
+dog=0.469312258713
+horse=0.353510014636
+motorbike=0.289707609335
+person=0.551259209946
+pottedplant=0.030303030303
+sheep=0.19874282358
+sofa=0.269318414383
+train=0.195484147758
+tvmonitor=0.300218263035
+mAP=0.26689688567
+INFO:root:[Epoch 4][Batch 99], Speed: 158.915 samples/sec, CrossEntropy=3.839, SmoothL1=2.275
+INFO:root:[Epoch 4][Batch 199], Speed: 159.354 samples/sec, CrossEntropy=3.778, SmoothL1=2.223
+INFO:root:[Epoch 4][Batch 299], Speed: 25.603 samples/sec, CrossEntropy=3.763, SmoothL1=2.202
+INFO:root:[Epoch 4][Batch 399], Speed: 37.413 samples/sec, CrossEntropy=3.739, SmoothL1=2.183
+INFO:root:[Epoch 4][Batch 499], Speed: 146.651 samples/sec, CrossEntropy=3.731, SmoothL1=2.193
+INFO:root:[Epoch 4] Training cost: 379.596, CrossEntropy=3.731, SmoothL1=2.194
+INFO:root:[Epoch 4] Validation: 
+aeroplane=0.35456975136
+bicycle=0.350501831879
+bird=0.354540974305
+boat=0.0306276628019
+bottle=0.0973621154011
+bus=0.308106601209
+car=0.569629247227
+cat=0.666104566583
+chair=0.249986396289
+cow=0.326022073427
+diningtable=0.0508482752229
+dog=0.527231376579
+horse=0.395352727371
+motorbike=0.30096791058
+person=0.568771250981
+pottedplant=0.0197397931049
+sheep=0.26681983957
+sofa=0.309270537918
+train=0.256857866525
+tvmonitor=0.378725351117
+mAP=0.319101807473
+INFO:root:[Epoch 5][Batch 99], Speed: 41.591 samples/sec, CrossEntropy=3.663, SmoothL1=2.157
+INFO:root:[Epoch 5][Batch 199], Speed: 57.209 samples/sec, CrossEntropy=3.654, SmoothL1=2.145
+INFO:root:[Epoch 5][Batch 299], Speed: 163.201 samples/sec, CrossEntropy=3.648, SmoothL1=2.142
+INFO:root:[Epoch 5][Batch 399], Speed: 38.147 samples/sec, CrossEntropy=3.632, SmoothL1=2.134
+INFO:root:[Epoch 5][Batch 499], Speed: 164.258 samples/sec, CrossEntropy=3.620, SmoothL1=2.126
+INFO:root:[Epoch 5] Training cost: 366.784, CrossEntropy=3.620, SmoothL1=2.125
+INFO:root:[Epoch 5] Validation: 
+aeroplane=0.346150918479
+bicycle=0.404759352541
+bird=0.382811869622
+boat=0.114409089551
+bottle=0.156228296338
+bus=0.32912965093
+car=0.625735374878
+cat=0.672227762625
+chair=0.206669730362
+cow=0.348990172088
+diningtable=0.141376944239
+dog=0.539913774912
+horse=0.477109249721
+motorbike=0.377023575728
+person=0.582456852525
+pottedplant=0.0684670184472
+sheep=0.364688131965
+sofa=0.354011034156
+train=0.323155002191
+tvmonitor=0.408422641463
+mAP=0.361186822138
+INFO:root:[Epoch 6][Batch 99], Speed: 54.694 samples/sec, CrossEntropy=3.540, SmoothL1=2.102
+INFO:root:[Epoch 6][Batch 199], Speed: 108.295 samples/sec, CrossEntropy=3.509, SmoothL1=2.103
+INFO:root:[Epoch 6][Batch 299], Speed: 17.772 samples/sec, CrossEntropy=3.512, SmoothL1=2.086
+INFO:root:[Epoch 6][Batch 399], Speed: 25.892 samples/sec, CrossEntropy=3.522, SmoothL1=2.101
+INFO:root:[Epoch 6][Batch 499], Speed: 161.585 samples/sec, CrossEntropy=3.510, SmoothL1=2.085
+INFO:root:[Epoch 6] Training cost: 363.202, CrossEntropy=3.509, SmoothL1=2.080
+INFO:root:[Epoch 6] Validation: 
+aeroplane=0.446211694295
+bicycle=0.427965580121
+bird=0.44851208506
+boat=0.0761167195204
+bottle=0.156664789888
+bus=0.390751120818
+car=0.637420628808
+cat=0.729213372219
+chair=0.274318693927
+cow=0.353067738634
+diningtable=0.181213121342
+dog=0.58968417289
+horse=0.50042661364
+motorbike=0.421200980265
+person=0.599820045851
+pottedplant=0.124473786024
+sheep=0.414724394658
+sofa=0.399939629965
+train=0.430141888825
+tvmonitor=0.438994853643
+mAP=0.40204309552
+INFO:root:[Epoch 7][Batch 99], Speed: 62.860 samples/sec, CrossEntropy=3.438, SmoothL1=2.024
+INFO:root:[Epoch 7][Batch 199], Speed: 38.436 samples/sec, CrossEntropy=3.447, SmoothL1=2.030
+INFO:root:[Epoch 7][Batch 299], Speed: 164.471 samples/sec, CrossEntropy=3.443, SmoothL1=2.030
+INFO:root:[Epoch 7][Batch 399], Speed: 162.381 samples/sec, CrossEntropy=3.437, SmoothL1=2.040
+INFO:root:[Epoch 7][Batch 499], Speed: 17.634 samples/sec, CrossEntropy=3.436, SmoothL1=2.035
+INFO:root:[Epoch 7] Training cost: 364.810, CrossEntropy=3.436, SmoothL1=2.037
+INFO:root:[Epoch 7] Validation: 
+aeroplane=0.43516459767
+bicycle=0.469225117072
+bird=0.43859771216
+boat=0.078557177876
+bottle=0.151193959742
+bus=0.431225372565
+car=0.647249759297
+cat=0.732304661167
+chair=0.277571229058
+cow=0.362655214463
+diningtable=0.173927636218
+dog=0.614312823075
+horse=0.533188091202
+motorbike=0.455753603409
+person=0.597410023072
+pottedplant=0.14652472474
+sheep=0.413216953538
+sofa=0.427317646845
+train=0.395977486117
+tvmonitor=0.44755079408
+mAP=0.411446229168
+INFO:root:[Epoch 8][Batch 99], Speed: 41.824 samples/sec, CrossEntropy=3.339, SmoothL1=1.936
+INFO:root:[Epoch 8][Batch 199], Speed: 58.116 samples/sec, CrossEntropy=3.351, SmoothL1=1.992
+INFO:root:[Epoch 8][Batch 299], Speed: 17.105 samples/sec, CrossEntropy=3.354, SmoothL1=1.983
+INFO:root:[Epoch 8][Batch 399], Speed: 38.301 samples/sec, CrossEntropy=3.356, SmoothL1=1.986
+INFO:root:[Epoch 8][Batch 499], Speed: 43.464 samples/sec, CrossEntropy=3.358, SmoothL1=1.989
+INFO:root:[Epoch 8] Training cost: 372.107, CrossEntropy=3.357, SmoothL1=1.986
+INFO:root:[Epoch 8] Validation: 
+aeroplane=0.480694778328
+bicycle=0.514408797121
+bird=0.467799417617
+boat=0.13688168737
+bottle=0.20051507858
+bus=0.441930417239
+car=0.653774933727
+cat=0.744152473888
+chair=0.297755266237
+cow=0.396191701034
+diningtable=0.213007162569
+dog=0.640605731176
+horse=0.578552214398
+motorbike=0.497828906338
+person=0.604637322951
+pottedplant=0.118173857407
+sheep=0.357792007744
+sofa=0.434493095593
+train=0.435521462994
+tvmonitor=0.464484575098
+mAP=0.43396004437
+INFO:root:[Epoch 9][Batch 99], Speed: 25.182 samples/sec, CrossEntropy=3.299, SmoothL1=1.931
+INFO:root:[Epoch 9][Batch 199], Speed: 20.857 samples/sec, CrossEntropy=3.312, SmoothL1=1.945
+INFO:root:[Epoch 9][Batch 299], Speed: 46.561 samples/sec, CrossEntropy=3.324, SmoothL1=1.980
+INFO:root:[Epoch 9][Batch 399], Speed: 52.329 samples/sec, CrossEntropy=3.309, SmoothL1=1.968
+INFO:root:[Epoch 9][Batch 499], Speed: 151.176 samples/sec, CrossEntropy=3.305, SmoothL1=1.962
+INFO:root:[Epoch 9] Training cost: 382.569, CrossEntropy=3.306, SmoothL1=1.960
+INFO:root:[Epoch 9] Validation: 
+aeroplane=0.504008324929
+bicycle=0.575127669562
+bird=0.517553048847
+boat=0.157174305722
+bottle=0.172472775819
+bus=0.506798763574
+car=0.679277414371
+cat=0.741102413751
+chair=0.303582363583
+cow=0.419841226959
+diningtable=0.360878423571
+dog=0.655750762046
+horse=0.617116863131
+motorbike=0.514524428769
+person=0.618360409896
+pottedplant=0.184210115756
+sheep=0.434803498409
+sofa=0.490270528361
+train=0.499461576931
+tvmonitor=0.46073733955
+mAP=0.470652612677
+INFO:root:[Epoch 10][Batch 99], Speed: 159.907 samples/sec, CrossEntropy=3.254, SmoothL1=1.940
+INFO:root:[Epoch 10][Batch 199], Speed: 46.040 samples/sec, CrossEntropy=3.238, SmoothL1=1.927
+INFO:root:[Epoch 10][Batch 299], Speed: 20.128 samples/sec, CrossEntropy=3.245, SmoothL1=1.933
+INFO:root:[Epoch 10][Batch 399], Speed: 160.495 samples/sec, CrossEntropy=3.246, SmoothL1=1.943
+INFO:root:[Epoch 10][Batch 499], Speed: 13.104 samples/sec, CrossEntropy=3.246, SmoothL1=1.934
+INFO:root:[Epoch 10] Training cost: 374.804, CrossEntropy=3.246, SmoothL1=1.936
+INFO:root:[Epoch 10] Validation: 
+aeroplane=0.416411791191
+bicycle=0.543934515634
+bird=0.520777228125
+boat=0.21259482015
+bottle=0.208667686007
+bus=0.52045677897
+car=0.665881043851
+cat=0.773097913197
+chair=0.320223020289
+cow=0.411747027366
+diningtable=0.318403778967
+dog=0.648642279139
+horse=0.598503513557
+motorbike=0.558897463667
+person=0.616085372007
+pottedplant=0.189855911488
+sheep=0.393486167697
+sofa=0.478041092452
+train=0.550682024304
+tvmonitor=0.513453671283
+mAP=0.472992154967
+Namespace(batch_size=32, data_shape=300, dataset='voc', epochs=240, gpus='0', log_interval=100, lr=0.001, lr_decay=0.1, lr_decay_epoch='160,200', momentum=0.9, network='mobilenet1.0', num_workers=4, resume='/home/atsg/PycharmProjects/gvh205/gluon-cv/scripts/detection/ssd/Begin_train_mobilenetSSD_same_as_Caffe/ssd_300_mobilenet1.0_voc_0010_0.4730.params', save_interval=5, save_prefix='ssd_300_mobilenet1.0_voc', seed=233, start_epoch=10, syncbn=False, val_interval=1, wd=0.0005)
+Start training from [Epoch 10]
+[Epoch 10][Batch 99], Speed: 30.500 samples/sec, CrossEntropy=3.186, SmoothL1=1.900
+[Epoch 10][Batch 199], Speed: 55.154 samples/sec, CrossEntropy=3.186, SmoothL1=1.904
+[Epoch 10][Batch 299], Speed: 22.545 samples/sec, CrossEntropy=3.193, SmoothL1=1.910
+[Epoch 10][Batch 399], Speed: 40.437 samples/sec, CrossEntropy=3.202, SmoothL1=1.930
+[Epoch 10][Batch 499], Speed: 59.661 samples/sec, CrossEntropy=3.199, SmoothL1=1.925
+[Epoch 10] Training cost: 362.900, CrossEntropy=3.201, SmoothL1=1.927
+[Epoch 10] Validation: 
+aeroplane=0.55620788708
+bicycle=0.58104761929
+bird=0.54232131757
+boat=0.153332166819
+bottle=0.199110485925
+bus=0.546737568005
+car=0.677421642804
+cat=0.771249066547
+chair=0.330177670504
+cow=0.492636797105
+diningtable=0.433065652011
+dog=0.665307741964
+horse=0.652505287889
+motorbike=0.591329947641
+person=0.640612120894
+pottedplant=0.194631601873
+sheep=0.426696356979
+sofa=0.534614642088
+train=0.621202534391
+tvmonitor=0.510423241989
+mAP=0.506031567468
+[Epoch 11][Batch 99], Speed: 162.016 samples/sec, CrossEntropy=3.200, SmoothL1=1.936
+[Epoch 11][Batch 199], Speed: 159.868 samples/sec, CrossEntropy=3.190, SmoothL1=1.915
+[Epoch 11][Batch 299], Speed: 56.686 samples/sec, CrossEntropy=3.178, SmoothL1=1.911
+[Epoch 11][Batch 399], Speed: 16.049 samples/sec, CrossEntropy=3.178, SmoothL1=1.914
+[Epoch 11][Batch 499], Speed: 24.093 samples/sec, CrossEntropy=3.179, SmoothL1=1.914
+[Epoch 11] Training cost: 374.028, CrossEntropy=3.179, SmoothL1=1.913
+[Epoch 11] Validation: 
+aeroplane=0.560286443222
+bicycle=0.595965011951
+bird=0.536685533842
+boat=0.246694184328
+bottle=0.210351984812
+bus=0.557846057674
+car=0.690871361473
+cat=0.766700250661
+chair=0.331098583282
+cow=0.440590592559
+diningtable=0.457839688989
+dog=0.683643538943
+horse=0.66656166087
+motorbike=0.58738053237
+person=0.630749363413
+pottedplant=0.2043124967
+sheep=0.392284091293
+sofa=0.476411382731
+train=0.54741188548
+tvmonitor=0.491401271677
+mAP=0.503754295813
+[Epoch 12][Batch 99], Speed: 24.585 samples/sec, CrossEntropy=3.151, SmoothL1=1.861
+[Epoch 12][Batch 199], Speed: 55.738 samples/sec, CrossEntropy=3.143, SmoothL1=1.889
+[Epoch 12][Batch 299], Speed: 17.057 samples/sec, CrossEntropy=3.145, SmoothL1=1.903
+[Epoch 12][Batch 399], Speed: 161.416 samples/sec, CrossEntropy=3.141, SmoothL1=1.875
+[Epoch 12][Batch 499], Speed: 33.472 samples/sec, CrossEntropy=3.133, SmoothL1=1.867
+[Epoch 12] Training cost: 370.085, CrossEntropy=3.133, SmoothL1=1.872
+[Epoch 12] Validation: 
+aeroplane=0.551013031045
+bicycle=0.634987035152
+bird=0.538652717459
+boat=0.195579498864
+bottle=0.229687279298
+bus=0.575208342799
+car=0.707349848338
+cat=0.789008182673
+chair=0.35558272647
+cow=0.40663041045
+diningtable=0.490149837246
+dog=0.698261367403
+horse=0.676957474322
+motorbike=0.595039883349
+person=0.643234574587
+pottedplant=0.233245964275
+sheep=0.464668386345
+sofa=0.547920702946
+train=0.59503722068
+tvmonitor=0.534759666644
+mAP=0.523148707517
+[Epoch 13][Batch 99], Speed: 32.682 samples/sec, CrossEntropy=3.100, SmoothL1=1.874
+[Epoch 13][Batch 199], Speed: 46.293 samples/sec, CrossEntropy=3.102, SmoothL1=1.869
+[Epoch 13][Batch 299], Speed: 164.751 samples/sec, CrossEntropy=3.089, SmoothL1=1.838
+[Epoch 13][Batch 399], Speed: 67.448 samples/sec, CrossEntropy=3.082, SmoothL1=1.835
+[Epoch 13][Batch 499], Speed: 40.292 samples/sec, CrossEntropy=3.081, SmoothL1=1.835
+[Epoch 13] Training cost: 370.965, CrossEntropy=3.080, SmoothL1=1.838
+[Epoch 13] Validation: 
+aeroplane=0.585025548785
+bicycle=0.633110715356
+bird=0.547131023964
+boat=0.209890330848
+bottle=0.223480531376
+bus=0.589639731957
+car=0.696776867985
+cat=0.763907940764
+chair=0.347017162302
+cow=0.50299463591
+diningtable=0.43973474845
+dog=0.692526935911
+horse=0.645857091641
+motorbike=0.623543391606
+person=0.631094961269
+pottedplant=0.223181248668
+sheep=0.48617049404
+sofa=0.518672565649
+train=0.644221710948
+tvmonitor=0.533939208268
+mAP=0.526895842285
+[Epoch 14][Batch 99], Speed: 87.374 samples/sec, CrossEntropy=3.076, SmoothL1=1.833
+[Epoch 14][Batch 199], Speed: 72.354 samples/sec, CrossEntropy=3.061, SmoothL1=1.840
+[Epoch 14][Batch 299], Speed: 16.443 samples/sec, CrossEntropy=3.049, SmoothL1=1.818
+[Epoch 14][Batch 399], Speed: 162.674 samples/sec, CrossEntropy=3.049, SmoothL1=1.817
+[Epoch 14][Batch 499], Speed: 44.673 samples/sec, CrossEntropy=3.056, SmoothL1=1.823
+[Epoch 14] Training cost: 372.728, CrossEntropy=3.054, SmoothL1=1.824
+[Epoch 14] Validation: 
+aeroplane=0.576160343523
+bicycle=0.640255998757
+bird=0.567719158265
+boat=0.203022032456
+bottle=0.244322629007
+bus=0.613353984947
+car=0.712327180385
+cat=0.776179365047
+chair=0.36651644634
+cow=0.45405112472
+diningtable=0.418145881821
+dog=0.700296209825
+horse=0.67489470414
+motorbike=0.634438381437
+person=0.650641080811
+pottedplant=0.234080787437
+sheep=0.463041132501
+sofa=0.542514392184
+train=0.645844374321
+tvmonitor=0.553333766527
+mAP=0.533556948723
+[Epoch 15][Batch 99], Speed: 164.632 samples/sec, CrossEntropy=3.018, SmoothL1=1.844
+[Epoch 15][Batch 199], Speed: 60.842 samples/sec, CrossEntropy=3.034, SmoothL1=1.852
+[Epoch 15][Batch 299], Speed: 15.024 samples/sec, CrossEntropy=3.042, SmoothL1=1.869
+[Epoch 15][Batch 399], Speed: 165.844 samples/sec, CrossEntropy=3.035, SmoothL1=1.850
+[Epoch 15][Batch 499], Speed: 163.691 samples/sec, CrossEntropy=3.032, SmoothL1=1.842
+[Epoch 15] Training cost: 366.694, CrossEntropy=3.033, SmoothL1=1.838
+[Epoch 15] Validation: 
+aeroplane=0.580447873242
+bicycle=0.664406396921
+bird=0.585536092029
+boat=0.29801919002
+bottle=0.257046127472
+bus=0.611939282272
+car=0.724039968905
+cat=0.791154140189
+chair=0.369217675464
+cow=0.537026875103
+diningtable=0.519975495995
+dog=0.712239309237
+horse=0.717727250953
+motorbike=0.62960663048
+person=0.644166067562
+pottedplant=0.230942821156
+sheep=0.493957808099
+sofa=0.56913638569
+train=0.669932371247
+tvmonitor=0.548071769281
+mAP=0.557729476566
+[Epoch 16][Batch 99], Speed: 26.396 samples/sec, CrossEntropy=2.969, SmoothL1=1.780
+[Epoch 16][Batch 199], Speed: 33.601 samples/sec, CrossEntropy=2.972, SmoothL1=1.781
+[Epoch 16][Batch 299], Speed: 161.588 samples/sec, CrossEntropy=2.984, SmoothL1=1.785
+[Epoch 16][Batch 399], Speed: 42.010 samples/sec, CrossEntropy=2.988, SmoothL1=1.797
+[Epoch 16][Batch 499], Speed: 24.248 samples/sec, CrossEntropy=2.987, SmoothL1=1.794
+[Epoch 16] Training cost: 366.037, CrossEntropy=2.987, SmoothL1=1.789
+[Epoch 16] Validation: 
+aeroplane=0.526762828138
+bicycle=0.651915355457
+bird=0.557462202962
+boat=0.301958184298
+bottle=0.219850666553
+bus=0.648408211904
+car=0.714593863924
+cat=0.798366248237
+chair=0.362016059509
+cow=0.499953590436
+diningtable=0.459348774199
+dog=0.714949639284
+horse=0.747693482756
+motorbike=0.63210284904
+person=0.65308353504
+pottedplant=0.248824933508
+sheep=0.510637724944
+sofa=0.583499828905
+train=0.647368941676
+tvmonitor=0.543261597606
+mAP=0.551102925919
+[Epoch 17][Batch 99], Speed: 52.022 samples/sec, CrossEntropy=2.961, SmoothL1=1.789
+[Epoch 17][Batch 199], Speed: 16.260 samples/sec, CrossEntropy=2.970, SmoothL1=1.802
+[Epoch 17][Batch 299], Speed: 154.941 samples/sec, CrossEntropy=2.966, SmoothL1=1.803
+[Epoch 17][Batch 399], Speed: 43.035 samples/sec, CrossEntropy=2.973, SmoothL1=1.810
+[Epoch 17][Batch 499], Speed: 56.064 samples/sec, CrossEntropy=2.979, SmoothL1=1.806
+[Epoch 17] Training cost: 380.675, CrossEntropy=2.980, SmoothL1=1.806
+[Epoch 17] Validation: 
+aeroplane=0.524345442933
+bicycle=0.649794828676
+bird=0.540701461153
+boat=0.290737070177
+bottle=0.251666669312
+bus=0.628736011136
+car=0.725500481938
+cat=0.788371601972
+chair=0.383789517801
+cow=0.500393939268
+diningtable=0.541487850918
+dog=0.730301431297
+horse=0.733144656237
+motorbike=0.639727107405
+person=0.656565734016
+pottedplant=0.264688988565
+sheep=0.496288671737
+sofa=0.56226039309
+train=0.661205746999
+tvmonitor=0.579812629034
+mAP=0.557476011683
+[Epoch 18][Batch 99], Speed: 161.503 samples/sec, CrossEntropy=2.933, SmoothL1=1.781
+[Epoch 18][Batch 199], Speed: 64.556 samples/sec, CrossEntropy=2.958, SmoothL1=1.810
+[Epoch 18][Batch 299], Speed: 160.874 samples/sec, CrossEntropy=2.957, SmoothL1=1.801
+[Epoch 18][Batch 399], Speed: 161.094 samples/sec, CrossEntropy=2.956, SmoothL1=1.795
+[Epoch 18][Batch 499], Speed: 160.417 samples/sec, CrossEntropy=2.956, SmoothL1=1.800
+[Epoch 18] Training cost: 370.346, CrossEntropy=2.953, SmoothL1=1.797
+[Epoch 18] Validation: 
+aeroplane=0.60835024393
+bicycle=0.675585529686
+bird=0.561568146985
+boat=0.328234409495
+bottle=0.26485500626
+bus=0.654398833229
+car=0.727917468202
+cat=0.816599677361
+chair=0.390284378762
+cow=0.512285428561
+diningtable=0.54232726115
+dog=0.732497938141
+horse=0.736426411908
+motorbike=0.655707603134
+person=0.649135369235
+pottedplant=0.274102659401
+sheep=0.465983660797
+sofa=0.60518606968
+train=0.660240950866
+tvmonitor=0.551592183276
+mAP=0.570663961503
+[Epoch 19][Batch 99], Speed: 151.438 samples/sec, CrossEntropy=2.872, SmoothL1=1.741
+[Epoch 19][Batch 199], Speed: 29.509 samples/sec, CrossEntropy=2.899, SmoothL1=1.742
+[Epoch 19][Batch 299], Speed: 21.946 samples/sec, CrossEntropy=2.917, SmoothL1=1.764
+[Epoch 19][Batch 399], Speed: 28.475 samples/sec, CrossEntropy=2.915, SmoothL1=1.763
+[Epoch 19][Batch 499], Speed: 23.726 samples/sec, CrossEntropy=2.915, SmoothL1=1.758
+[Epoch 19] Training cost: 370.002, CrossEntropy=2.920, SmoothL1=1.761
+[Epoch 19] Validation: 
+aeroplane=0.607631303322
+bicycle=0.689287439528
+bird=0.5905093257
+boat=0.351757870159
+bottle=0.260480706815
+bus=0.641270580573
+car=0.726801764625
+cat=0.802847235556
+chair=0.385962286049
+cow=0.544590756916
+diningtable=0.548506916715
+dog=0.728991236773
+horse=0.727235985005
+motorbike=0.680354864949
+person=0.663836478768
+pottedplant=0.274655183986
+sheep=0.513903148667
+sofa=0.613768911129
+train=0.70220978945
+tvmonitor=0.56953471059
+mAP=0.581206824764
+[Epoch 20][Batch 99], Speed: 154.778 samples/sec, CrossEntropy=2.939, SmoothL1=1.808
+[Epoch 20][Batch 199], Speed: 42.512 samples/sec, CrossEntropy=2.904, SmoothL1=1.769
+[Epoch 20][Batch 299], Speed: 30.811 samples/sec, CrossEntropy=2.907, SmoothL1=1.761
+[Epoch 20][Batch 399], Speed: 66.305 samples/sec, CrossEntropy=2.898, SmoothL1=1.756
+[Epoch 20][Batch 499], Speed: 162.705 samples/sec, CrossEntropy=2.903, SmoothL1=1.755
+[Epoch 20] Training cost: 364.926, CrossEntropy=2.904, SmoothL1=1.757
+[Epoch 20] Validation: 
+aeroplane=0.53016518539
+bicycle=0.65483855176
+bird=0.583590621331
+boat=0.258167788041
+bottle=0.263698713672
+bus=0.646290883563
+car=0.726456167786
+cat=0.794509421099
+chair=0.405461267407
+cow=0.524619529914
+diningtable=0.54755163724
+dog=0.731363765721
+horse=0.716340147535
+motorbike=0.676162651997
+person=0.653518539837
+pottedplant=0.293637989079
+sheep=0.48540992137
+sofa=0.612279306946
+train=0.684254151364
+tvmonitor=0.57435718559
+mAP=0.568133671332

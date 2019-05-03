@@ -10,6 +10,26 @@ from mxboard import SummaryWriter
 import os
 from mxnet.gluon.model_zoo import vision
 
+data_dir='/media/atsg/Data/CuongND/srgan/DIV2K_train_HR'
+snapshot_dir='/media/atsg/Data/CuongND/srgan/snapshot'
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--dataroot', help='path to images', default=data_dir)
+    parser.add_argument('--batchSize', type=int, default=8, help='input batch size')
+    parser.add_argument('--gpu_ids', type=str, default='0', help='gpu ids: e.g. 0  0,1,2, 0,2. use -1 for CPU')
+    parser.add_argument('--workers', type=int, help='number of data loading workers', default=4)
+    parser.add_argument('--experiment', default=snapshot_dir, help='Where to store models')
+    parser.add_argument('--fineSize', type=int, default=384, help='then crop to this size')
+    parser.add_argument('--n_epoch_init', type=int, default=3700, help='# of iter at pretrained')
+    parser.add_argument('--n_epoch', type=int, default=20000, help='# of iter at training')
+    parser.add_argument('--beta1', type=float, default=0.9, help='momentum term of adam')
+    parser.add_argument('--beta1', type=float, default=0.9, help='momentum term of adam')
+    parser.add_argument('--lr_init', type=float, default=1e-4, help='initial learning rate for pretrain')
+    parser.add_argument('--lr_decay', type=float, default=0.1, help='initial learning rate for adam')
+    opt = parser.parse_args()
+    return opt
+
 class ResnetBlock(gluon.nn.HybridBlock):
     def __init__(self):
         super(ResnetBlock, self).__init__()
@@ -214,21 +234,6 @@ def mse_loss(input,target):
     e = ((input - target) ** 2).mean(axis=0, exclude=True)
     return e
 
-def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--dataroot', required=True, help='path to images')
-    parser.add_argument('--batchSize', type=int, default=16, help='input batch size')
-    parser.add_argument('--gpu_ids', type=str, default='0', help='gpu ids: e.g. 0  0,1,2, 0,2. use -1 for CPU')
-    parser.add_argument('--workers', type=int, help='number of data loading workers', default=6)
-    parser.add_argument('--experiment', default=None, help='Where to store models')
-    parser.add_argument('--fineSize', type=int, default=384, help='then crop to this size')
-    parser.add_argument('--n_epoch_init', type=int, default=100, help='# of iter at pretrained')
-    parser.add_argument('--n_epoch', type=int, default=20000, help='# of iter at training')
-    parser.add_argument('--beta1', type=float, default=0.9, help='momentum term of adam')
-    parser.add_argument('--lr_init', type=float, default=1e-4, help='initial learning rate for pretrain')
-    parser.add_argument('--lr_decay', type=float, default=0.1, help='initial learning rate for adam')
-    opt = parser.parse_args()
-    return opt
 
 if __name__ == '__main__':
     opt = parse_args()
@@ -251,18 +256,18 @@ if __name__ == '__main__':
     else:
         context = [mx.gpu(int(i)) for i in opt.gpu_ids.split(',') if i.strip()]
 
-    dummy_img = nd.random.uniform(0,1,(1,3,int(opt.fineSize/4),int(opt.fineSize/4)),ctx=mx.gpu(0))
+    dommy_img = nd.random.uniform(0,1,(1,3,int(opt.fineSize/4),int(opt.fineSize/4)),ctx=mx.gpu(0))
     netG = SRGenerator()
     netD = SRDiscriminator()
     vgg19 = vision.vgg19(pretrained=True,ctx=context)
     features = vgg19.features[:28]
 
     netG.initialize(mx.initializer.Normal(),ctx=mx.gpu(0))
-    dummy_out = netG(dummy_img)
+    dommy_out = netG(dommy_img)
     weights_init(netG.collect_params())
     netG.collect_params().reset_ctx(context)
     netD.initialize(ctx=mx.gpu(0))
-    netD(dummy_out)
+    netD(dommy_out)
     weights_init(netD.collect_params())
     netD.collect_params().reset_ctx(context)
 

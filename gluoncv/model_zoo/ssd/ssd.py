@@ -161,7 +161,7 @@ class SSD(HybridBlock):
             asz = anchor_alloc_size
             im_size = (base_size, base_size)
 
-            print("ssd.py. Change sizes same as Caffe")
+            print("ssd.py. Same sizes for anchor box as Caffe's model")
             sizes[0] = (60,)
             sizes[1] = (105, 150)
             sizes[2] = (150, 195)
@@ -244,7 +244,7 @@ class SSD(HybridBlock):
         if self.nms_thresh > 0 and self.nms_thresh < 1:
             result = F.contrib.box_nms(
                 result, overlap_thresh=self.nms_thresh, topk=self.nms_topk, valid_thresh=0.01,
-                id_index=0, score_index=1, coord_start=2, force_suppress=False)
+                id_index=0, score_index=1, coord_start=2, force_suppress=True)
             if self.post_nms > 0:
                 result = result.slice_axis(axis=1, begin=0, end=self.post_nms)
         ids = F.slice_axis(result, axis=2, begin=0, end=1)
@@ -432,12 +432,13 @@ def ssd_300_mobilenet1_0_voc(pretrained=False, pretrained_base=True, **kwargs):
         A SSD detection network.
     """
     classes = VOCDetection.CLASSES
-    print('ssd.py. mxnet model 2 voc')
+    print('ssd.py. Rebuild ssd_300_mobilenet1_0_voc same as Caffes model.')
     return get_ssd('mobilenet1.0', 300,
                    features=['relu22_fwd', 'relu26_fwd'],
                    filters=[256, 128, 128, 64],
                    sizes=[60, 105, 150, 195, 240, 285, 300],
                    ratios=[[1, 2, 0.5]] + [[1, 2, 0.5, 3, 1.0 / 3]] * 5,
+                   #steps=[-1, -1, -1, -1, -1, -1],
                    steps=[16, 32, 64, 128, 256, 512],
                    classes=classes, dataset='voc', pretrained=pretrained,
                    pretrained_base=pretrained_base, **kwargs)

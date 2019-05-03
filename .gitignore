@@ -1,3 +1,11 @@
+#mxboard
+*.DL-PC
+
+#dataset in RecordIO format
+*.lst
+*.rec
+*.idx
+
 # Extra
 *.params
 *.states
@@ -63,7 +71,6 @@ coverage.xml
 *.pot
 
 # Django stuff:
-*.log
 local_settings.py
 
 # Flask stuff:

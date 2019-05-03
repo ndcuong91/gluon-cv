@@ -33,11 +33,12 @@ class ConvPredictor(HybridBlock):
         in_channels will be inferred from the shape of input data.
 
     """
-    def __init__(self, num_channel, kernel=(3, 3), pad=(1, 1), stride=(1, 1),
+    def __init__(self, num_channel, kernel=(1, 1), pad=(0, 0), stride=(1, 1),
                  activation=None, use_bias=True, in_channels=0, **kwargs):
         super(ConvPredictor, self).__init__(**kwargs)
-        kernel = (1, 1)
-        pad = (0, 0)
+        # print 'Hard code!!!!! kernel 1x1 and pading 0'
+        # kernel = (1, 1)
+        # pad = (0, 0)
         with self.name_scope():
             self.predictor = nn.Conv2D(
                 num_channel, kernel, strides=stride, padding=pad,

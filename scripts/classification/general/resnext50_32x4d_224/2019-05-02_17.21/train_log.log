@@ -1,0 +1,37 @@
+Namespace(batch_size=32, input_sz=224, log_interval=200, lr=0.00075, lr_factor=0.75, model='resnext50_32x4d', momentum=0.9, num_class=103, num_epochs=500, num_gpus=1, num_workers=4, resume_params='resnext50_32x4d_224/2019-05-02_10.20/ZaloAILandmark-resnext50_32x4d-best.params', wd=0.0001)
+Epoch[0] Batch [199]	Speed: 66.690258 samples/sec	loss: 0.146286	accuracy=0.966875	lr=0.000750
+Epoch[0] Batch [399]	Speed: 49.390583 samples/sec	loss: 0.021588	accuracy=0.968437	lr=0.000750
+Epoch[0] Batch [599]	Speed: 47.815039 samples/sec	loss: 0.139852	accuracy=0.967708	lr=0.000750
+Epoch[0] Batch [799]	Speed: 50.912587 samples/sec	loss: 0.023687	accuracy=0.966797	lr=0.000750
+Epoch[0] Batch [999]	Speed: 56.706377 samples/sec	loss: 0.106630	accuracy=0.966187	lr=0.000750
+Epoch[0] Batch [1199]	Speed: 59.506677 samples/sec	loss: 0.103231	accuracy=0.966198	lr=0.000750
+Epoch[0] Batch [1399]	Speed: 62.626521 samples/sec	loss: 0.234929	accuracy=0.966094	lr=0.000750
+Epoch[0] Batch [1599]	Speed: 64.289553 samples/sec	loss: 0.211136	accuracy=0.965469	lr=0.000750
+Epoch[0] Batch [1799]	Speed: 64.130051 samples/sec	loss: 0.189103	accuracy=0.965278	lr=0.000750
+Epoch[0] Batch [1999]	Speed: 65.340907 samples/sec	loss: 0.080135	accuracy=0.965437	lr=0.000750
+Epoch[0] Batch [2199]	Speed: 66.994931 samples/sec	loss: 0.404845	accuracy=0.965199	lr=0.000750
+Epoch[0] Batch [2399]	Speed: 67.750586 samples/sec	loss: 0.114012	accuracy=0.964896	lr=0.000750
+[Epoch 0] Train-acc: 0.965, loss: 0.110 | Val-acc: 0.927 | time: 1426.9 | Speed: 55.81 samples/sec | lr: 0.00075000
+Epoch[1] Batch [199]	Speed: 68.665946 samples/sec	loss: 0.008716	accuracy=0.971719	lr=0.000750
+Epoch[1] Batch [399]	Speed: 68.281482 samples/sec	loss: 0.119602	accuracy=0.967812	lr=0.000750
+Epoch[1] Batch [599]	Speed: 64.849564 samples/sec	loss: 0.038699	accuracy=0.969167	lr=0.000750
+Epoch[1] Batch [799]	Speed: 65.934532 samples/sec	loss: 0.059082	accuracy=0.969102	lr=0.000750
+Epoch[1] Batch [999]	Speed: 66.157036 samples/sec	loss: 0.031221	accuracy=0.968219	lr=0.000750
+Epoch[1] Batch [1199]	Speed: 66.190837 samples/sec	loss: 0.079829	accuracy=0.967448	lr=0.000750
+Epoch[1] Batch [1399]	Speed: 67.220414 samples/sec	loss: 0.074251	accuracy=0.967121	lr=0.000750
+Epoch[1] Batch [1599]	Speed: 68.021270 samples/sec	loss: 0.154446	accuracy=0.966836	lr=0.000750
+Epoch[1] Batch [1799]	Speed: 65.755478 samples/sec	loss: 0.172295	accuracy=0.966580	lr=0.000750
+Epoch[1] Batch [1999]	Speed: 65.980728 samples/sec	loss: 0.082228	accuracy=0.966297	lr=0.000750
+Epoch[1] Batch [2199]	Speed: 65.717414 samples/sec	loss: 0.271743	accuracy=0.966122	lr=0.000750
+Epoch[1] Batch [2399]	Speed: 66.431171 samples/sec	loss: 0.128044	accuracy=0.965938	lr=0.000750
+[Epoch 1] Train-acc: 0.966, loss: 0.105 | Val-acc: 0.927 | time: 1284.7 | Speed: 61.99 samples/sec | lr: 0.00075000
+Epoch[2] Batch [199]	Speed: 80.204861 samples/sec	loss: 0.041251	accuracy=0.972812	lr=0.000750
+Epoch[2] Batch [399]	Speed: 73.843448 samples/sec	loss: 0.203593	accuracy=0.971406	lr=0.000750
+Epoch[2] Batch [599]	Speed: 67.946854 samples/sec	loss: 0.130561	accuracy=0.971250	lr=0.000750
+Epoch[2] Batch [799]	Speed: 63.777053 samples/sec	loss: 0.063832	accuracy=0.970313	lr=0.000750
+Epoch[2] Batch [999]	Speed: 63.087684 samples/sec	loss: 0.070033	accuracy=0.970031	lr=0.000750
+Epoch[2] Batch [1199]	Speed: 64.179550 samples/sec	loss: 0.078614	accuracy=0.969922	lr=0.000750
+Epoch[2] Batch [1399]	Speed: 60.155433 samples/sec	loss: 0.100988	accuracy=0.970201	lr=0.000750
+Epoch[2] Batch [1599]	Speed: 58.876602 samples/sec	loss: 0.079502	accuracy=0.969453	lr=0.000750
+Epoch[2] Batch [1799]	Speed: 58.137253 samples/sec	loss: 0.189168	accuracy=0.968958	lr=0.000750
+Epoch[2] Batch [1999]	Speed: 59.664736 samples/sec	loss: 0.067618	accuracy=0.968672	lr=0.000750

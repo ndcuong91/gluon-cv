@@ -20,6 +20,7 @@ from gluoncv.utils.metrics.voc_detection import VOC07MApMetric
 from gluoncv.utils.metrics.coco_detection import COCODetectionMetric
 from gluoncv.utils.metrics.accuracy import Accuracy
 
+resume='train_mobilenetSSD_same_as_Caffe_parse_params_7337/mobilenet_v1_300_rebuild_similar_parsed_fromCaffe.params'
 def parse_args():
     parser = argparse.ArgumentParser(description='Train SSD networks.')
     parser.add_argument('--network', type=str, default='mobilenet1.0',
@@ -37,7 +38,7 @@ def parse_args():
                         help='Training with GPUs, you can specify 1,3 for example.')
     parser.add_argument('--epochs', type=int, default=240,
                         help='Training epochs.')
-    parser.add_argument('--resume', type=str, default='',
+    parser.add_argument('--resume', type=str, default=resume,
                         help='Resume from previously saved parameters if not None.'
                         'For example, you can resume from ./ssd_xxx_0123.params')
     parser.add_argument('--start-epoch', type=int, default=0,
@@ -47,7 +48,7 @@ def parse_args():
                         help='Learning rate, default is 0.001')
     parser.add_argument('--lr-decay', type=float, default=0.1,
                         help='decay rate of learning rate. default is 0.1.')
-    parser.add_argument('--lr-decay-epoch', type=str, default='160,200',
+    parser.add_argument('--lr-decay-epoch', type=str, default='20,100',
                         help='epochs at which learning rate decays. default is 160,200.')
     parser.add_argument('--momentum', type=float, default=0.9,
                         help='SGD momentum, default is 0.9')
@@ -57,7 +58,7 @@ def parse_args():
                         help='Logging mini-batch interval. Default is 100.')
     parser.add_argument('--save-prefix', type=str, default='',
                         help='Saving parameter prefix')
-    parser.add_argument('--save-interval', type=int, default=10,
+    parser.add_argument('--save-interval', type=int, default=5,
                         help='Saving parameters epoch interval, best model will always be saved.')
     parser.add_argument('--val-interval', type=int, default=1,
                         help='Epoch interval for validation, increase the number will reduce the '
@@ -109,11 +110,11 @@ def save_params(net, best_map, current_map, epoch, save_interval, prefix):
     current_map = float(current_map)
     if current_map > best_map[0]:
         best_map[0] = current_map
-        net.save_params('{:s}_best.params'.format(prefix, epoch, current_map))
+        net.save_parameters('{:s}_best.params'.format(prefix, epoch, current_map))
         with open(prefix+'_best_map.log', 'a') as f:
             f.write('{:04d}:\t{:.4f}\n'.format(epoch, current_map))
     if save_interval and epoch % save_interval == 0:
-        net.save_params('{:s}_{:04d}_{:.4f}.params'.format(prefix, epoch, current_map))
+        net.save_parameters('{:s}_{:04d}_{:.4f}.params'.format(prefix, epoch, current_map))
 
 def validate(net, val_data, ctx, eval_metric):
     """Test on validation dataset."""
@@ -148,6 +149,12 @@ def validate(net, val_data, ctx, eval_metric):
 
 def train(net, train_data, val_data, eval_metric, ctx, args):
     """Training pipeline"""
+
+    # CuongND
+    from mxboard import SummaryWriter
+    sw = SummaryWriter(logdir='./logs', flush_secs=5, verbose=False)
+    num_iter=517 #=16551/batch_size
+
     net.collect_params().reset_ctx(ctx)
     trainer = gluon.Trainer(
         net.collect_params(), 'sgd',
@@ -205,6 +212,13 @@ def train(net, train_data, val_data, eval_metric, ctx, args):
             trainer.step(1)
             ce_metric.update(0, [l * batch_size for l in cls_loss])
             smoothl1_metric.update(0, [l * batch_size for l in box_loss])
+
+            name1, loss1 = ce_metric.get()
+            name2, loss2 = smoothl1_metric.get()
+            # CuongND
+            sw.add_scalar(tag=name1, value=loss1, global_step=num_iter*epoch+i)
+            sw.add_scalar(tag=name2, value=loss2, global_step=num_iter*epoch+i)
+
             if args.log_interval and not (i + 1) % args.log_interval:
                 name1, loss1 = ce_metric.get()
                 name2, loss2 = smoothl1_metric.get()
@@ -214,6 +228,9 @@ def train(net, train_data, val_data, eval_metric, ctx, args):
 
         name1, loss1 = ce_metric.get()
         name2, loss2 = smoothl1_metric.get()
+
+
+
         logger.info('[Epoch {}] Training cost: {:.3f}, {}={:.3f}, {}={:.3f}'.format(
             epoch, (time.time()-tic), name1, loss1, name2, loss2))
         if (epoch % args.val_interval == 0) or (args.save_interval and epoch % args.save_interval == 0):
@@ -227,6 +244,11 @@ def train(net, train_data, val_data, eval_metric, ctx, args):
         save_params(net, best_map, current_map, epoch, args.save_interval, args.save_prefix)
 
 if __name__ == '__main__':
+
+    from multiprocessing import cpu_count
+
+    CPU_COUNT = cpu_count()
+
     args = parse_args()
     # fix seed for mxnet, numpy and python builtin random generator.
     gutils.random.seed(args.seed)
@@ -241,13 +263,15 @@ if __name__ == '__main__':
     if args.syncbn and len(ctx) > 1:
         net = get_model(net_name, pretrained_base=True, norm_layer=gluon.contrib.nn.SyncBatchNorm,
                         norm_kwargs={'num_devices': len(ctx)})
-        async_net = get_model(net_name, pretrained_base=False)  # used by cpu worker
+        async_net = get_model(net_name, pretrained_base=True)  # used by cpu worker
     else:
         net = get_model(net_name, pretrained_base=True, norm_layer=gluon.nn.BatchNorm)
         async_net = net
+
+    kk=net.collect_params()
     if args.resume.strip():
-        net.load_parameters(args.resume.strip())
-        async_net.load_parameters(args.resume.strip())
+        net.load_parameters(args.resume.strip(),ignore_extra=True)
+        async_net.load_parameters(args.resume.strip(),ignore_extra=True)
     else:
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")

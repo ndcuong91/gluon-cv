@@ -1,0 +1,1 @@
+Namespace(batch_size=64, data='/media/atsg/Data/datasets/SUN_ARM_project', epochs=100, input_sz=224, lr=0.001, lr_factor=0.75, lr_steps='10,20,30,40,50,70', model='inceptionv3', momentum=0.9, num_class=2, num_gpus=1, num_workers=4, wd=0.0001)

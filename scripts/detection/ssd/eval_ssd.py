@@ -18,15 +18,16 @@ from gluoncv.utils.metrics.voc_detection import VOC07MApMetric
 from gluoncv.utils.metrics.coco_detection import COCODetectionMetric
 from mxnet import profiler
 
+pretrained='train_mobilenetSSD_same_as_Caffe_parse_params_7337/ssd_300_mobilenet1.0_voc_same_as_caffe_7337.params'
 def parse_args():
     parser = argparse.ArgumentParser(description='Eval SSD networks.')
-    parser.add_argument('--network', type=str, default='vgg16_atrous',
+    parser.add_argument('--network', type=str, default='mobilenet1.0',
                         help="Base network name")
     parser.add_argument('--quantized', action='store_true',
                         help='use int8 pretrained model')
     parser.add_argument('--data-shape', type=int, default=300,
                         help="Input data shape")
-    parser.add_argument('--batch-size', type=int, default=64,
+    parser.add_argument('--batch-size', type=int, default=32,
                         help='eval mini-batch size')
     parser.add_argument('--dataset', type=str, default='voc',
                         help='eval dataset.')
@@ -34,7 +35,7 @@ def parse_args():
                         default=4, help='Number of data workers')
     parser.add_argument('--num-gpus', type=int, default=1,
                         help='number of gpus to use.')
-    parser.add_argument('--pretrained', type=str, default='True',
+    parser.add_argument('--pretrained', type=str, default=pretrained,
                         help='Load weights from previously saved parameters.')
     parser.add_argument('--save-prefix', type=str, default='',
                         help='Saving parameter prefix')

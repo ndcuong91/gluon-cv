@@ -9,11 +9,11 @@ from gluoncv.model_zoo import get_model
 from gluoncv.data.transforms.presets.imagenet import transform_eval
 
 parser = argparse.ArgumentParser(description='Predict ImageNet classes from a given image')
-parser.add_argument('--model', type=str, required=True,
+parser.add_argument('--model', type=str, default='ResNet50_v2',
                     help='name of the model to use')
 parser.add_argument('--saved-params', type=str, default='',
                     help='path to the saved model parameters')
-parser.add_argument('--input-pic', type=str, required=True,
+parser.add_argument('--input-pic', type=str, default='mt_baker.jpg',
                     help='path to the input picture')
 opt = parser.parse_args()
 

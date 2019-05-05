@@ -10,13 +10,13 @@ from datetime import datetime
 
 data_dir='/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/TrainVal/'
 model='resnext50_32x4d'
-best_param_dir = 'resnext50_32x4d_224/2019-05-02_18.26'
+best_param_dir = 'resnext50_32x4d_256/2019-05-03_15.49'
 classes = 103
-input_sz=224
+input_sz=256
 batch_size=32
 ctx=[mx.gpu()]
 num_workers=4
-model_name='ZaloAILandmark-resnext50_32x4d-best'
+model_name='ZaloAILandmark-resnext50_32x4d-109'
 
 val_dir = os.path.join(data_dir, 'val')
 resize_factor=1.5
@@ -73,13 +73,13 @@ def submission(net,params_path, print_process=100):
                     result += str(re_map[topk[k]]) + '\n'
         except:
             print 'damaged file:',f
-            shutil.copy(file_path,os.path.join(os.path.join(damaged_folder, f)))
+            #shutil.copy(file_path,os.path.join(os.path.join(damaged_folder, f)))
             result += '1 87 25\n'
             pass
 
         count+=1
 
-    with open('submission_CuongND_resnext50_32x4d_3_mxnet.csv', 'w') as file:
+    with open('submission_CuongND_resnext50_32x4d_256_2_mxnet.csv', 'w') as file:
         file.write(result)
 
 
@@ -181,5 +181,5 @@ def test_network(model, params_path, val_path):
 
 
 if __name__ == "__main__":
-    test_network(model,os.path.join(best_param_dir,model_name+'.params'),val_dir)
-    #submission(model,os.path.join(best_param_dir,model_name+'.params'))
+    #test_network(model,os.path.join(best_param_dir,model_name+'.params'),val_dir)
+    submission(model,os.path.join(best_param_dir,model_name+'.params'))

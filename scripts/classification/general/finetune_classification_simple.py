@@ -16,12 +16,14 @@ classes = 103
 input_sz=224
 num_training_samples=79640
 batch_size=16
-epochs=500
+epochs=200
 log_interval=200
 dataset='ZaloAILandmark'
 train_path = os.path.join(data_dir, 'train')
 test_path = os.path.join(data_dir, 'val')
 lr_mode='step'
+resume_param='resnext50_32x4d_224/2019-05-02_18.26/ZaloAILandmark-resnext50_32x4d-best.params'
+resume_state='resnext50_32x4d_224/2019-05-02_18.26/ZaloAILandmark-resnext50_32x4d-best.states'
 
 def parse_opts():
     parser = argparse.ArgumentParser(description='Transfer learning on zaloAIchallenge dataset',
@@ -60,14 +62,14 @@ def parse_opts():
     parser.add_argument('--lr_decay_epoch', type=str, default='3,10,20,30,40,50,70,110,150,200,450,900,1500',
                         help='epochs at which learning rate decays. default is 40,60.')
 
-    parser.add_argument('--resume_params', type=str, default='',
+    parser.add_argument('--resume_params', type=str, default=resume_param,
                         help='path of parameters to load from.')
-    parser.add_argument('--resume_states', type=str, default='',
+    parser.add_argument('--resume_states', type=str, default=resume_state,
                         help='path of trainer state to load from.')
-    parser.add_argument('--resume_epoch', type=int, default=0,
+    parser.add_argument('--resume_epoch', type=int, default=34,
                         help='epoch to resume training from.')
 
-    parser.add_argument('--save_frequency', type=int, default=1,
+    parser.add_argument('--save_frequency', type=int, default=5,
                         help='frequency of model saving.')
     opts = parser.parse_args()
     return opts
@@ -268,7 +270,7 @@ def train(train_path, val_path, test_path):
             with open(os.path.join(folder,date_time,'best_map.log'), 'a') as f:
                 f.write('{:04d}:\t{:.4f}\n'.format(epoch, val_acc))
 
-        if opts.save_frequency and (epoch + 1) % opts.save_frequency == 0:
+        if opts.save_frequency and epoch % opts.save_frequency == 0:
             finetune_net.save_parameters(os.path.join(folder,date_time,'%s-%s-%d.params' % (dataset, model_name, epoch)))
             trainer.save_states(os.path.join(folder, date_time, '%s-%s-%d.states' % (dataset, model_name, epoch)))
 

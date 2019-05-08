@@ -7,18 +7,18 @@ from mxnet.gluon import nn
 from mxnet.gluon.data.vision import transforms
 from gluoncv.model_zoo import get_model
 from datetime import datetime
+import config_classification as config
 
-data_dir='/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/TrainVal/'
 model='resnext50_32x4d'
 best_param_dir = 'resnext50_32x4d_256/2019-05-03_15.49'
-classes = 103
-input_sz=256
-batch_size=32
+classes = config.classes
+input_sz=config.input_sz
+batch_size=config.batch_size
+num_workers=config.num_workers
 ctx=[mx.gpu()]
-num_workers=4
 model_name='ZaloAILandmark-resnext50_32x4d-109'
 
-val_dir = os.path.join(data_dir, 'val')
+val_dir = config.val_dir
 resize_factor=1.5
 
 transform_test = transforms.Compose([

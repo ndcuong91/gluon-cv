@@ -9,8 +9,8 @@ from mxnet.gluon.data.vision import transforms
 from gluoncv.utils import makedirs, TrainingHistory, LRSequential, LRScheduler, viz
 from gluoncv.model_zoo import get_model
 from datetime import datetime
+import config_classification as config
 
-data_dir='/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/TrainVal'
 model='resnet152_v2'
 classes = 103
 input_sz=224
@@ -18,12 +18,13 @@ num_training_samples=79640
 batch_size=16
 epochs=200
 log_interval=200
+num_workers=6
 dataset='ZaloAILandmark'
-train_path = os.path.join(data_dir, 'train')
-test_path = os.path.join(data_dir, 'val')
+train_path = config.train_dir
+test_path = config.val_dir
 lr_mode='step'
-resume_param='resnext50_32x4d_224/2019-05-02_18.26/ZaloAILandmark-resnext50_32x4d-best.params'
-resume_state='resnext50_32x4d_224/2019-05-02_18.26/ZaloAILandmark-resnext50_32x4d-best.states'
+resume_param=config.resume_param
+resume_state=config.resume_state
 
 def parse_opts():
     parser = argparse.ArgumentParser(description='Transfer learning on zaloAIchallenge dataset',
@@ -247,7 +248,7 @@ def train(train_path, val_path, test_path):
 
             if opts.log_interval and not (idx + 1) % opts.log_interval:
                 train_metric_name, train_metric_score = metric_train.get()
-                logger.info('Epoch[%d] Batch [%d]\tSpeed: %f samples/sec\tloss: %f\t%s=%f\tlr=%f' % (
+                logger.info('Epoch[%d] Batch [%d] \tSpeed: %f samples/sec\tloss: %f\t%s=%f\tlr=%f' % (
                     epoch, idx, batch_size * opts.log_interval / (time.time() - btic), train_bloss,
                     train_metric_name, train_metric_score, trainer.learning_rate))
                 btic = time.time()
@@ -270,7 +271,7 @@ def train(train_path, val_path, test_path):
             with open(os.path.join(folder,date_time,'best_map.log'), 'a') as f:
                 f.write('{:04d}:\t{:.4f}\n'.format(epoch, val_acc))
 
-        if opts.save_frequency and epoch % opts.save_frequency == 0:
+        if opts.save_frequency and epoch % opts.save_frequency== 0 and epoch>0 :
             finetune_net.save_parameters(os.path.join(folder,date_time,'%s-%s-%d.params' % (dataset, model_name, epoch)))
             trainer.save_states(os.path.join(folder, date_time, '%s-%s-%d.states' % (dataset, model_name, epoch)))
 

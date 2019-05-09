@@ -11,20 +11,23 @@ from gluoncv.model_zoo import get_model
 from datetime import datetime
 import config_classification as config
 
-model='resnet152_v2'
-classes = 103
-input_sz=224
-num_training_samples=79640
-batch_size=16
-epochs=200
-log_interval=200
-num_workers=6
-dataset='ZaloAILandmark'
+data_dir='/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/TrainVal1'
+
+model=config.model_name
+classes = config.classes
+input_sz=config.input_sz
+num_training_samples=config.num_training_samples
+batch_size=config.batch_size
+epochs=config.epochs
+log_interval=config.log_interval
+num_workers=config.num_workers
+dataset=config.dataset
 train_path = config.train_dir
 test_path = config.val_dir
-lr_mode='step'
+lr_mode=config.lr_mode
 resume_param=config.resume_param
 resume_state=config.resume_state
+resume_epoch=config.resume_epoch
 
 def parse_opts():
     parser = argparse.ArgumentParser(description='Transfer learning on zaloAIchallenge dataset',
@@ -67,7 +70,7 @@ def parse_opts():
                         help='path of parameters to load from.')
     parser.add_argument('--resume_states', type=str, default=resume_state,
                         help='path of trainer state to load from.')
-    parser.add_argument('--resume_epoch', type=int, default=34,
+    parser.add_argument('--resume_epoch', type=int, default=resume_epoch,
                         help='epoch to resume training from.')
 
     parser.add_argument('--save_frequency', type=int, default=5,
@@ -134,11 +137,26 @@ def save_params(net, best_acc, current_acc, epoch, prefix):
         with open(prefix+'_best_map.log', 'a') as f:
             f.write('{:04d}:\t{:.4f}\n'.format(epoch, current_acc))
 
-def get_network(model, opts):
+def get_network(model, opts, frozen=False):
     network = get_model(model, pretrained=True)
+
+    if(frozen):
+        print 'Frozen'
+        for param in network.collect_params().values():
+            if(param.grad_req!='null'):
+                print param.name
+                param.grad_req = 'null'
+    else:
+        print 'No frozen'
+
+
     with network.name_scope():
         network.output = nn.Dense(opts.num_class)
         network.output.initialize(init.Xavier(), ctx=ctx)
+
+        # test_layer = network.output.collect_params()['resnetv20_dense1_weight']._data
+        # print test_layer
+
         network.collect_params().reset_ctx(ctx)
         if opts.resume_params is not '':
             network.load_parameters(opts.resume_params, ctx=ctx)
@@ -252,6 +270,8 @@ def train(train_path, val_path, test_path):
                     epoch, idx, batch_size * opts.log_interval / (time.time() - btic), train_bloss,
                     train_metric_name, train_metric_score, trainer.learning_rate))
                 btic = time.time()
+                # test_layer = finetune_net.output.collect_params()['resnetv20_dense1_weight']._data
+                # print test_layer
 
         _, train_acc = metric_train.get()
         train_loss /= num_batch
@@ -271,7 +291,7 @@ def train(train_path, val_path, test_path):
             with open(os.path.join(folder,date_time,'best_map.log'), 'a') as f:
                 f.write('{:04d}:\t{:.4f}\n'.format(epoch, val_acc))
 
-        if opts.save_frequency and epoch % opts.save_frequency== 0 and epoch>0 :
+        if opts.save_frequency and epoch % opts.save_frequency == 0 and epoch>0:
             finetune_net.save_parameters(os.path.join(folder,date_time,'%s-%s-%d.params' % (dataset, model_name, epoch)))
             trainer.save_states(os.path.join(folder, date_time, '%s-%s-%d.states' % (dataset, model_name, epoch)))
 

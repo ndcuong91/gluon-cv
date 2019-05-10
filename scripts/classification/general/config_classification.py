@@ -35,5 +35,5 @@ resume_state=''
 resume_epoch=0
 
 #testing
-pretrained_param='resnext50_32x4d_224/2019-05-02_18.26/ZaloAILandmark-resnext50_32x4d-best.params'
+pretrained_param='resnext50_32x4d_320/2019-05-10_15.39/ZaloAILandmark-resnext50_32x4d-best.params'
 submission_file='16_submission_CuongND_resnet152_v2_224_val_acc_992.csv'

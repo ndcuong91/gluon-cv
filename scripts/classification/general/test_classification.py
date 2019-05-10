@@ -176,7 +176,7 @@ def classify_dir(net, print_process=50, test_time_augment=1, topk=3):
         file.write(topk_result)
     #print 'There are',high_score,'file has max_prob >0.65 over',count,'files'
 
-def test_network(net, data_dir, write_output=False,output_file_name='result', topk=5, test_time_augment=1):
+def test_network(net, data_dir, write_output=False,output_file_name='result', topk=3, test_time_augment=1):
     print 'Test network:',model_name,'with params:',pretrained_param
     print 'TTA =',test_time_augment,',topk =',topk
     count=0
@@ -220,54 +220,42 @@ def test_network(net, data_dir, write_output=False,output_file_name='result', to
         with open(output_file_name+'_top'+str(topk)+'_prob.txt', 'w') as file:
             file.write(topk_result)
 
-    # if (topk == 1):
-    #     metric = mx.metric.Accuracy()
-    # else:
-    #     metric = mx.metric.TopKAccuracy(top_k=topk)
-    #
-    # for i, batch in enumerate(val_data):
-    #     if (i % 50 == 0 and i > 0):
-    #         print 'Tested:', i, 'batches'
-    #     data = gluon.utils.split_and_load(batch[0], ctx_list=ctx, batch_axis=0, even_split=False)
-    #     label = gluon.utils.split_and_load(batch[1], ctx_list=ctx, batch_axis=0, even_split=False)
-    #     outputs = [net(X) for X in data]
-    #     metric.update(label, outputs)
-    #
-    # _,test_acc=metric.get()
-    #
-    # print 'Accuracy (top '+str(topk)+'):',str(test_acc)
-    # print 'Error (top '+str(topk)+'):',str(1-test_acc)
-
     return
 
-def test(net, ctx):
+def test(net, ctx, topk=3):
     val_data = gluon.data.DataLoader(
         utils.ImageFolderDatasetCustomized(val_dir).transform_first(transform_test),
         batch_size=batch_size, shuffle=False, num_workers = num_workers)
 
-
-    metric = mx.metric.Accuracy()
-    #metric = mx.metric._BinaryClassificationMetrics()
+    if (topk == 1):
+        metric = mx.metric.Accuracy()
+    else:
+        metric = mx.metric.TopKAccuracy(top_k=topk)
 
     for i, batch in enumerate(val_data):
+        if (i % 50 == 0 and i > 0):
+            print 'Tested:', i, 'batches'
         data = gluon.utils.split_and_load(batch[0], ctx_list=ctx, batch_axis=0, even_split=False)
         label = gluon.utils.split_and_load(batch[1], ctx_list=ctx, batch_axis=0, even_split=False)
-        name = gluon.utils.split_and_load(batch[2], ctx_list=ctx, batch_axis=0, even_split=False)
-
         outputs = [net(X) for X in data]
         metric.update(label, outputs)
 
-    return metric.get()
+    _,test_acc=metric.get()
+
+    print 'Accuracy (top '+str(topk)+'):',str(test_acc)
+    print 'Error (top '+str(topk)+'):',str(1-test_acc)
+    return
 
 if __name__ == "__main__":
     finetune_net = get_network_with_pretrained(model_name, pretrained_param)
     begin_time=time.time()
-    test(finetune_net,[mx.gpu()])
+    #test(finetune_net,[mx.gpu()])
+
     #submission(finetune_net,test_time_augment=1)
     #classify_dir(finetune_net,test_time_augment=1)
 
     #Test network
-    #test_network(finetune_net, val_dir, write_output=True,output_file_name='result_public', topk=3, test_time_augment=1)
+    test_network(finetune_net, val_dir, write_output=False,output_file_name='result_public', topk=3, test_time_augment=1)
     #test_network(finetune_net, test_dir, write_output=True,output_file_name='result_public', topk=3, test_time_augment=3)
     #test_network(finetune_net, test_dir, write_output=True,output_file_name='result_public', topk=3, test_time_augment=5)
 

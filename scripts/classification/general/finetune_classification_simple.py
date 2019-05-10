@@ -24,7 +24,12 @@ num_workers=config.num_workers
 dataset=config.dataset
 train_path = config.train_dir
 test_path = config.val_dir
+base_lr=config.base_lr
+lr_decay=config.lr_decay
+lr_decay_epoch=config.lr_decay_epoch
 lr_mode=config.lr_mode
+save_frequency=config.save_frequency
+
 resume_param=config.resume_param
 resume_state=config.resume_state
 resume_epoch=config.resume_epoch
@@ -34,7 +39,7 @@ def parse_opts():
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--model', type=str,default=model,
                         help='name of the pretrained model from model zoo.')
-    parser.add_argument('-j', '--workers', dest='num_workers', default=4, type=int,
+    parser.add_argument('-j', '--workers', dest='num_workers', default=num_workers, type=int,
                         help='number of preprocessing workers')
     parser.add_argument('--num_gpus', default=1, type=int,
                         help='number of gpus to use, 0 indicates cpu only')
@@ -46,7 +51,7 @@ def parse_opts():
                         help='resolution of input size')
     parser.add_argument('-b', '--batch_size', default=batch_size, type=int,
                         help='mini-batch size')
-    parser.add_argument('--lr', '--learning_rate', default=0.001, type=float,
+    parser.add_argument('--lr', '--learning_rate', default=base_lr, type=float,
                         help='initial learning rate')
     parser.add_argument('--momentum', default=0.9, type=float,
                         help='momentum')
@@ -54,16 +59,18 @@ def parse_opts():
                         help='weight decay (default: 1e-4)')
     parser.add_argument('--log_interval', default=log_interval, type=int,
                         help='learning rate decay ratio')
+    parser.add_argument('--save_frequency', type=int, default=save_frequency,
+                        help='frequency of model saving.')
 
     parser.add_argument('--warmup_epochs', type=int, default=0,
                         help='number of warmup epochs.')
     parser.add_argument('--lr_mode', type=str, default=lr_mode,
                         help='learning rate scheduler mode. options are step, poly and cosine.')
-    parser.add_argument('--lr_decay', type=float, default=0.75,
+    parser.add_argument('--lr_decay', type=float, default=lr_decay,
                         help='decay rate of learning rate. default is 0.75.')
     parser.add_argument('--lr_decay_period', type=int, default=0,
                         help='interval for periodic learning rate decays. default is 0 to disable.')
-    parser.add_argument('--lr_decay_epoch', type=str, default='3,10,20,30,40,50,70,110,150,200,450,900,1500',
+    parser.add_argument('--lr_decay_epoch', type=str, default=lr_decay_epoch,
                         help='epochs at which learning rate decays. default is 40,60.')
 
     parser.add_argument('--resume_params', type=str, default=resume_param,
@@ -72,9 +79,6 @@ def parse_opts():
                         help='path of trainer state to load from.')
     parser.add_argument('--resume_epoch', type=int, default=resume_epoch,
                         help='epoch to resume training from.')
-
-    parser.add_argument('--save_frequency', type=int, default=5,
-                        help='frequency of model saving.')
     opts = parser.parse_args()
     return opts
 

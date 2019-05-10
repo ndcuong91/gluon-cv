@@ -16,9 +16,9 @@ dataset=config.dataset
 ctx=[mx.gpu()]
 
 model_name=config.model_name
-best_param_dir = os.path.join(model_name+'_'+str(input_sz),'2019-05-02_18.26')
-model_snapshot_suffix='best'
-model_snapshot=  dataset+'-'+model_name+'-'+ model_snapshot_suffix
+pretrained_param = config.pretrained_param
+test_data_dir = config.test_dir
+submission_file=config.submission_file
 
 resize_factor=1.5
 jitter_param = 0.4
@@ -72,7 +72,21 @@ def setup_logger(log_file_path):
     logger.addHandler(fh)
     return logger
 
-def classify_img(net, file_path, topk=3, test_time_augment=1):
+
+def get_network_with_pretrained(model_name, params_path):
+    network = get_model(model_name, pretrained=False)
+
+    with network.name_scope():
+        network.output = nn.Dense(num_class)
+        network.output.initialize(init.Xavier(), ctx=ctx)
+        network.collect_params().reset_ctx(ctx)
+        network.hybridize()
+    network.load_parameters(params_path)
+    return network
+
+def classify_img(net, file_path, topk=3, test_time_augment=1, print_name=False):
+    if(print_name):
+        print file_path
     img = image.imread(file_path)
     topk_axis=-1-topk
     if (test_time_augment == 1):
@@ -93,9 +107,9 @@ def classify_img(net, file_path, topk=3, test_time_augment=1):
     topk_pred_idx = pred.argsort()[-1:topk_axis:-1]
     return pred, topk_pred_idx
 
-def submission(model_name, params_path, print_process=100, test_time_augment=1, topk=3):
-    finetune_net = get_network(model_name)
-    finetune_net.load_parameters(params_path)
+def submission(net, print_process=100, test_time_augment=1, topk=3):
+    print 'Make submission with network:',model_name,'with params:',pretrained_param
+    print 'TTA =',test_time_augment,',topk =',topk
 
     count=0
     result='id,predicted\n'
@@ -108,7 +122,7 @@ def submission(model_name, params_path, print_process=100, test_time_augment=1, 
             print('Tested: ' + str(count) + " files")
         #print f
         file_path = os.path.join(os.path.join(test_dir, f))
-        pred, topk_pred = classify_img(finetune_net,file_path,topk,test_time_augment)
+        pred, topk_pred = classify_img(net,file_path,topk,test_time_augment)
         for k in range(len(topk_pred)):
             if (k < 2):
                 result += str(re_map[topk_pred[k]]) + ' '
@@ -117,13 +131,13 @@ def submission(model_name, params_path, print_process=100, test_time_augment=1, 
 
         count+=1
 
-    with open('13_submission_CuongND_resnet152_v2_224_val_acc_9396.csv', 'w') as file:
+    with open(submission_file, 'w') as file:
         file.write(result)
 
-def classify_dir(model_name,params_path, print_process=50, test_time_augment=1, topk=3):
-    finetune_net = get_network(model_name)
-    finetune_net.load_parameters(params_path)
+def classify_dir(net, print_process=50, test_time_augment=1, topk=3):
 
+    print 'Test network:',model_name,'with params:',pretrained_param
+    print 'TTA =',test_time_augment,',topk =',topk
     topk_pred_result=[]
     for n in range(num_class):
         topk_pred_result.append(0)
@@ -137,7 +151,7 @@ def classify_dir(model_name,params_path, print_process=50, test_time_augment=1, 
         #print f
         file_path = os.path.join(os.path.join(test_dir, f))
 
-        pred, topk_pred=classify_img(finetune_net,file_path,topk,test_time_augment)
+        pred, topk_pred=classify_img(net,file_path,topk,test_time_augment)
         for k in range(len(topk_pred)):
             remap_id = re_map[topk_pred[k]]
             topk_pred_result[remap_id] += pred[topk_pred[k]]
@@ -155,12 +169,12 @@ def classify_dir(model_name,params_path, print_process=50, test_time_augment=1, 
         file.write(topk_result)
     #print 'There are',high_score,'file has max_prob >0.65 over',count,'files'
 
-def test(net, data_dir, write_output=False,output_file_name='result', topk=5, test_time_augment=1):
+def test_network(net, data_dir, write_output=False,output_file_name='result', topk=5, test_time_augment=1):
+    print 'Test network:',model_name,'with params:',pretrained_param
+    print 'TTA =',test_time_augment,',topk =',topk
     count=0
     true_pred=0
     true_class=0
-    topk_axis=-1-topk
-    print 'Predict with TTA =',test_time_augment,',topk =',topk
 
     result=''
     topk_pred_result=[]
@@ -220,27 +234,15 @@ def test(net, data_dir, write_output=False,output_file_name='result', topk=5, te
 
     return
 
-def get_network(model_name):
-    network = get_model(model_name, pretrained=True)
-
-    with network.name_scope():
-        network.output = nn.Dense(num_class)
-        network.output.initialize(init.Xavier(), ctx=ctx)
-        network.collect_params().reset_ctx(ctx)
-        network.hybridize()
-    return network
-
-def test_network(model_name, params_path, data_dir, test_time_augment=1):
-    print 'Start test network:',model_name,'with params:',params_path
-    finetune_net = get_network(model_name)
-    finetune_net.load_parameters(params_path)
-
-    #test(finetune_net, data_dir, write_output=True,output_file_name='result_val', topk=1, test_time_augment=test_time_augment)
-    test(finetune_net, data_dir, write_output=True,output_file_name='result_public', topk=5, test_time_augment=test_time_augment)
-    #test(finetune_net, data_dir, write_output=True,output_file_name='result_val', topk=5, test_time_augment=test_time_augment)
-    print 'Finish'
 
 if __name__ == "__main__":
-    #test_network(model_name,os.path.join(best_param_dir,model_snapshot+'.params'),val_dir, 1)
-    #submission(model_name,os.path.join(best_param_dir,model_snapshot+'.params'),test_time_augment=1)
-    classify_dir(model_name,os.path.join(best_param_dir,model_snapshot+'.params'),test_time_augment=1)
+    finetune_net = get_network_with_pretrained(model_name, pretrained_param)
+
+    submission(finetune_net,test_time_augment=1)
+    #classify_dir(finetune_net,test_time_augment=1)
+
+    #Test network
+    test_network(finetune_net, test_dir, write_output=True,output_file_name='result_public', topk=5, test_time_augment=1)
+    test_network(finetune_net, test_dir, write_output=True,output_file_name='result_public', topk=5, test_time_augment=3)
+    test_network(finetune_net, test_dir, write_output=True,output_file_name='result_public', topk=5, test_time_augment=5)
+    print 'Finish'

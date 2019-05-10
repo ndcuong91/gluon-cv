@@ -10,8 +10,7 @@ from gluoncv.utils import makedirs, TrainingHistory, LRSequential, LRScheduler, 
 from gluoncv.model_zoo import get_model
 from datetime import datetime
 import config_classification as config
-
-data_dir='/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/TrainVal1'
+import utils_classification as utils
 
 model=config.model_name
 classes = config.classes
@@ -173,7 +172,7 @@ def test_network(model, params_path, val_path):
     finetune_net.load_parameters(params_path)
 
     val_data = gluon.data.DataLoader(
-        gluon.data.vision.ImageFolderDataset(val_path).transform_first(transform_test),
+        utils.ImageFolderDatasetCustomized(val_path).transform_first(transform_test),
         batch_size=batch_size, shuffle=False, num_workers = num_workers)
 
     _, test_acc = test(finetune_net, val_data, ctx)
@@ -203,11 +202,11 @@ def train(train_path, val_path, test_path):
     # Define DataLoader
 
     train_data = gluon.data.DataLoader(
-        gluon.data.vision.ImageFolderDataset(train_path).transform_first(transform_train),
+        utils.ImageFolderDatasetCustomized(train_path).transform_first(transform_train),
         batch_size=batch_size, shuffle=True, num_workers=num_workers)
 
     val_data = gluon.data.DataLoader(
-        gluon.data.vision.ImageFolderDataset(test_path).transform_first(transform_test),
+        utils.ImageFolderDatasetCustomized(test_path).transform_first(transform_test),
         batch_size=batch_size, shuffle=False, num_workers = num_workers)
 
 

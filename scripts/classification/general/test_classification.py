@@ -1,12 +1,12 @@
 import mxnet as mx
 import numpy as np
 import os, time, logging, argparse, shutil
-
-from mxnet import image, init, nd
+from mxnet import image, init, nd, gluon
 from mxnet.gluon import nn
 from mxnet.gluon.data.vision import transforms
 from gluoncv.model_zoo import get_model
 import config_classification as config
+import utils_classification as utils
 
 input_sz=config.input_sz
 num_class = config.classes
@@ -48,7 +48,8 @@ transform_test_TTA = transforms.Compose([
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
 
-re_map=[0,1,10,100,101,102,11,12,13,14,15,16,17,18,19,2,20,21,22,23,24,25,26,27,28,29,3,30,31,32, 33, 34, 35, 36, 37, 38, 39, 4, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 5, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 6, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 7, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 8, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 9, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99]
+map_from_testing_to_training=[0,1,10,100,101,102,11,12,13,14,15,16,17,18,19,2,20,21,22,23,24,25,26,27,28,29,3,30,31,32,33,34,35,36,37,38,39,4,40,41,42,43,44,45,46,47,48,49,5,50,51,52,53,54,55,56,57,58,59,6,60,61,62,63,64,65,66,67,68,69,7,70,71,72,73,74,75,76,77,78,79,8,80,81,82,83,84,85,86,87,88,89,9,90,91,92,93,94,95,96,97,98,99]
+map_from_training_to_testing=[0,1,15,26,37,48,59,70,81,92,2,6,7,8,9,10,11,12,13,14,16,17,18,19,20,21,22,23,24,25,27,28,29,30,31,32,33,34,35,36,38,39,40,41,42,43,44,45,46,47,49,50,51,52,53,54,55,56,57,58,60,61,62,63,64,65,66,67,68,69,71,72,73,74,75,76,77,78,79,80,82,83,84,85,86,87,88,89,90,91,93,94,95,96,97,98,99,100,101,102,3,4,5]
 
 def get_list_dir_in_folder(dir):
     sub_dir = [o for o in os.listdir(dir) if os.path.isdir(os.path.join(dir, o))]
@@ -74,7 +75,7 @@ def setup_logger(log_file_path):
 
 
 def get_network_with_pretrained(model_name, params_path):
-    network = get_model(model_name, pretrained=False)
+    network = get_model(model_name, pretrained=True)
 
     with network.name_scope():
         network.output = nn.Dense(num_class)
@@ -84,8 +85,8 @@ def get_network_with_pretrained(model_name, params_path):
     network.load_parameters(params_path)
     return network
 
-def classify_img(net, file_path, topk=3, test_time_augment=1, print_name=False):
-    if(print_name):
+def classify_img(net, file_path, topk=3, test_time_augment=1, print_data=False):
+    if(print_data):
         print file_path
     img = image.imread(file_path)
     topk_axis=-1-topk
@@ -104,8 +105,15 @@ def classify_img(net, file_path, topk=3, test_time_augment=1, print_name=False):
         pred = np.mean(preds, axis=0)
 
     pred = nd.softmax(nd.array(pred)).asnumpy()
-    topk_pred_idx = pred.argsort()[-1:topk_axis:-1]
-    return pred, topk_pred_idx
+    remap_pred= pred[map_from_training_to_testing]
+
+    remap_topk_pred_idx = remap_pred.argsort()[-1:topk_axis:-1]
+
+    if(print_data):
+        for i in range(topk):
+            print 'Class:',remap_topk_pred_idx[i],', Prob:',remap_pred[remap_topk_pred_idx[i]]
+
+    return remap_pred, remap_topk_pred_idx
 
 def submission(net, print_process=100, test_time_augment=1, topk=3):
     print 'Make submission with network:',model_name,'with params:',pretrained_param
@@ -125,9 +133,9 @@ def submission(net, print_process=100, test_time_augment=1, topk=3):
         pred, topk_pred = classify_img(net,file_path,topk,test_time_augment)
         for k in range(len(topk_pred)):
             if (k < 2):
-                result += str(re_map[topk_pred[k]]) + ' '
+                result += str(topk_pred[k]) + ' '
             else:
-                result += str(re_map[topk_pred[k]]) + '\n'
+                result += str(topk_pred[k]) + '\n'
 
         count+=1
 
@@ -153,8 +161,7 @@ def classify_dir(net, print_process=50, test_time_augment=1, topk=3):
 
         pred, topk_pred=classify_img(net,file_path,topk,test_time_augment)
         for k in range(len(topk_pred)):
-            remap_id = re_map[topk_pred[k]]
-            topk_pred_result[remap_id] += pred[topk_pred[k]]
+            topk_pred_result[topk_pred[k]] += pred[topk_pred[k]]
 
             # if(max_prob>0.65):
             #     #shutil.copy(file_path, os.path.join(result_test_folder,str(ind.asscalar()),f))
@@ -191,18 +198,17 @@ def test_network(net, data_dir, write_output=False,output_file_name='result', to
             file_path=os.path.join(os.path.join(data_dir,cls,f))
             pred, topk_pred = classify_img(net, file_path, topk, test_time_augment)
             for k in range(len(topk_pred)):
-                remap_id=re_map[topk_pred[k]]
-                topk_pred_result[remap_id]+=pred[topk_pred[k]]
-                if (remap_id==cls_int):
+                topk_pred_result[topk_pred[k]]+=pred[topk_pred[k]]
+                if (topk_pred[k]==cls_int):
                     true_pred_cls+=1
                     true_pred+=1
             count_cls+=1
             count+=1
 
         result += str(true_pred_cls) + '\n'
-        print 'Class: ',cls,',true_pred',true_pred_cls,',total',count_cls,',top'+str(topk), float(true_pred_cls) / float(count_cls)
+        #print 'Class: ',cls,',true_pred',true_pred_cls,',total',count_cls,',top'+str(topk), float(true_pred_cls) / float(count_cls)
         true_class+=1
-    print 'True pred:',true_pred,', Total file:',count,'top'+str(topk)+' accuracy: ',float(true_pred)/float(count)
+    #print 'True pred:',true_pred,', Total file:',count,'top'+str(topk)+' accuracy: ',float(true_pred)/float(count)
 
 
     if(write_output):
@@ -234,15 +240,37 @@ def test_network(net, data_dir, write_output=False,output_file_name='result', to
 
     return
 
+def test(net, ctx):
+    val_data = gluon.data.DataLoader(
+        utils.ImageFolderDatasetCustomized(val_dir).transform_first(transform_test),
+        batch_size=batch_size, shuffle=False, num_workers = num_workers)
+
+
+    metric = mx.metric.Accuracy()
+    #metric = mx.metric._BinaryClassificationMetrics()
+
+    for i, batch in enumerate(val_data):
+        data = gluon.utils.split_and_load(batch[0], ctx_list=ctx, batch_axis=0, even_split=False)
+        label = gluon.utils.split_and_load(batch[1], ctx_list=ctx, batch_axis=0, even_split=False)
+        name = gluon.utils.split_and_load(batch[2], ctx_list=ctx, batch_axis=0, even_split=False)
+
+        outputs = [net(X) for X in data]
+        metric.update(label, outputs)
+
+    return metric.get()
 
 if __name__ == "__main__":
     finetune_net = get_network_with_pretrained(model_name, pretrained_param)
-
-    submission(finetune_net,test_time_augment=1)
+    begin_time=time.time()
+    test(finetune_net,[mx.gpu()])
+    #submission(finetune_net,test_time_augment=1)
     #classify_dir(finetune_net,test_time_augment=1)
 
     #Test network
-    test_network(finetune_net, test_dir, write_output=True,output_file_name='result_public', topk=5, test_time_augment=1)
-    test_network(finetune_net, test_dir, write_output=True,output_file_name='result_public', topk=5, test_time_augment=3)
-    test_network(finetune_net, test_dir, write_output=True,output_file_name='result_public', topk=5, test_time_augment=5)
+    #test_network(finetune_net, val_dir, write_output=True,output_file_name='result_public', topk=3, test_time_augment=1)
+    #test_network(finetune_net, test_dir, write_output=True,output_file_name='result_public', topk=3, test_time_augment=3)
+    #test_network(finetune_net, test_dir, write_output=True,output_file_name='result_public', topk=3, test_time_augment=5)
+
+    #classify_img(finetune_net,'/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/TrainVal1/val/2/16828.jpg',print_data=True)
+    print 'Total time=',time.time() - begin_time
     print 'Finish'

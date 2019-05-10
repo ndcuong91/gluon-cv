@@ -1,11 +1,14 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+import config_classification as config
 
-num_class=103
+model_name=''
+pretrained=''
+num_class=config.classes
 data_dir='/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/TrainVal1/'
-val_dir = os.path.join(data_dir, 'val')
-train_dir = os.path.join(data_dir, 'train')
+val_dir = config.val_dir
+train_dir = config.train_dir
 
 color_list=[]
 color_list.append((1,0,0,0.8))
@@ -69,9 +72,9 @@ def plot_distribution_result(data_dir):
     # lists.append(data1)
     # labels.append(file_path.replace('result_','').replace('.txt',''))
 
-    #get data from file
+    #   get data from file
 
-    #get data from file
+    #   get data from file
     # file_path='result_val_true_pred_top1.txt'
     # data1=map(int, get_data_from_file(file_path))
     # lists.append(data1)
@@ -84,6 +87,10 @@ def plot_distribution_of_images_in_folder(data_dir):
     num_samples=get_number_of_img_for_each_class_in_folder(data_dir)
     index = np.arange(len(num_samples))
     plot_bar(index,[num_samples])
+
+def represent_tSNE_of_embedded_feature():
+    kk=1
+
 
 if __name__ == "__main__":
     #plot_distribution_result('/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/Test_Public_result')

@@ -13,7 +13,7 @@ else:
 
 num_training_samples=86505 #full dataset with
 model_name='resnext50_32x4d'
-input_sz=224
+input_sz=320
 
 #hyper parameters
 
@@ -30,11 +30,10 @@ lr_decay_epoch='3,10,20,30,40,50,70,110,150,200,450,900,1500'
 save_frequency=5
 
 #training
-resume_param='resnext50_32x4d_224/2019-05-02_18.26/ZaloAILandmark-resnext50_32x4d-best.params'
-resume_state='resnext50_32x4d_224/2019-05-02_18.26/ZaloAILandmark-resnext50_32x4d-best.states'
-resume_epoch=33
+resume_param=''
+resume_state=''
+resume_epoch=0
 
 #testing
-pretrained_param='resnext50_32x4d_224/2019-05-09_18.25/ZaloAILandmark-resnext50_32x4d-80.params'
-test_dir=''
+pretrained_param='resnext50_32x4d_224/2019-05-02_18.26/ZaloAILandmark-resnext50_32x4d-best.params'
 submission_file='16_submission_CuongND_resnet152_v2_224_val_acc_992.csv'

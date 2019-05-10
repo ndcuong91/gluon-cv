@@ -1,0 +1,5 @@
+Namespace(batch_size=24, input_sz=320, log_interval=200, lr=0.001, lr_decay=0.75, lr_decay_epoch='3,10,20,30,40,50,70,110,150,200,450,900,1500', lr_decay_period=0, lr_mode='step', model='resnext50_32x4d', momentum=0.9, num_class=103, num_epochs=200, num_gpus=1, num_workers=8, resume_epoch=0, resume_params='', resume_states='', save_frequency=5, warmup_epochs=0, wd=0.0001)
+Epoch[0] Batch [199] 	Speed: 36.616593 samples/sec	loss: 1.901779	accuracy=0.306042	lr=0.001000
+Epoch[0] Batch [399] 	Speed: 39.013176 samples/sec	loss: 1.190933	accuracy=0.465938	lr=0.001000
+Epoch[0] Batch [599] 	Speed: 42.284962 samples/sec	loss: 0.639703	accuracy=0.544583	lr=0.001000
+Epoch[0] Batch [799] 	Speed: 45.812892 samples/sec	loss: 1.217583	accuracy=0.594115	lr=0.001000

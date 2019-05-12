@@ -1,7 +1,7 @@
 import mxnet as mx
 import numpy as np
 import os, time, logging, argparse, shutil
-from mxnet import image, init, nd, gluon
+from mxnet import image, init, nd, gluon, ndarray
 from mxnet.gluon import nn
 from mxnet.gluon.data.vision import transforms
 from gluoncv.model_zoo import get_model
@@ -24,6 +24,7 @@ resize_factor=1.5
 jitter_param = 0.4
 lighting_param = 0.1
 
+seeds=[233,33,39,52,65]
 
 val_dir = config.val_dir
 test_dir = config.test_dir
@@ -85,7 +86,7 @@ def get_network_with_pretrained(model_name, params_path):
     network.load_parameters(params_path)
     return network
 
-def classify_img(net, file_path, topk=3, test_time_augment=1, print_data=False):
+def classify_img(net, file_path, topk=3, test_time_augment=2, print_data=False):
     if(print_data):
         print file_path
     img = image.imread(file_path)
@@ -115,150 +116,156 @@ def classify_img(net, file_path, topk=3, test_time_augment=1, print_data=False):
 
     return remap_pred, remap_topk_pred_idx
 
-def submission(net, print_process=100, test_time_augment=1, topk=3):
+def submission(net, test_time_augment=1, topk=3):
     print 'Make submission with network:',model_name,'with params:',pretrained_param
-    print 'TTA =',test_time_augment,',topk =',topk
+    print 'TTA =',test_time_augment,', topk =',topk,', batch_size =',batch_size
 
-    count=0
+    name, topk_labels, topk_probs= classify_dir(net,test_dir,[mx.gpu()],topk=topk, test_time_augment=test_time_augment, sub_class=False)
+
+    samples=name.shape[0]
+    print 'data_dir: ',test_dir,', num samples =',samples
     result='id,predicted\n'
-
-    files_list = get_list_file_in_folder(test_dir)
-    files_list=sorted(files_list)
-    for f in files_list:
-        result += f.replace('.jpg', '') + ','
-        if (count % print_process == 0):
-            print('Tested: ' + str(count) + " files")
-        #print f
-        file_path = os.path.join(os.path.join(test_dir, f))
-        pred, topk_pred = classify_img(net,file_path,topk,test_time_augment)
-        for k in range(len(topk_pred)):
+    for i in range(samples):
+        result +=str(name[i]) + ','
+        for k in range(topk):
             if (k < 2):
-                result += str(topk_pred[k]) + ' '
+                result += str(topk_labels[i][k]) + ' '
             else:
-                result += str(topk_pred[k]) + '\n'
-
-        count+=1
+                result += str(topk_labels[i][k]) + '\n'
 
     with open(submission_file, 'w') as file:
         file.write(result)
+        print 'Save submission file to:',submission_file
 
-def classify_dir(net, print_process=50, test_time_augment=1, topk=3):
-
-    print 'Test network:',model_name,'with params:',pretrained_param
-    print 'TTA =',test_time_augment,',topk =',topk
-    topk_pred_result=[]
-    for n in range(num_class):
-        topk_pred_result.append(0)
-
-    count=0
-    files_list = get_list_file_in_folder(test_dir)
-    files_list=sorted(files_list)
-    for f in files_list:
-        if (count % print_process == 0):
-            print('Tested: ' + str(count) + " files")
-        #print f
-        file_path = os.path.join(os.path.join(test_dir, f))
-
-        pred, topk_pred=classify_img(net,file_path,topk,test_time_augment)
-        for k in range(len(topk_pred)):
-            topk_pred_result[topk_pred[k]] += pred[topk_pred[k]]
-
-            # if(max_prob>0.65):
-            #     #shutil.copy(file_path, os.path.join(result_test_folder,str(ind.asscalar()),f))
-            #     high_score+=1
-
-        count+=1
-
-    topk_result = ''
-    for i in range(num_class):
-        topk_result += str(int(topk_pred_result[i])) + '\n'
-    with open('result_public_test_top' + str(topk) + '_prob.txt', 'w') as file:
-        file.write(topk_result)
-    #print 'There are',high_score,'file has max_prob >0.65 over',count,'files'
-
-def test_network(net, data_dir, write_output=False,output_file_name='result', topk=3, test_time_augment=1):
-    print 'Test network:',model_name,'with params:',pretrained_param
-    print 'TTA =',test_time_augment,',topk =',topk
-    count=0
-    true_pred=0
-    true_class=0
-
-    result=''
-    topk_pred_result=[]
-    for n in range(num_class):
-        topk_pred_result.append(0)
-
-    for cls_int in range(num_class):
-        cls=str(cls_int)
-        count_cls = 0
-        true_pred_cls = 0
-        files_list = get_list_file_in_folder(os.path.join(data_dir,cls))
-        for f in files_list:
-            #print file
-            file_path=os.path.join(os.path.join(data_dir,cls,f))
-            pred, topk_pred = classify_img(net, file_path, topk, test_time_augment)
-            for k in range(len(topk_pred)):
-                topk_pred_result[topk_pred[k]]+=pred[topk_pred[k]]
-                if (topk_pred[k]==cls_int):
-                    true_pred_cls+=1
-                    true_pred+=1
-            count_cls+=1
-            count+=1
-
-        result += str(true_pred_cls) + '\n'
-        #print 'Class: ',cls,',true_pred',true_pred_cls,',total',count_cls,',top'+str(topk), float(true_pred_cls) / float(count_cls)
-        true_class+=1
-    #print 'True pred:',true_pred,', Total file:',count,'top'+str(topk)+' accuracy: ',float(true_pred)/float(count)
-
-
-    if(write_output):
-        with open(output_file_name+'_true_pred_top'+str(topk)+'.txt', 'w') as file:
-            file.write(result)
-        topk_result=''
-        for i in range(num_class):
-            topk_result+=str(int(topk_pred_result[i]))+'\n'
-        with open(output_file_name+'_top'+str(topk)+'_prob.txt', 'w') as file:
-            file.write(topk_result)
-
-    return
-
-def test(net, ctx, topk=3):
+def classify_dir_with_subclass(net, ctx, data_dir, seed=233):
+    print 'Classify_dir_with_subclass. seed:',seed
+    print 'data_dir:',data_dir
+    mx.random.seed(seed)
     val_data = gluon.data.DataLoader(
-        utils.ImageFolderDatasetCustomized(val_dir).transform_first(transform_test),
+        utils.ImageFolderDatasetCustomized(data_dir).transform_first(transform_test_TTA),
         batch_size=batch_size, shuffle=False, num_workers = num_workers)
-
-    if (topk == 1):
-        metric = mx.metric.Accuracy()
-    else:
-        metric = mx.metric.TopKAccuracy(top_k=topk)
 
     for i, batch in enumerate(val_data):
         if (i % 50 == 0 and i > 0):
-            print 'Tested:', i, 'batches'
+            print i, 'batches'
         data = gluon.utils.split_and_load(batch[0], ctx_list=ctx, batch_axis=0, even_split=False)
         label = gluon.utils.split_and_load(batch[1], ctx_list=ctx, batch_axis=0, even_split=False)
-        outputs = [net(X) for X in data]
-        metric.update(label, outputs)
+        name = gluon.utils.split_and_load(batch[2], ctx_list=ctx, batch_axis=0, even_split=False)
 
-    _,test_acc=metric.get()
+        outputs=[]
+        for y in data:
+            outputs.append(net(y))
 
-    print 'Accuracy (top '+str(topk)+'):',str(test_acc)
-    print 'Error (top '+str(topk)+'):',str(1-test_acc)
-    return
+        if(i==0):
+            total_label=label[0]
+            total_name=name[0]
+            total_output=(nd.softmax(outputs[0],axis=1)).asnumpy().astype('float32')
+        else:
+            total_label = ndarray.concat(total_label, label[0], dim=0)
+            total_name = ndarray.concat(total_name, name[0], dim=0)
+            total_output=np.concatenate((total_output, (nd.softmax(outputs[0],axis=1)).asnumpy().astype('float32')), axis=0)
+
+    print
+    return total_name.asnumpy(),total_label.asnumpy(),total_output
+
+def classify_dir_wo_subclass(net, ctx, data_dir, seed=233):
+    print 'classify_dir_wo_subclass. seed:',seed
+    print 'data_dir:',data_dir
+    mx.random.seed(seed)
+    test_data = gluon.data.DataLoader(
+        utils.ImageFolderDatasetCustomized(data_dir,sub_class_inside=False).transform_first(transform_test_TTA),
+        batch_size=batch_size, shuffle=False, num_workers = num_workers)
+
+    for i, batch in enumerate(test_data):
+        if (i % 50 == 0 and i > 0):
+            print 'Tested:', i, 'batches'
+        data = gluon.utils.split_and_load(batch[0], ctx_list=ctx, batch_axis=0, even_split=False)
+        name = gluon.utils.split_and_load(batch[1], ctx_list=ctx, batch_axis=0, even_split=False)
+
+        outputs=[]
+        for y in data:
+            outputs.append(net(y))
+
+        if(i==0):
+            total_name=name[0]
+            total_output=(nd.softmax(outputs[0],axis=1)).asnumpy().astype('float32')
+        else:
+            total_name = ndarray.concat(total_name, name[0], dim=0)
+            total_output=np.concatenate((total_output, (nd.softmax(outputs[0],axis=1)).asnumpy().astype('float32')), axis=0)
+
+    print
+    return total_name.asnumpy(),total_output
+
+def classify_dir(net,data_dir, ctx=[mx.gpu()], topk=3, test_time_augment=2, sub_class=True):
+    print 'Test network:',model_name,'with params:',pretrained_param
+    print 'TTA =',test_time_augment,',topk =',topk
+
+    list_pred=[]
+    for n in range(test_time_augment):
+        if(sub_class):
+            name, label, predict= classify_dir_with_subclass(net,ctx,data_dir, seeds[n])
+        else:
+            name, predict= classify_dir_wo_subclass(net,ctx,data_dir, seeds[n])
+        list_pred.append(predict.flatten())
+    samples=name.shape[0]
+    pred = np.mean(list_pred, axis=0)  #tta average
+
+    pred=pred.reshape(samples,-1)
+    numpy_arr = (nd.softmax(nd.array(pred), axis=1)).asnumpy().astype('float32')
+
+    total_labels = np.argsort(-numpy_arr, axis=1)
+    topk_probs = -np.sort(-numpy_arr, axis=1)
+    topk_labels= total_labels[:, 0:topk]
+    topk_probs= topk_probs[:, 0:topk]
+
+    if (sub_class):
+        return name, label,topk_labels,topk_probs
+    else:
+        return name, topk_labels,topk_probs
+
+def get_result(name, label, topk_labels, ):
+    samples=len(name)
+
+    class_true_pred=[]
+    class_total_sample=[]
+    topk=len(topk_labels[0])
+
+    for n in range(num_class):
+        class_true_pred.append(0)
+        class_total_sample.append(0)
+
+
+    for i in range(samples):
+        cls=label[i]
+        for idx in range(topk):
+            if(map_from_testing_to_training[topk_labels[i][idx]]==cls):
+                class_true_pred[cls]+=1
+        class_total_sample[cls]+=1
+
+    total_true_pred=0
+    total_sample=0
+    for n in range(num_class):
+        total_true_pred+=class_true_pred[n]
+        total_sample+=class_total_sample[n]
+        print 'Class: ',n,',true_pred',class_true_pred[n],',total',class_total_sample[n],',top'+str(topk), float(class_true_pred[n]) / float(class_total_sample[n])
+
+    print 'True pred:',total_true_pred,', Total file:',total_sample,'top'+str(topk)+' accuracy: ',float(total_true_pred)/float(total_sample)
+
+    # if(write_output):
+    #     with open(output_file_name+'_true_pred_top'+str(topk)+'.txt', 'w') as file:
+    #         file.write(result)
+    #     topk_result=''
+    #     for i in range(num_class):
+    #         topk_result+=str(int(topk_pred_result[i]))+'\n'
+    #     with open(output_file_name+'_top'+str(topk)+'_prob.txt', 'w') as file:
+    #         file.write(topk_result)
 
 if __name__ == "__main__":
     finetune_net = get_network_with_pretrained(model_name, pretrained_param)
     begin_time=time.time()
-    #test(finetune_net,[mx.gpu()])
-
-    #submission(finetune_net,test_time_augment=1)
-    #classify_dir(finetune_net,test_time_augment=1)
-
-    #Test network
-    test_network(finetune_net, val_dir, write_output=False,output_file_name='result_public', topk=3, test_time_augment=1)
-    #test_network(finetune_net, test_dir, write_output=True,output_file_name='result_public', topk=3, test_time_augment=3)
-    #test_network(finetune_net, test_dir, write_output=True,output_file_name='result_public', topk=3, test_time_augment=5)
-
-    #classify_img(finetune_net,'/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/TrainVal1/val/2/16828.jpg',print_data=True)
+    name, label, topk_labels, topk_probs= classify_dir(finetune_net,val_dir,[mx.gpu()],test_time_augment=2)
+    get_result(name, label, topk_labels)
+    #submission(finetune_net,test_time_augment=5)
+    #classify_img(finetune_net,'/home/duycuong/PycharmProjects/research/ZaloAIchallenge2018/landmark/TrainVal/train/2/16828.jpg',print_data=True)
     print 'Total time=',time.time() - begin_time
     print 'Finish'

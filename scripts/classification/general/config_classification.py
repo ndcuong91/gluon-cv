@@ -1,6 +1,6 @@
 
 pc='duycuongAI'
-pc='300'
+#pc='300'
 
 if(pc=='duycuongAI'):
     train_dir='/home/duycuong/PycharmProjects/research/ZaloAIchallenge2018/landmark/TrainVal/train'
@@ -13,13 +13,13 @@ else:
 
 num_training_samples=86505 #full dataset with
 model_name='resnext50_32x4d'
-input_sz=320
+input_sz=224
 
 #hyper parameters
 
 dataset='ZaloAILandmark'
 classes = 103
-batch_size=16
+batch_size=32
 epochs=200
 log_interval=200
 num_workers=6
@@ -35,5 +35,5 @@ resume_state=''
 resume_epoch=0
 
 #testing
-pretrained_param='resnext50_32x4d_320/2019-05-10_15.39/ZaloAILandmark-resnext50_32x4d-best.params'
-submission_file='16_submission_CuongND_resnet152_v2_224_val_acc_992.csv'
+pretrained_param='resnext50_32x4d_224/2019-05-02_18.26/ZaloAILandmark-resnext50_32x4d-best.params'
+submission_file='test.csv'

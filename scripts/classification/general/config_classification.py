@@ -1,6 +1,6 @@
 
 pc='duycuongAI'
-#pc='300'
+pc='300'
 
 if(pc=='duycuongAI'):
     train_dir='/home/duycuong/PycharmProjects/research/ZaloAIchallenge2018/landmark/TrainVal/train'
@@ -35,5 +35,5 @@ resume_state=''
 resume_epoch=0
 
 #testing
-pretrained_param='resnext50_32x4d_224/2019-05-02_18.26/ZaloAILandmark-resnext50_32x4d-best.params'
-submission_file='test.csv'
+pretrained_param='resnext50_32x4d_320/2019-05-10_16.29/ZaloAILandmark-resnext50_32x4d-20.params'
+submission_prefix='22'

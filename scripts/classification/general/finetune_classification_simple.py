@@ -289,8 +289,8 @@ def train(train_path, val_path, test_path):
         val_acc = float(val_acc)
         if val_acc > best_acc:
             best_acc = val_acc
-            finetune_net.save_parameters(os.path.join(folder,date_time,'%s-%s-best.params' % (dataset, model_name)))
-            trainer.save_states(os.path.join(folder, date_time, '%s-%s-best.states' % (dataset, model_name)))
+            finetune_net.save_parameters(os.path.join(folder,date_time,'%s-%s-best-%d.params' % (dataset, model_name, epoch)))
+            trainer.save_states(os.path.join(folder, date_time, '%s-%s-best-%d.states' % (dataset, model_name, epoch)))
             with open(os.path.join(folder,date_time,'best_map.log'), 'a') as f:
                 f.write('{:04d}:\t{:.4f}\n'.format(epoch, val_acc))
 

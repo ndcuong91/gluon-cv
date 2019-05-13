@@ -18,13 +18,13 @@ ctx=[mx.gpu()]
 model_name=config.model_name
 pretrained_param = config.pretrained_param
 test_data_dir = config.test_dir
-submission_file=config.submission_file
+submission_prefix=config.submission_prefix
 
 resize_factor=1.5
 jitter_param = 0.4
 lighting_param = 0.1
 
-seeds=[233,33,39,52,65]
+seeds=[22,33,44,55,66,77,88,99,110,121,132,143,154]
 
 val_dir = config.val_dir
 test_dir = config.test_dir
@@ -74,7 +74,6 @@ def setup_logger(log_file_path):
     logger.addHandler(fh)
     return logger
 
-
 def get_network_with_pretrained(model_name, params_path):
     network = get_model(model_name, pretrained=True)
 
@@ -116,14 +115,11 @@ def classify_img(net, file_path, topk=3, test_time_augment=2, print_data=False):
 
     return remap_pred, remap_topk_pred_idx
 
-def submission(net, test_time_augment=1, topk=3):
-    print 'Make submission with network:',model_name,'with params:',pretrained_param
-    print 'TTA =',test_time_augment,', topk =',topk,', batch_size =',batch_size
-
-    name, topk_labels, topk_probs= classify_dir(net,test_dir,[mx.gpu()],topk=topk, test_time_augment=test_time_augment, sub_class=False)
-
+def submission(net, test_time_augment=1, topk=3, use_tta_transform=False, submission_dir='submission'):
+    print 'submission. Begin'
+    name, topk_labels, topk_probs= classify_dir(net,test_dir,[mx.gpu()],topk=topk, test_time_augment=test_time_augment, use_tta_transform=use_tta_transform, sub_class=False)
     samples=name.shape[0]
-    print 'data_dir: ',test_dir,', num samples =',samples
+    print 'data_dir:',test_dir,', num samples =',samples
     result='id,predicted\n'
     for i in range(samples):
         result +=str(name[i]) + ','
@@ -133,17 +129,31 @@ def submission(net, test_time_augment=1, topk=3):
             else:
                 result += str(topk_labels[i][k]) + '\n'
 
-    with open(submission_file, 'w') as file:
-        file.write(result)
-        print 'Save submission file to:',submission_file
+    submit_dir=os.path.join(submission_dir,submission_prefix)
+    if not os.path.exists(submit_dir):
+        os.makedirs(submit_dir)
+    submit_file=os.path.join(submit_dir,(os.path.splitext(pretrained_param)[0]).replace('/','_'))+'.csv'
 
-def classify_dir_with_subclass(net, ctx, data_dir, seed=233):
+    pretrained_param_name= os.path.basename(pretrained_param)
+    shutil.copy(pretrained_param,os.path.join(submit_dir,pretrained_param_name))
+    with open(submit_file, 'w') as file:
+        file.write(result)
+        print 'Save submission file to:',submit_file
+    print 'sunmission. Finish'
+
+def classify_dir_with_subclass(net, ctx, data_dir, use_tta_transform, seed=233):
     print 'Classify_dir_with_subclass. seed:',seed
     print 'data_dir:',data_dir
     mx.random.seed(seed)
-    val_data = gluon.data.DataLoader(
-        utils.ImageFolderDatasetCustomized(data_dir).transform_first(transform_test_TTA),
-        batch_size=batch_size, shuffle=False, num_workers = num_workers)
+    if(use_tta_transform):
+        val_data = gluon.data.DataLoader(
+            utils.ImageFolderDatasetCustomized(data_dir).transform_first(transform_test_TTA),
+            batch_size=batch_size, shuffle=False, num_workers=num_workers)
+    else:
+        val_data = gluon.data.DataLoader(
+            utils.ImageFolderDatasetCustomized(data_dir).transform_first(transform_test),
+            batch_size=batch_size, shuffle=False, num_workers=num_workers)
+
 
     for i, batch in enumerate(val_data):
         if (i % 50 == 0 and i > 0):
@@ -168,13 +178,18 @@ def classify_dir_with_subclass(net, ctx, data_dir, seed=233):
     print
     return total_name.asnumpy(),total_label.asnumpy(),total_output
 
-def classify_dir_wo_subclass(net, ctx, data_dir, seed=233):
+def classify_dir_wo_subclass(net, ctx, data_dir, use_tta_transform, seed=233):
     print 'classify_dir_wo_subclass. seed:',seed
     print 'data_dir:',data_dir
     mx.random.seed(seed)
-    test_data = gluon.data.DataLoader(
-        utils.ImageFolderDatasetCustomized(data_dir,sub_class_inside=False).transform_first(transform_test_TTA),
-        batch_size=batch_size, shuffle=False, num_workers = num_workers)
+    if(use_tta_transform):
+        test_data = gluon.data.DataLoader(
+            utils.ImageFolderDatasetCustomized(data_dir,sub_class_inside=False).transform_first(transform_test_TTA),
+            batch_size=batch_size, shuffle=False, num_workers=num_workers)
+    else:
+        test_data = gluon.data.DataLoader(
+            utils.ImageFolderDatasetCustomized(data_dir,sub_class_inside=False).transform_first(transform_test),
+            batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
     for i, batch in enumerate(test_data):
         if (i % 50 == 0 and i > 0):
@@ -196,16 +211,16 @@ def classify_dir_wo_subclass(net, ctx, data_dir, seed=233):
     print
     return total_name.asnumpy(),total_output
 
-def classify_dir(net,data_dir, ctx=[mx.gpu()], topk=3, test_time_augment=2, sub_class=True):
-    print 'Test network:',model_name,'with params:',pretrained_param
-    print 'TTA =',test_time_augment,',topk =',topk
+def classify_dir(net,data_dir, ctx=[mx.gpu()], topk=3, test_time_augment=2, use_tta_transform=True, sub_class=True):
+    print 'classify_dir. network:',model_name,', params:',pretrained_param
+    print 'TTA =',test_time_augment,',topk =',topk,', batch_size:',batch_size
 
     list_pred=[]
     for n in range(test_time_augment):
         if(sub_class):
-            name, label, predict= classify_dir_with_subclass(net,ctx,data_dir, seeds[n])
+            name, label, predict= classify_dir_with_subclass(net,ctx,data_dir,use_tta_transform, seeds[n])
         else:
-            name, predict= classify_dir_wo_subclass(net,ctx,data_dir, seeds[n])
+            name, predict= classify_dir_wo_subclass(net,ctx,data_dir,use_tta_transform, seeds[n])
         list_pred.append(predict.flatten())
     samples=name.shape[0]
     pred = np.mean(list_pred, axis=0)  #tta average
@@ -224,6 +239,7 @@ def classify_dir(net,data_dir, ctx=[mx.gpu()], topk=3, test_time_augment=2, sub_
         return name, topk_labels,topk_probs
 
 def get_result(name, label, topk_labels, ):
+    print 'get_result.'
     samples=len(name)
 
     class_true_pred=[]
@@ -238,7 +254,7 @@ def get_result(name, label, topk_labels, ):
     for i in range(samples):
         cls=label[i]
         for idx in range(topk):
-            if(map_from_testing_to_training[topk_labels[i][idx]]==cls):
+            if(topk_labels[i][idx]==cls):
                 class_true_pred[cls]+=1
         class_total_sample[cls]+=1
 
@@ -263,9 +279,9 @@ def get_result(name, label, topk_labels, ):
 if __name__ == "__main__":
     finetune_net = get_network_with_pretrained(model_name, pretrained_param)
     begin_time=time.time()
-    name, label, topk_labels, topk_probs= classify_dir(finetune_net,val_dir,[mx.gpu()],test_time_augment=2)
-    get_result(name, label, topk_labels)
-    #submission(finetune_net,test_time_augment=5)
+    #name, label, topk_labels, topk_probs= classify_dir(finetune_net,val_dir,[mx.gpu()],test_time_augment=10, use_tta_transform=False)
+    #get_result(name, label, topk_labels)
+    submission(finetune_net,test_time_augment=1)
     #classify_img(finetune_net,'/home/duycuong/PycharmProjects/research/ZaloAIchallenge2018/landmark/TrainVal/train/2/16828.jpg',print_data=True)
     print 'Total time=',time.time() - begin_time
     print 'Finish'

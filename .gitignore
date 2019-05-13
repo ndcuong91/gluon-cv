@@ -6,6 +6,9 @@
 *.rec
 *.idx
 
+#
+#*.jpg*
+
 # Extra
 *.params
 *.states
@@ -120,6 +123,5 @@ ENV/
 .mypy_cache/
 
 *.png*
-*.jpg*
 *.jpeg*
 .idea/*

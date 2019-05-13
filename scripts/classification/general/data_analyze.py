@@ -9,11 +9,12 @@ num_class=config.classes
 data_dir='/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/TrainVal1/'
 val_dir = config.val_dir
 train_dir = config.train_dir
+data_analyze_dir = config.data_analyze_dir
 
 color_list=[]
-color_list.append((1,0,0,0.8))
+color_list.append((0,0,1,1))
 color_list.append((0,1,0,0.8))
-color_list.append((0,0,1,0.8))
+color_list.append((1,0,0,0.8))
 color_list.append((1,1,0,0.8))
 
 def get_list_dir_in_folder(dir):
@@ -35,6 +36,7 @@ def plot_bar(index, lists,labels, title=''):
     for i in range(len(lists)):
         plt.bar(index, lists[i],color=color_list[i],label=labels[i])
     plt.legend(loc='best')
+    plt.savefig(os.path.join(data_analyze_dir, title.replace('/','_') +'_distribution.jpg'))
     plt.show()
 
 def get_number_of_img_for_each_class_in_folder(data_dir):
@@ -57,14 +59,25 @@ def plot_distribution_result(data_dir):
     labels=[]
     index = np.arange(num_class)
 
-    file_path='result_public_test_top3_prob.txt'
+
+    # num_samples = get_number_of_img_for_each_class_in_folder(data_dir)
+    # lists.append(num_samples)
+    # labels.append('TrainVal_origin')
+
+    # num_samples = get_number_of_img_for_each_class_in_folder('/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/TrainVal_origin')
+    # lists.append(num_samples)
+    # labels.append('TrainVal1)
+
+    file_path='data_analyze/public_test_top3_prob.txt'
     data1=map(int, get_data_from_file(file_path))
     lists.append(data1)
-    labels.append(file_path.replace('result_','').replace('.txt',''))
+    labels.append('public_test_top3_prob')
 
-    num_samples = get_number_of_img_for_each_class_in_folder(data_dir)
-    lists.append(num_samples)
-    labels.append('ground_truth')
+
+    file_path='data_analyze/private_test_top3_prob.txt'
+    data1=map(int, get_data_from_file(file_path))
+    lists.append(data1)
+    labels.append('private_test_top3_prob')
 
     #get data from file
     # file_path='result_val_true_pred_top5.txt'
@@ -80,7 +93,7 @@ def plot_distribution_result(data_dir):
     # lists.append(data1)
     # labels.append(file_path.replace('result_','').replace('.txt',''))
 
-    plot_bar(index,lists,labels)
+    plot_bar(index,lists,labels, title='public_test_top3_prob_vs_private_test_top3_prob')
 
 
 def plot_distribution_of_images_in_folder(data_dir):
@@ -94,6 +107,6 @@ def represent_tSNE_of_embedded_feature():
 
 if __name__ == "__main__":
     #plot_distribution_result('/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/Test_Public_result')
-    plot_distribution_result(val_dir)
+    plot_distribution_result('/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/TrainVal_origin')
     #plot_distribution_of_images_in_folder('/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/Test_Public_result')
     #plot_bar_x()

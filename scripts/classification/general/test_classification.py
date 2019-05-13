@@ -24,10 +24,10 @@ resize_factor=1.5
 jitter_param = 0.4
 lighting_param = 0.1
 
-seeds=[22,33,44,55,66,77,88,99,110,121,132,143,154]
-
+train_dir=config.train_dir
 val_dir = config.val_dir
 test_dir = config.test_dir
+data_analyze_dir = config.data_analyze_dir
 
 transform_test = transforms.Compose([
     transforms.Resize(int(resize_factor * input_sz)),
@@ -105,7 +105,7 @@ def classify_img(net, file_path, topk=3, test_time_augment=2, print_data=False):
         pred = np.mean(preds, axis=0)
 
     pred = nd.softmax(nd.array(pred)).asnumpy()
-    remap_pred= pred[map_from_training_to_testing]
+    remap_pred= pred
 
     remap_topk_pred_idx = remap_pred.argsort()[-1:topk_axis:-1]
 
@@ -218,18 +218,17 @@ def classify_dir(net,data_dir, ctx=[mx.gpu()], topk=3, test_time_augment=2, use_
     list_pred=[]
     for n in range(test_time_augment):
         if(sub_class):
-            name, label, predict= classify_dir_with_subclass(net,ctx,data_dir,use_tta_transform, seeds[n])
+            name, label, predict= classify_dir_with_subclass(net,ctx,data_dir,use_tta_transform, seed=10*n)
         else:
-            name, predict= classify_dir_wo_subclass(net,ctx,data_dir,use_tta_transform, seeds[n])
+            name, predict= classify_dir_wo_subclass(net,ctx,data_dir,use_tta_transform, seed=10*n)
         list_pred.append(predict.flatten())
     samples=name.shape[0]
     pred = np.mean(list_pred, axis=0)  #tta average
 
     pred=pred.reshape(samples,-1)
-    numpy_arr = (nd.softmax(nd.array(pred), axis=1)).asnumpy().astype('float32')
 
-    total_labels = np.argsort(-numpy_arr, axis=1)
-    topk_probs = -np.sort(-numpy_arr, axis=1)
+    total_labels = np.argsort(-pred, axis=1)
+    topk_probs = -np.sort(-pred, axis=1)
     topk_labels= total_labels[:, 0:topk]
     topk_probs= topk_probs[:, 0:topk]
 
@@ -238,50 +237,66 @@ def classify_dir(net,data_dir, ctx=[mx.gpu()], topk=3, test_time_augment=2, use_
     else:
         return name, topk_labels,topk_probs
 
-def get_result(name, label, topk_labels, ):
+def get_result(name, topk_labels, topk_probs, label=None, write_output=False, output_file_name=''):
     print 'get_result.'
     samples=len(name)
 
     class_true_pred=[]
     class_total_sample=[]
+    topk_prob_result=[]
     topk=len(topk_labels[0])
 
     for n in range(num_class):
         class_true_pred.append(0)
         class_total_sample.append(0)
+        topk_prob_result.append(0)
+
+    if (label !=None):
+        for i in range(samples):
+            cls = label[i]
+            for idx in range(topk):
+                if (topk_labels[i][idx] == cls):
+                    class_true_pred[cls] += 1
+            class_total_sample[cls] += 1
+
+        total_true_pred = 0
+        total_sample = 0
+        for n in range(num_class):
+            total_true_pred += class_true_pred[n]
+            total_sample += class_total_sample[n]
+            print 'Class: ', n, ',true_pred', class_true_pred[n], ',total', class_total_sample[n], ',top' + str(
+                topk), float(class_true_pred[n]) / float(class_total_sample[n])
+
+        print 'True pred:', total_true_pred, ', Total file:', total_sample, 'top' + str(topk) + ' accuracy: ', float(
+            total_true_pred) / float(total_sample)
+    else:
+        for i in range(samples):
+            for idx in range(topk):
+                topk_prob_result[topk_labels[i][idx]] += topk_probs[i][idx]
+
+        if (write_output):
+            topk_result = ''
+            for i in range(num_class):
+                topk_result += str(int(topk_prob_result[i])) + '\n'
+            file_name = output_file_name + '_top' + str(topk) + '_prob.txt'
+            with open(os.path.join(data_analyze_dir, file_name), 'w') as file:
+                file.write(topk_result)
+                print 'Saved file', os.path.join(data_analyze_dir, file_name)
 
 
-    for i in range(samples):
-        cls=label[i]
-        for idx in range(topk):
-            if(topk_labels[i][idx]==cls):
-                class_true_pred[cls]+=1
-        class_total_sample[cls]+=1
-
-    total_true_pred=0
-    total_sample=0
-    for n in range(num_class):
-        total_true_pred+=class_true_pred[n]
-        total_sample+=class_total_sample[n]
-        print 'Class: ',n,',true_pred',class_true_pred[n],',total',class_total_sample[n],',top'+str(topk), float(class_true_pred[n]) / float(class_total_sample[n])
-
-    print 'True pred:',total_true_pred,', Total file:',total_sample,'top'+str(topk)+' accuracy: ',float(total_true_pred)/float(total_sample)
-
-    # if(write_output):
-    #     with open(output_file_name+'_true_pred_top'+str(topk)+'.txt', 'w') as file:
-    #         file.write(result)
-    #     topk_result=''
-    #     for i in range(num_class):
-    #         topk_result+=str(int(topk_pred_result[i]))+'\n'
-    #     with open(output_file_name+'_top'+str(topk)+'_prob.txt', 'w') as file:
-    #         file.write(topk_result)
 
 if __name__ == "__main__":
     finetune_net = get_network_with_pretrained(model_name, pretrained_param)
     begin_time=time.time()
-    #name, label, topk_labels, topk_probs= classify_dir(finetune_net,val_dir,[mx.gpu()],test_time_augment=10, use_tta_transform=False)
-    #get_result(name, label, topk_labels)
-    submission(finetune_net,test_time_augment=1)
-    #classify_img(finetune_net,'/home/duycuong/PycharmProjects/research/ZaloAIchallenge2018/landmark/TrainVal/train/2/16828.jpg',print_data=True)
+    #name, label, topk_labels, topk_probs= classify_dir(finetune_net,val_dir,[mx.gpu()],test_time_augment=1, topk=1, use_tta_transform=False)
+    #get_result(name,  topk_labels,topk_probs,label, output_file_name='train', write_output=False)
+
+    name, topk_labels, topk_probs= classify_dir(finetune_net,'/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/private_test_3_9',[mx.gpu()],test_time_augment=1, topk=3, use_tta_transform=False,sub_class=False)
+    get_result(name, topk_labels,topk_probs, output_file_name='private_test', write_output=True)
+
+    #name, label, topk_labels, topk_probs= classify_dir(finetune_net,val_dir,[mx.gpu()],test_time_augment=1, topk=5, use_tta_transform=False)
+    #get_result(name,topk_labels,topk_probs,label, output_file_name='train', write_output=False)
+    #submission(finetune_net,test_time_augment=1)
+    #classify_img(finetune_net,'/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/TrainVal1/val/2/17958.jpg',print_data=True)
     print 'Total time=',time.time() - begin_time
     print 'Finish'

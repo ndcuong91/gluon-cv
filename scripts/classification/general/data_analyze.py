@@ -3,7 +3,7 @@ import numpy as np
 import os
 import config_classification as config
 
-model_name=''
+model_name=config.model_name
 pretrained=''
 num_class=config.classes
 data_dir='/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/TrainVal1/'
@@ -59,7 +59,6 @@ def plot_distribution_result(data_dir):
     labels=[]
     index = np.arange(num_class)
 
-
     # num_samples = get_number_of_img_for_each_class_in_folder(data_dir)
     # lists.append(num_samples)
     # labels.append('TrainVal_origin')
@@ -84,9 +83,6 @@ def plot_distribution_result(data_dir):
     # data1=map(int, get_data_from_file(file_path))
     # lists.append(data1)
     # labels.append(file_path.replace('result_','').replace('.txt',''))
-
-    #   get data from file
-
     #   get data from file
     # file_path='result_val_true_pred_top1.txt'
     # data1=map(int, get_data_from_file(file_path))
@@ -101,12 +97,22 @@ def plot_distribution_of_images_in_folder(data_dir):
     index = np.arange(len(num_samples))
     plot_bar(index,[num_samples])
 
-def represent_tSNE_of_embedded_feature():
-    kk=1
+def represent_tSNE_of_embedded_feature(model_name, embedded_dir='data_analyze'):
+    import logging
+    import mxnet as mx
+    from mxboard import SummaryWriter
+
+    logging.basicConfig(level=logging.INFO)
+    embedding_feature = mx.nd.load(os.path.join(embedded_dir,'%s_embedding_feature.ndarray' % model_name))[0]
+    names = mx.nd.load(os.path.join(embedded_dir,'%s_name.ndarray' % model_name))[0].asnumpy()
+
+    with SummaryWriter(logdir='./logs') as sw:
+        sw.add_embedding(tag=model_name+'_codes', embedding=embedding_feature, labels=names)
 
 
 if __name__ == "__main__":
     #plot_distribution_result('/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/Test_Public_result')
-    plot_distribution_result('/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/TrainVal_origin')
+    #plot_distribution_result('/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/TrainVal_origin')
+    represent_tSNE_of_embedded_feature(model_name)
     #plot_distribution_of_images_in_folder('/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/Test_Public_result')
     #plot_bar_x()

@@ -284,6 +284,42 @@ def get_result(name, topk_labels, topk_probs, label=None, write_output=False, ou
                 print 'Saved file', os.path.join(data_analyze_dir, file_name)
 
 
+def get_embedded_feature(model_name, ctx, data_dir):
+    print 'get_embedded_feature'
+    print 'data_dir:', data_dir
+
+    network = get_model(model_name, pretrained=True)
+    network.collect_params().reset_ctx(ctx)
+
+
+    test_data = gluon.data.DataLoader(
+        utils.ImageFolderDatasetCustomized(data_dir, sub_class_inside=False).transform_first(transform_test),
+        batch_size=batch_size, shuffle=False, num_workers=num_workers)
+
+    total_outputs = None
+    total_name=None
+
+    for i, batch in enumerate(test_data):
+        if (i % 50 == 0 and i > 0):
+            print 'Tested:', i, 'batches'
+        data = gluon.utils.split_and_load(batch[0], ctx_list=ctx, batch_axis=0, even_split=False)
+        name = gluon.utils.split_and_load(batch[1], ctx_list=ctx, batch_axis=0, even_split=False)
+
+        outputs = []
+        for y in data:
+            outputs.append(network(y))
+
+        if (i == 0):
+            total_outputs=outputs[0]
+            total_name=name[0]
+        else:
+            total_outputs = mx.nd.concat(*[total_outputs, outputs[0]], dim=0)
+            total_name = ndarray.concat(total_name, name[0], dim=0)
+
+
+    mx.nd.save('./data_analyze/%s_embedding_feature.ndarray' % model_name, total_outputs)
+    mx.nd.save('./data_analyze/%s_name.ndarray' % model_name, total_name)
+
 
 if __name__ == "__main__":
     finetune_net = get_network_with_pretrained(model_name, pretrained_param)
@@ -291,8 +327,10 @@ if __name__ == "__main__":
     #name, label, topk_labels, topk_probs= classify_dir(finetune_net,val_dir,[mx.gpu()],test_time_augment=1, topk=1, use_tta_transform=False)
     #get_result(name,  topk_labels,topk_probs,label, output_file_name='train', write_output=False)
 
-    name, topk_labels, topk_probs= classify_dir(finetune_net,'/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/private_test_3_9',[mx.gpu()],test_time_augment=1, topk=3, use_tta_transform=False,sub_class=False)
-    get_result(name, topk_labels,topk_probs, output_file_name='private_test', write_output=True)
+    #name, topk_labels, topk_probs= classify_dir(finetune_net,'/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/private_test_3_9',[mx.gpu()],test_time_augment=1, topk=3, use_tta_transform=False,sub_class=False)
+    #get_result(name, topk_labels,topk_probs, output_file_name='private_test', write_output=True)
+
+    get_embedded_feature(model_name,[mx.gpu()],'/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/TrainVal1/val/2')
 
     #name, label, topk_labels, topk_probs= classify_dir(finetune_net,val_dir,[mx.gpu()],test_time_augment=1, topk=5, use_tta_transform=False)
     #get_result(name,topk_labels,topk_probs,label, output_file_name='train', write_output=False)

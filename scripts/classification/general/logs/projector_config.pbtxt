@@ -1,0 +1,5 @@
+embeddings {
+tensor_name: "resnet_152_image_codes"
+tensor_path: "resnet_152_image_codes/tensors.tsv"
+metadata_path: "resnet_152_image_codes/metadata.tsv"
+}

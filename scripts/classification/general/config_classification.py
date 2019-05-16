@@ -11,11 +11,11 @@ if(pc=='duycuongAI'):
     test_dir = os.path.join(dataset_dir, 'landmark/Public')
 else:
     dataset_dir='/media/atsg/Data/datasets/ZaloAIChallenge2018'
-    train_dir = os.path.join(dataset_dir, 'landmark/TrainVal1/train')
-    val_dir = os.path.join(dataset_dir, 'landmark/TrainVal1/val')
+    train_dir = os.path.join(dataset_dir, 'landmark/TrainVal1_fixed_class2/train')
+    val_dir = os.path.join(dataset_dir, 'landmark/TrainVal1_fixed_class2/val')
     test_dir = os.path.join(dataset_dir, 'landmark/Test_Public')
 
-num_training_samples=86505 #full dataset with
+num_training_samples=76500 #full dataset with
 model_name='resnext50_32x4d'
 input_sz=224
 
@@ -23,7 +23,7 @@ input_sz=224
 
 dataset='ZaloAILandmark'
 classes = 103
-batch_size=32
+batch_size=8
 epochs=200
 log_interval=200
 num_workers=6

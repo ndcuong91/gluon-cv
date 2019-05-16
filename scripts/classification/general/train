@@ -1,2 +1,2 @@
-python finetune_classification_simple.py --model='resnext50_32x4d' --input_sz=320 --batch_size=24 --workers=8 --lr=0.001 --num_epochs=200
+python finetune_classification_simple.py --model='resnext50_32x4d' --input_sz=320 --batch_size=24 --workers=6 --lr=0.001 --num_epochs=200
 #python finetune_classification_simple.py --model='resnet18_v2' --input_sz=112 --batch_size=32 --workers=4 --lr=0.001 --num_epochs=500

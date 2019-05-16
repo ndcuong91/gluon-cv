@@ -1,0 +1,16 @@
+Namespace(batch_size=24, input_sz=320, log_interval=200, lr=0.001, lr_decay=0.75, lr_decay_epoch='3,10,20,30,40,50,70,110,150,200,450,900,1500', lr_decay_period=0, lr_mode='step', model='resnext50_32x4d', momentum=0.9, num_class=103, num_epochs=200, num_gpus=1, num_workers=6, resume_epoch=0, resume_params='', resume_states='', save_frequency=5, warmup_epochs=0, wd=0.0001)
+Epoch[0] Batch [199] 	Speed: 48.780641 samples/sec	loss: 1.621565	accuracy=0.320417	lr=0.001000
+Epoch[0] Batch [399] 	Speed: 51.091316 samples/sec	loss: 1.278970	accuracy=0.484896	lr=0.001000
+Epoch[0] Batch [599] 	Speed: 51.056836 samples/sec	loss: 1.460399	accuracy=0.561250	lr=0.001000
+Epoch[0] Batch [799] 	Speed: 51.051687 samples/sec	loss: 0.499030	accuracy=0.605833	lr=0.001000
+Epoch[0] Batch [999] 	Speed: 51.288458 samples/sec	loss: 1.506935	accuracy=0.637375	lr=0.001000
+Epoch[0] Batch [1199] 	Speed: 51.135181 samples/sec	loss: 0.898841	accuracy=0.662917	lr=0.001000
+Epoch[0] Batch [1399] 	Speed: 51.260736 samples/sec	loss: 0.211285	accuracy=0.681429	lr=0.001000
+Epoch[0] Batch [1599] 	Speed: 51.289790 samples/sec	loss: 1.003499	accuracy=0.693750	lr=0.001000
+Epoch[0] Batch [1799] 	Speed: 51.278659 samples/sec	loss: 0.570782	accuracy=0.706134	lr=0.001000
+Epoch[0] Batch [1999] 	Speed: 51.285984 samples/sec	loss: 0.947692	accuracy=0.718083	lr=0.001000
+Epoch[0] Batch [2199] 	Speed: 50.651011 samples/sec	loss: 0.623253	accuracy=0.727348	lr=0.001000
+Epoch[0] Batch [2399] 	Speed: 51.258735 samples/sec	loss: 0.620971	accuracy=0.736094	lr=0.001000
+Epoch[0] Batch [2599] 	Speed: 51.256199 samples/sec	loss: 0.884457	accuracy=0.742837	lr=0.001000
+Epoch[0] Batch [2799] 	Speed: 51.141293 samples/sec	loss: 0.913796	accuracy=0.748690	lr=0.001000
+Epoch[0] Batch [2999] 	Speed: 51.245549 samples/sec	loss: 0.786366	accuracy=0.755222	lr=0.001000

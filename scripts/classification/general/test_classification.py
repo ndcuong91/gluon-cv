@@ -283,41 +283,84 @@ def get_result(name, topk_labels, topk_probs, label=None, write_output=False, ou
                 file.write(topk_result)
                 print 'Saved file', os.path.join(data_analyze_dir, file_name)
 
+def process_result(src_dir,des_dir, name, topk_labels, topk_probs):
 
-def get_embedded_feature(model_name, ctx, data_dir,embedded_dir='data_analyze', save_prefix=''):
-    print 'get_embedded_feature'
-    print 'data_dir:', data_dir
+    for i in range(num_class):
+        if not os.path.exists(os.path.join(des_dir,str(i))):
+            os.makedirs(os.path.join(des_dir,str(i)))
 
-    network = get_model(model_name, pretrained=True)
-    network.collect_params().reset_ctx(ctx)
+    num_samples=name.shape[0]
+    for n in range(num_samples):
+        src_path=os.path.join(src_dir,str(name[n])+'.jpg')
+        dst_path=os.path.join(des_dir,str(topk_labels[n][0]),str((topk_probs[n][0]).round(5))+'_'+str(name[n])+'.jpg')
+        shutil.copy(src_path,dst_path)
+        kk=1
 
 
-    test_data = gluon.data.DataLoader(
-        utils.ImageFolderDatasetCustomized(data_dir, sub_class_inside=False).transform_first(transform_test),
-        batch_size=batch_size, shuffle=False, num_workers=num_workers)
+def get_manual_result(data_dir):
+    list_image = []
+    list_label=[]
 
-    total_outputs = None
-    total_name=None
+    list_dir = get_list_dir_in_folder(data_dir)
+    for dir in list_dir:
+        imgs = get_list_file_in_folder(os.path.join(data_dir, dir))
+        for img in imgs:
+            name = img.split('_')
+            length=len(name)
+            list_image.append(name[length-1])
+            list_label.append(dir)
+    return list_image, list_label
 
-    for i, batch in enumerate(test_data):
-        if (i % 50 == 0 and i > 0):
-            print 'Tested:', i, 'batches'
-        data = gluon.utils.split_and_load(batch[0], ctx_list=ctx, batch_axis=0, even_split=False)
-        name = gluon.utils.split_and_load(batch[1], ctx_list=ctx, batch_axis=0, even_split=False)
+def submission2(data_dir,  submission_dir = 'submission'):
+    img_1, label_1 = get_manual_result('/home/duycuong/PycharmProjects/research/ZaloAIchallenge2018/landmark/hand_classified')
+    img_2, label_2 = get_manual_result('/media/duycuong/Data/Dataset/ZaloAIChallenge2018/landmark/Public_classified_22')
 
-        outputs = []
-        for y in data:
-            outputs.append(network(y))
+    name, topk_labels, topk_probs = classify_dir(finetune_net, data_dir, [mx.gpu()], test_time_augment=1, topk=3,
+                                                 use_tta_transform=False, sub_class=False)
 
-        if (i == 0):
-            total_outputs=outputs[0]
-            total_name=name[0]
-        else:
-            total_outputs = mx.nd.concat(*[total_outputs, outputs[0]], dim=0)
-            total_name = ndarray.concat(total_name, name[0], dim=0)
+    for i in range(len(img_1)):
+        idx = (np.where(name == int(img_1[i].replace('.jpg', ''))))[0][0]
+        replace_result = True
+        for k in range(3):
+            if (topk_labels[idx][k] == int(label_1[i])):
+                replace_result = False
+        if (replace_result == True):
+            topk_labels[idx][2] = int(label_1[i])
 
-    mx.nd.save(os.path.join(embedded_dir,'%s_%s_embedding_feature.ndarray' % (save_prefix,model_name)), total_outputs)
-    mx.nd.save(os.path.join(embedded_dir,'%s_%s_name.ndarray' % (save_prefix,model_name)), total_name)
+    for i in range(len(img_2)):
+        idx = (np.where(name == int(img_2[i].replace('.jpg', ''))))[0][0]
+        replace_result = True
+        for k in range(3):
+            if (topk_labels[idx][k] == int(label_2[i])):
+                replace_result = False
+        if (replace_result == True):
+            topk_labels[idx][2] = int(label_2[i])
+
+    samples = name.shape[0]
+    print 'data_dir:', test_dir, ', num samples =', samples
+    result = 'id,predicted\n'
+    for i in range(samples):
+        result += str(name[i]) + ','
+        for k in range(3):
+            if (k < 2):
+                result += str(topk_labels[i][k]) + ' '
+            else:
+                result += str(topk_labels[i][k]) + '\n'
+
+
+    submit_dir = os.path.join(submission_dir, submission_prefix)
+    if not os.path.exists(submit_dir):
+        os.makedirs(submit_dir)
+    submit_file = os.path.join(submit_dir, (os.path.splitext(pretrained_param)[0]).replace('/', '_')) + '.csv'
+
+    pretrained_param_name = os.path.basename(pretrained_param)
+    shutil.copy(pretrained_param, os.path.join(submit_dir, pretrained_param_name))
+    with open(submit_file, 'w') as file:
+        file.write(result)
+        print 'Save submission file to:', submit_file
+    print 'sunmission. Finish'
+
+
 
 if __name__ == "__main__":
     finetune_net = get_network_with_pretrained(model_name, pretrained_param)
@@ -325,11 +368,12 @@ if __name__ == "__main__":
     #name, label, topk_labels, topk_probs= classify_dir(finetune_net,val_dir,[mx.gpu()],test_time_augment=1, topk=1, use_tta_transform=False)
     #get_result(name,  topk_labels,topk_probs,label, output_file_name='train', write_output=False)
 
-    #name, topk_labels, topk_probs= classify_dir(finetune_net,'/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/private_test_3_9',[mx.gpu()],test_time_augment=1, topk=3, use_tta_transform=False,sub_class=False)
+    submission2('/media/duycuong/Data/Dataset/ZaloAIChallenge2018/landmark/Public')
+
+    #process_result(src_dir,'/home/duycuong/PycharmProjects/research/ZaloAIchallenge2018/landmark/Public_classified_22',name, topk_labels, topk_probs)
     #get_result(name, topk_labels,topk_probs, output_file_name='private_test', write_output=True)
 
     #classify_img(finetune_net,'/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/Test_Public_clustered/Untitled Folder/0_0.0_1057617.jpg')
-    get_embedded_feature(model_name,[mx.gpu()],'/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/TrainVal1/train/2',save_prefix='trainval1_train_2_imagenet')
 
     #name, label, topk_labels, topk_probs= classify_dir(finetune_net,val_dir,[mx.gpu()],test_time_augment=1, topk=5, use_tta_transform=False)
     #get_result(name,topk_labels,topk_probs,label, output_file_name='train', write_output=False)

@@ -7,6 +7,7 @@ from mxnet.gluon.data.vision import transforms
 from gluoncv.model_zoo import get_model
 import config_classification as config
 import utils_classification as utils
+import cv2
 
 input_sz=config.input_sz
 num_class = config.classes
@@ -51,6 +52,9 @@ transform_test_TTA = transforms.Compose([
 
 map_from_testing_to_training=[0,1,10,100,101,102,11,12,13,14,15,16,17,18,19,2,20,21,22,23,24,25,26,27,28,29,3,30,31,32,33,34,35,36,37,38,39,4,40,41,42,43,44,45,46,47,48,49,5,50,51,52,53,54,55,56,57,58,59,6,60,61,62,63,64,65,66,67,68,69,7,70,71,72,73,74,75,76,77,78,79,8,80,81,82,83,84,85,86,87,88,89,9,90,91,92,93,94,95,96,97,98,99]
 map_from_training_to_testing=[0,1,15,26,37,48,59,70,81,92,2,6,7,8,9,10,11,12,13,14,16,17,18,19,20,21,22,23,24,25,27,28,29,30,31,32,33,34,35,36,38,39,40,41,42,43,44,45,46,47,49,50,51,52,53,54,55,56,57,58,60,61,62,63,64,65,66,67,68,69,71,72,73,74,75,76,77,78,79,80,82,83,84,85,86,87,88,89,90,91,93,94,95,96,97,98,99,100,101,102,3,4,5]
+
+with open('/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/Zalolandmark_synset.txt', 'r') as f:
+    label_strs = [l.rstrip() for l in f]
 
 def get_list_dir_in_folder(dir):
     sub_dir = [o for o in os.listdir(dir) if os.path.isdir(os.path.join(dir, o))]
@@ -297,7 +301,7 @@ def process_result(src_dir,des_dir, name, topk_labels, topk_probs):
         kk=1
 
 
-def get_manual_result(data_dir):
+def get_manual_public_result(data_dir):
     list_image = []
     list_label=[]
 
@@ -308,15 +312,18 @@ def get_manual_result(data_dir):
             name = img.split('_')
             length=len(name)
             list_image.append(name[length-1])
-            list_label.append(dir)
+            list_label.append(dir.replace('_ok',''))
     return list_image, list_label
 
 def submission2(data_dir,  submission_dir = 'submission'):
-    img_1, label_1 = get_manual_result('/home/duycuong/PycharmProjects/research/ZaloAIchallenge2018/landmark/hand_classified')
-    img_2, label_2 = get_manual_result('/media/duycuong/Data/Dataset/ZaloAIChallenge2018/landmark/Public_classified_22')
+    dir='/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/22_landmark'
+
+    img_1, label_1 = get_manual_public_result(os.path.join(dir,'22_Hand_classified'))
+    img_2, label_2 = get_manual_public_result(os.path.join(dir,'22_Public_classified'))
 
     name, topk_labels, topk_probs = classify_dir(finetune_net, data_dir, [mx.gpu()], test_time_augment=1, topk=3,
                                                  use_tta_transform=False, sub_class=False)
+
 
     for i in range(len(img_1)):
         idx = (np.where(name == int(img_1[i].replace('.jpg', ''))))[0][0]
@@ -361,6 +368,62 @@ def submission2(data_dir,  submission_dir = 'submission'):
     print 'sunmission. Finish'
 
 
+def draw_result(src_path, dst_path, topk_labels, topk_probs):
+    origimg = cv2.imread(src_path)
+    left = 5
+    for k in range(5):
+        top = 25 * (k + 1)
+        title = "%d:%.4f,%s" % (topk_labels[k], topk_probs[k], label_strs[topk_labels[k]])
+        width=len(title)
+        cv2.rectangle(origimg, (left, top-20), (left+12*width, top+5), (200, 200, 200), -1)
+        cv2.putText(origimg, title, (left, top), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
+    cv2.imwrite(dst_path, origimg)
+    os.remove(src_path)
+
+
+def add_result_for_data():
+    # public_classify_dir = '/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/22_landmark/22_Public_classified'
+    # name, labels, topk_labels, topk_probs= classify_dir(finetune_net,public_classify_dir,[mx.gpu()],test_time_augment=1, topk=5, use_tta_transform=False)
+    #
+    # print public_classify_dir
+    # for i in range(len(name)):
+    #     file_name=str(name[i])+'.jpg'
+    #     prob='%.4f'%topk_probs[i][0]
+    #     new_name=prob+'_'+file_name
+    #     full_path=os.path.join(public_classify_dir,str(labels[i]), file_name)
+    #     new_path=os.path.join(public_classify_dir,str(labels[i]),new_name)
+    #     draw_result(full_path,new_path, topk_labels[i], topk_probs[i])
+    #
+    #
+    # hand_classify_dir = '/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/22_landmark/22_Hand_classified'
+    #
+    # for n in range(103):
+    #     if not os.path.exists(os.path.join(hand_classify_dir,str(n))):
+    #         os.makedirs(os.path.join(hand_classify_dir,str(n)))
+    #
+    # name, labels, topk_labels, topk_probs= classify_dir(finetune_net,hand_classify_dir,[mx.gpu()],test_time_augment=1, topk=5, use_tta_transform=False)
+    #
+    # print hand_classify_dir
+    # for i in range(len(name)):
+    #     file_name=str(name[i])+'.jpg'
+    #     prob='%.4f'%topk_probs[i][0]
+    #     new_name=prob+'_'+file_name
+    #     full_path=os.path.join(hand_classify_dir,str(labels[i]), file_name)
+    #     new_path=os.path.join(hand_classify_dir,str(labels[i]),new_name)
+    #     draw_result(full_path,new_path, topk_labels[i], topk_probs[i])
+
+
+    need_classify_dir = '/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/22_landmark/22_Need_classify2'
+    name, topk_labels, topk_probs= classify_dir(finetune_net,need_classify_dir,[mx.gpu()],test_time_augment=1, topk=5, use_tta_transform=False, sub_class=False)
+
+    print need_classify_dir
+    for i in range(len(name)):
+        file_name=str(name[i])+'.jpg'
+        prob='%.4f'%topk_probs[i][0]
+        new_name=prob+'_'+file_name
+        full_path=os.path.join(need_classify_dir,file_name)
+        new_path=os.path.join(need_classify_dir,new_name)
+        draw_result(full_path,new_path, topk_labels[i], topk_probs[i])
 
 if __name__ == "__main__":
     finetune_net = get_network_with_pretrained(model_name, pretrained_param)
@@ -368,7 +431,8 @@ if __name__ == "__main__":
     #name, label, topk_labels, topk_probs= classify_dir(finetune_net,val_dir,[mx.gpu()],test_time_augment=1, topk=1, use_tta_transform=False)
     #get_result(name,  topk_labels,topk_probs,label, output_file_name='train', write_output=False)
 
-    submission2('/media/duycuong/Data/Dataset/ZaloAIChallenge2018/landmark/Public')
+    submission2('/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/Test_Public')
+    #add_result_for_data()
 
     #process_result(src_dir,'/home/duycuong/PycharmProjects/research/ZaloAIchallenge2018/landmark/Public_classified_22',name, topk_labels, topk_probs)
     #get_result(name, topk_labels,topk_probs, output_file_name='private_test', write_output=True)

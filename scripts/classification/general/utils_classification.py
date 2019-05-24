@@ -77,7 +77,9 @@ class ImageFolderDatasetCustomized(dataset.Dataset):
                     self.items.append((filename, label))
         else:
             for filename in sorted(os.listdir(root)):
-                name_wo_ext = int(os.path.splitext(filename)[0])
+                raw_name=(os.path.splitext(filename)[0]).split('_')
+                length=len(raw_name)
+                name_wo_ext = int(raw_name[length-1])
                 filename = os.path.join(root, filename)
                 ext = os.path.splitext(filename)[1]
                 if ext.lower() not in self._exts:
@@ -94,7 +96,9 @@ class ImageFolderDatasetCustomized(dataset.Dataset):
             return self._transform(img, label)
         if(self._sub_class):
             name = os.path.basename(self.items[idx][0])
-            name_wo_ext = int(os.path.splitext(name)[0])
+            raw_name = (os.path.splitext(name)[0]).split('_')
+            length = len(raw_name)
+            name_wo_ext = int(raw_name[length - 1])
             return img, label, name_wo_ext
         else:
             return img, self.items[idx][1]

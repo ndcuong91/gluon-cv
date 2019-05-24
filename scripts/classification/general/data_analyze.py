@@ -10,6 +10,7 @@ from gluoncv.model_zoo import get_model
 from mxnet import image, init, nd, gluon, ndarray
 import utils_classification as utils
 from mxnet.gluon.data.vision import transforms
+import cv2
 
 model_name=config.model_name
 pretrained=''
@@ -21,6 +22,7 @@ data_analyze_dir = config.data_analyze_dir
 input_sz=config.input_sz
 batch_size=config.batch_size
 num_workers=config.num_workers
+
 
 color_list=[]
 color_list.append((0,0,1,1))
@@ -254,32 +256,34 @@ def get_list_images(data_dir):
     for dir in list_dir:
         imgs=get_list_file_in_folder(os.path.join(data_dir,dir))
         for img in imgs:
-            name=img.split('_')[1]
-            list_image.append(name)
+            name = img.split('_')
+            length = len(name)
+            list_image.append(name[length - 1])
     return list_image
 
-
-def process_data(data_dir):
-
-    new_dir='/media/duycuong/Data/Dataset/ZaloAIChallenge2018/landmark/Reclassified2'
+def process_data(data_dir='/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/Test_Public'):
+    new_dir='/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/22_landmark/22_Need_classify2'
 
     list_public_test=get_list_file_in_folder(data_dir)
-    list_img=get_list_images('/media/duycuong/Data/Dataset/ZaloAIChallenge2018/landmark/Public_classified_22')
-    list_img_reclassified=get_list_file_in_folder('/media/duycuong/Data/Dataset/ZaloAIChallenge2018/landmark/Reclassified')
-    list_img_hand_classified=get_list_images('/home/duycuong/PycharmProjects/research/ZaloAIchallenge2018/landmark/Public_classified_22')
+    list_public_classified=get_list_images('/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/22_landmark/22_Public_classified')
+    list_need_classified=get_list_file_in_folder('/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/22_landmark/22_Need_classify')
+    list_hand_classified=get_list_images('/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/22_landmark/22_Hand_classified')
 
-    for file in list_img:
+    for file in list_public_classified:
         list_public_test.remove(file)
-    for file in list_img_reclassified:
-        file_name=file.split('_')[1]
-        list_public_test.remove(file_name)
+    for file in list_need_classified:
+        name = file.split('_')
+        length = len(name)
+        list_public_test.remove(name[length - 1])
 
-    for file in list_img_hand_classified:
+    for file in list_hand_classified:
+        print file
         list_public_test.remove(file)
 
     for file in list_public_test:
         print file
         shutil.copy(os.path.join(data_dir,file),os.path.join(new_dir,file))
+
 
 if __name__ == "__main__":
     #plot_distribution_result('/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/Test_Public_result')
@@ -289,9 +293,7 @@ if __name__ == "__main__":
     #represent_tSNE_of_embedded_feature(model_name,save_prefix='trainval1_train_2_imagenet')
     #cluster_images_base_on_embedded_feature(model_name, key_img_file='key_img_pubic1_test.txt', save_prefix='public1_test_imagenet')
 
-    data_dir='/media/duycuong/Data/Dataset/ZaloAIChallenge2018/landmark/Public'
-    process_data(data_dir)
-
+    process_data()
 
 
     #lst=get_list_clustered_img('/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/Test_Public_clustered')

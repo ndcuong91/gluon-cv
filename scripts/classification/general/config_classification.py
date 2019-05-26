@@ -1,14 +1,14 @@
 import os
 
 pc='duycuongAI'
-pc='300'
+#pc='300'
 
 
 if(pc=='duycuongAI'):
     dataset_dir='/media/duycuong/Data/Dataset/ZaloAIChallenge2018/landmark'
     train_dir = os.path.join(dataset_dir, 'TrainVal/train')
     val_dir = os.path.join(dataset_dir, '/TrainVal/val')
-    test_dir = os.path.join(dataset_dir, 'Public')
+    test_dir = os.path.join(dataset_dir, 'Test_Public')
 else:
     dataset_dir='/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark'
     train_dir = os.path.join(dataset_dir, 'TrainVal1_fixed_class2_merged_22_landmark')
@@ -40,7 +40,7 @@ resume_epoch=0
 
 #testing
 pretrained_param='ZaloAILandmark-resnext50_32x4d-20.params'
-submission_prefix='34'
+submission_prefix='38'
 
 #data analyze
 data_analyze_dir='data_analyze'

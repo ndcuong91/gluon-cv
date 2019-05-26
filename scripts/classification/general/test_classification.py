@@ -7,7 +7,7 @@ from mxnet.gluon.data.vision import transforms
 from gluoncv.model_zoo import get_model
 import config_classification as config
 import utils_classification as utils
-import cv2
+
 
 input_sz=config.input_sz
 num_class = config.classes
@@ -18,8 +18,6 @@ ctx=[mx.gpu()]
 
 model_name=config.model_name
 pretrained_param = config.pretrained_param
-test_data_dir = config.test_dir
-submission_prefix=config.submission_prefix
 
 resize_factor=1.5
 jitter_param = 0.4
@@ -52,19 +50,6 @@ transform_test_TTA = transforms.Compose([
 
 map_from_testing_to_training=[0,1,10,100,101,102,11,12,13,14,15,16,17,18,19,2,20,21,22,23,24,25,26,27,28,29,3,30,31,32,33,34,35,36,37,38,39,4,40,41,42,43,44,45,46,47,48,49,5,50,51,52,53,54,55,56,57,58,59,6,60,61,62,63,64,65,66,67,68,69,7,70,71,72,73,74,75,76,77,78,79,8,80,81,82,83,84,85,86,87,88,89,9,90,91,92,93,94,95,96,97,98,99]
 map_from_training_to_testing=[0,1,15,26,37,48,59,70,81,92,2,6,7,8,9,10,11,12,13,14,16,17,18,19,20,21,22,23,24,25,27,28,29,30,31,32,33,34,35,36,38,39,40,41,42,43,44,45,46,47,49,50,51,52,53,54,55,56,57,58,60,61,62,63,64,65,66,67,68,69,71,72,73,74,75,76,77,78,79,80,82,83,84,85,86,87,88,89,90,91,93,94,95,96,97,98,99,100,101,102,3,4,5]
-
-with open('/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/Zalolandmark_synset.txt', 'r') as f:
-    label_strs = [l.rstrip() for l in f]
-
-def get_list_dir_in_folder(dir):
-    sub_dir = [o for o in os.listdir(dir) if os.path.isdir(os.path.join(dir, o))]
-    return sub_dir
-
-def get_list_file_in_folder(dir, ext='jpg'):
-    included_extensions = [ext]
-    file_names = [fn for fn in os.listdir(dir)
-                  if any(fn.endswith(ext) for ext in included_extensions)]
-    return file_names
 
 def setup_logger(log_file_path):
     # set up logger
@@ -118,32 +103,6 @@ def classify_img(net, file_path, topk=3, test_time_augment=2, print_data=True):
             print 'Class:',remap_topk_pred_idx[i],', Prob:',remap_pred[remap_topk_pred_idx[i]]
 
     return remap_pred, remap_topk_pred_idx
-
-def submission(net, test_time_augment=1, topk=3, use_tta_transform=False, submission_dir='submission'):
-    print 'submission. Begin'
-    name, topk_labels, topk_probs= classify_dir(net,test_dir,[mx.gpu()],topk=topk, test_time_augment=test_time_augment, use_tta_transform=use_tta_transform, sub_class=False)
-    samples=name.shape[0]
-    print 'data_dir:',test_dir,', num samples =',samples
-    result='id,predicted\n'
-    for i in range(samples):
-        result +=str(name[i]) + ','
-        for k in range(topk):
-            if (k < 2):
-                result += str(topk_labels[i][k]) + ' '
-            else:
-                result += str(topk_labels[i][k]) + '\n'
-
-    submit_dir=os.path.join(submission_dir,submission_prefix)
-    if not os.path.exists(submit_dir):
-        os.makedirs(submit_dir)
-    submit_file=os.path.join(submit_dir,(os.path.splitext(pretrained_param)[0]).replace('/','_'))+'.csv'
-
-    pretrained_param_name= os.path.basename(pretrained_param)
-    shutil.copy(pretrained_param,os.path.join(submit_dir,pretrained_param_name))
-    with open(submit_file, 'w') as file:
-        file.write(result)
-        print 'Save submission file to:',submit_file
-    print 'sunmission. Finish'
 
 def classify_dir_with_subclass(net, ctx, data_dir, use_tta_transform, seed=233):
     print 'Classify_dir_with_subclass. seed:',seed
@@ -287,161 +246,17 @@ def get_result(name, topk_labels, topk_probs, label=None, write_output=False, ou
                 file.write(topk_result)
                 print 'Saved file', os.path.join(data_analyze_dir, file_name)
 
-def process_result(src_dir,des_dir, name, topk_labels, topk_probs):
-
-    for i in range(num_class):
-        if not os.path.exists(os.path.join(des_dir,str(i))):
-            os.makedirs(os.path.join(des_dir,str(i)))
-
-    num_samples=name.shape[0]
-    for n in range(num_samples):
-        src_path=os.path.join(src_dir,str(name[n])+'.jpg')
-        dst_path=os.path.join(des_dir,str(topk_labels[n][0]),str((topk_probs[n][0]).round(5))+'_'+str(name[n])+'.jpg')
-        shutil.copy(src_path,dst_path)
-        kk=1
-
-
-def get_manual_public_result(data_dir):
-    list_image = []
-    list_label=[]
-
-    list_dir = get_list_dir_in_folder(data_dir)
-    for dir in list_dir:
-        imgs = get_list_file_in_folder(os.path.join(data_dir, dir))
-        for img in imgs:
-            name = img.split('_')
-            length=len(name)
-            list_image.append(name[length-1])
-            list_label.append(dir.replace('_ok',''))
-    return list_image, list_label
-
-def submission2(data_dir,  submission_dir = 'submission'):
-    dir='/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/22_landmark'
-
-    img_1, label_1 = get_manual_public_result(os.path.join(dir,'22_Hand_classified'))
-    img_2, label_2 = get_manual_public_result(os.path.join(dir,'22_Public_classified'))
-
-    name, topk_labels, topk_probs = classify_dir(finetune_net, data_dir, [mx.gpu()], test_time_augment=1, topk=3,
-                                                 use_tta_transform=False, sub_class=False)
-
-
-    for i in range(len(img_1)):
-        idx = (np.where(name == int(img_1[i].replace('.jpg', ''))))[0][0]
-        replace_result = True
-        for k in range(3):
-            if (topk_labels[idx][k] == int(label_1[i])):
-                replace_result = False
-        if (replace_result == True):
-            topk_labels[idx][2] = int(label_1[i])
-
-    for i in range(len(img_2)):
-        idx = (np.where(name == int(img_2[i].replace('.jpg', ''))))[0][0]
-        replace_result = True
-        for k in range(3):
-            if (topk_labels[idx][k] == int(label_2[i])):
-                replace_result = False
-        if (replace_result == True):
-            topk_labels[idx][2] = int(label_2[i])
-
-    samples = name.shape[0]
-    print 'data_dir:', test_dir, ', num samples =', samples
-    result = 'id,predicted\n'
-    for i in range(samples):
-        result += str(name[i]) + ','
-        for k in range(3):
-            if (k < 2):
-                result += str(topk_labels[i][k]) + ' '
-            else:
-                result += str(topk_labels[i][k]) + '\n'
-
-
-    submit_dir = os.path.join(submission_dir, submission_prefix)
-    if not os.path.exists(submit_dir):
-        os.makedirs(submit_dir)
-    submit_file = os.path.join(submit_dir, (os.path.splitext(pretrained_param)[0]).replace('/', '_')) + '.csv'
-
-    pretrained_param_name = os.path.basename(pretrained_param)
-    shutil.copy(pretrained_param, os.path.join(submit_dir, pretrained_param_name))
-    with open(submit_file, 'w') as file:
-        file.write(result)
-        print 'Save submission file to:', submit_file
-    print 'sunmission. Finish'
-
-
-def draw_result(src_path, dst_path, topk_labels, topk_probs):
-    origimg = cv2.imread(src_path)
-    left = 5
-    for k in range(5):
-        top = 25 * (k + 1)
-        title = "%d:%.4f,%s" % (topk_labels[k], topk_probs[k], label_strs[topk_labels[k]])
-        width=len(title)
-        cv2.rectangle(origimg, (left, top-20), (left+12*width, top+5), (200, 200, 200), -1)
-        cv2.putText(origimg, title, (left, top), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
-    cv2.imwrite(dst_path, origimg)
-    os.remove(src_path)
-
-
-def add_result_for_data():
-    # public_classify_dir = '/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/22_landmark/22_Public_classified'
-    # name, labels, topk_labels, topk_probs= classify_dir(finetune_net,public_classify_dir,[mx.gpu()],test_time_augment=1, topk=5, use_tta_transform=False)
-    #
-    # print public_classify_dir
-    # for i in range(len(name)):
-    #     file_name=str(name[i])+'.jpg'
-    #     prob='%.4f'%topk_probs[i][0]
-    #     new_name=prob+'_'+file_name
-    #     full_path=os.path.join(public_classify_dir,str(labels[i]), file_name)
-    #     new_path=os.path.join(public_classify_dir,str(labels[i]),new_name)
-    #     draw_result(full_path,new_path, topk_labels[i], topk_probs[i])
-    #
-    #
-    # hand_classify_dir = '/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/22_landmark/22_Hand_classified'
-    #
-    # for n in range(103):
-    #     if not os.path.exists(os.path.join(hand_classify_dir,str(n))):
-    #         os.makedirs(os.path.join(hand_classify_dir,str(n)))
-    #
-    # name, labels, topk_labels, topk_probs= classify_dir(finetune_net,hand_classify_dir,[mx.gpu()],test_time_augment=1, topk=5, use_tta_transform=False)
-    #
-    # print hand_classify_dir
-    # for i in range(len(name)):
-    #     file_name=str(name[i])+'.jpg'
-    #     prob='%.4f'%topk_probs[i][0]
-    #     new_name=prob+'_'+file_name
-    #     full_path=os.path.join(hand_classify_dir,str(labels[i]), file_name)
-    #     new_path=os.path.join(hand_classify_dir,str(labels[i]),new_name)
-    #     draw_result(full_path,new_path, topk_labels[i], topk_probs[i])
-
-
-    need_classify_dir = '/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/22_landmark/22_Need_classify2'
-    name, topk_labels, topk_probs= classify_dir(finetune_net,need_classify_dir,[mx.gpu()],test_time_augment=1, topk=5, use_tta_transform=False, sub_class=False)
-
-    print need_classify_dir
-    for i in range(len(name)):
-        file_name=str(name[i])+'.jpg'
-        prob='%.4f'%topk_probs[i][0]
-        new_name=prob+'_'+file_name
-        full_path=os.path.join(need_classify_dir,file_name)
-        new_path=os.path.join(need_classify_dir,new_name)
-        draw_result(full_path,new_path, topk_labels[i], topk_probs[i])
-
 if __name__ == "__main__":
     finetune_net = get_network_with_pretrained(model_name, pretrained_param)
     begin_time=time.time()
     #name, label, topk_labels, topk_probs= classify_dir(finetune_net,val_dir,[mx.gpu()],test_time_augment=1, topk=1, use_tta_transform=False)
-    #get_result(name,  topk_labels,topk_probs,label, output_file_name='train', write_output=False)
 
-    submission2('/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/Test_Public')
-    #add_result_for_data()
-
-    #process_result(src_dir,'/home/duycuong/PycharmProjects/research/ZaloAIchallenge2018/landmark/Public_classified_22',name, topk_labels, topk_probs)
     #get_result(name, topk_labels,topk_probs, output_file_name='private_test', write_output=True)
 
     #classify_img(finetune_net,'/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/Test_Public_clustered/Untitled Folder/0_0.0_1057617.jpg')
 
     #name, label, topk_labels, topk_probs= classify_dir(finetune_net,val_dir,[mx.gpu()],test_time_augment=1, topk=5, use_tta_transform=False)
     #get_result(name,topk_labels,topk_probs,label, output_file_name='train', write_output=False)
-    #submission(finetune_net,test_time_augment=1)
     #classify_img(finetune_net,'/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/TrainVal1/val/2/17958.jpg',print_data=True)
     print 'Total time=',time.time() - begin_time
     print 'Finish'

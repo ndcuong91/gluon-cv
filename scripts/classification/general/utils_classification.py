@@ -9,6 +9,28 @@ from mxnet.gluon.data import dataset
 import warnings
 from mxnet import image
 
+
+def get_list_dir_in_folder(dir):
+    sub_dir = [o for o in os.listdir(dir) if os.path.isdir(os.path.join(dir, o))]
+    return sub_dir
+
+def get_list_file_in_folder(dir, ext='jpg'):
+    included_extensions = [ext]
+    file_names = [fn for fn in os.listdir(dir)
+                  if any(fn.endswith(ext) for ext in included_extensions)]
+    return file_names
+
+
+def create_class_folder_inside_dir(dir, num_class=103):
+    for i in range(num_class):
+        class_dir=os.path.join(dir,str(i))
+        if not os.path.exists(class_dir):
+            os.makedirs(class_dir)
+
+def get_string_from_file(file_path):
+    text = [line.rstrip('\n') for line in open(file_path)]
+    return text
+
 class ImageFolderDatasetCustomized(dataset.Dataset):
     """A dataset for loading image files stored in a folder structure.
 

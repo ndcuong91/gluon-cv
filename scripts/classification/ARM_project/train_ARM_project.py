@@ -11,26 +11,26 @@ from gluoncv.model_zoo import get_model
 from datetime import datetime
 from arm_network import get_arm_network
 import cv2
+import config_ARM_project as config
 
-data_dir='/media/atsg/Data/datasets/SUN_ARM_project'
-data_dir='/media/atsg/Data/CuongND/challenge/zaloAIchallenge/landmark/data/TrainVal'
-model='resnet152_v2'
-#model='arm_network_v3.5'
-classes = 102
-input_sz=112
-num_training_samples=79640
-batch_size=16
+data_dir=config.data_dir
+#data_dir='/media/atsg/Data/CuongND/challenge/zaloAIchallenge/landmark/data/TrainVal'
+model='resnet18_v2'
+#model='arm_network_v3.5.2'
+classes = config.classes
+input_sz=config.input_sz
+batch_size=config.batch_size
 
 #because of small dataset, we use test set as validation set
 train_path = os.path.join(data_dir, 'train')
-test_path = os.path.join(data_dir, 'val')
+test_path = os.path.join(data_dir, 'test')
 
 def parse_opts():
     parser = argparse.ArgumentParser(description='Transfer learning on SUN_ARM_project dataset',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--model', type=str,default=model,
                         help='name of the pretrained model from model zoo.')
-    parser.add_argument('-j', '--workers', dest='num_workers', default=4, type=int,
+    parser.add_argument('-j', '--workers', dest='num_workers', default=8, type=int,
                         help='number of preprocessing workers')
     parser.add_argument('--num-gpus', default=1, type=int,
                         help='number of gpus to use, 0 indicates cpu only')
@@ -40,13 +40,15 @@ def parse_opts():
                         help='resolution of input size')
     parser.add_argument('-b', '--batch-size', default=batch_size, type=int,
                         help='mini-batch size')
-    parser.add_argument('--lr', '--learning-rate', default=0.001, type=float,
+    parser.add_argument('--lr', '--learning-rate', default=0.4, type=float,
                         help='initial learning rate')
     parser.add_argument('--momentum', default=0.9, type=float,
                         help='momentum')
     parser.add_argument('--weight-decay', '--wd', dest='wd', default=1e-4, type=float,
                         help='weight decay (default: 1e-4)')
     parser.add_argument('--lr-factor', default=0.75, type=float,
+                        help='learning rate decay ratio')
+    parser.add_argument('--log_interval', default=50, type=int,
                         help='learning rate decay ratio')
     opts = parser.parse_args()
     return opts
@@ -60,6 +62,9 @@ if 'arm_network' in opts.model:
 else:
     epochs=5000
     lr_step='10,20,30,40,50,70,110,150,200,450,900,1500'
+if 'imagenet' in data_dir:
+    epochs=300
+    lr_step='40,60'
 
 model_name = opts.model
 print model_name
@@ -212,8 +217,10 @@ def train(train_path, val_path, test_path):
     L = gluon.loss.SoftmaxCrossEntropyLoss()
     lr_counter = 0
     num_batch = len(train_data)
+    num_training_samples=len(train_data._dataset)
 
     print 'Begin training'
+    print 'Num samples in dataset:',num_training_samples
     # Start Training
 
     logger.info(opts)
@@ -238,6 +245,7 @@ def train(train_path, val_path, test_path):
             with ag.record():
                 outputs = [finetune_net(X) for X in data]
                 loss = [L(yhat, y) for yhat, y in zip(outputs, label)]
+
             for l in loss:
                 l.backward()
 
@@ -245,6 +253,13 @@ def train(train_path, val_path, test_path):
             train_loss += sum([l.mean().asscalar() for l in loss]) / len(loss)
 
             metric.update(label, outputs)
+
+            if opts.log_interval and not (idx + 1) % opts.log_interval:
+                train_metric_name, train_metric_score = metric.get()
+                logger.info('Epoch[%d] Batch [%d] \tSpeed: %f samples/sec\t%s=%f\tlr=%f' % (
+                    epoch, idx, batch_size * opts.log_interval / (time.time() - btic),
+                    train_metric_name, train_metric_score, trainer.learning_rate))
+                btic = time.time()
 
         #print
         _, train_acc = metric.get()

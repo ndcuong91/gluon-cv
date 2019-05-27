@@ -15,7 +15,6 @@ import utils_classification as utils
 model=config.model_name
 classes = config.classes
 input_sz=config.input_sz
-num_training_samples=config.num_training_samples
 batch_size=config.batch_size
 epochs=config.epochs
 log_interval=config.log_interval
@@ -218,6 +217,7 @@ def train(train_path, val_path, test_path):
     else:
         lr_decay_epoch = [int(i) for i in opts.lr_decay_epoch.split(',')]
     lr_decay_epoch = [e - opts.warmup_epochs for e in lr_decay_epoch]
+    num_training_samples=len(train_data._dataset)
     num_batches = num_training_samples // batch_size
     lr_scheduler = LRSequential([
         LRScheduler('linear', base_lr=0, target_lr=opts.lr,
@@ -243,6 +243,7 @@ def train(train_path, val_path, test_path):
     num_batch = len(train_data)
 
     print 'Begin finetuning', model_name, opts.input_sz
+    print 'Num samples in dataset:',num_training_samples
     # Start Training
 
     logger.info(opts)

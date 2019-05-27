@@ -31,7 +31,7 @@ def parse_args():
                         help='training batch size per device (CPU/GPU).')
     parser.add_argument('--dtype', type=str, default='float32',
                         help='data type for training. default is float32')
-    parser.add_argument('--num-gpus', type=int, default=0,
+    parser.add_argument('--num-gpus', type=int, default=1,
                         help='number of gpus to use.')
     parser.add_argument('-j', '--num-data-workers', dest='num_workers', default=4, type=int,
                         help='number of preprocessing workers')
@@ -59,7 +59,7 @@ def parse_args():
                         help='whether to init gamma of the last BN layer in each bottleneck to 0.')
     parser.add_argument('--mode', type=str,
                         help='mode in which to train the model. options are symbolic, imperative, hybrid')
-    parser.add_argument('--model', type=str, required=True,
+    parser.add_argument('--model', type=str, default='ResNet50_v2',
                         help='type of model to use. see vision_model for options.')
     parser.add_argument('--input-size', type=int, default=224,
                         help='size of the input image size. default is 224')

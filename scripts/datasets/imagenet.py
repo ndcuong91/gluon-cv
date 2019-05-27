@@ -10,6 +10,7 @@ from mxnet.gluon.utils import check_sha1
 from gluoncv.utils import download, makedirs
 
 _TARGET_DIR = os.path.expanduser('~/.mxnet/datasets/imagenet')
+path='/media/atsg/Data/datasets/ImageNet/imagenet'
 _TRAIN_TAR = 'ILSVRC2012_img_train.tar'
 _TRAIN_TAR_SHA1 = '43eda4fe35c1705d6606a6a7a633bc965d194284'
 _VAL_TAR = 'ILSVRC2012_img_val.tar'
@@ -19,9 +20,9 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description='Setup the ImageNet dataset.',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--download-dir', required=True,
+    parser.add_argument('--download-dir', default='/media/atsg/Data/datasets/ImageNet',
                         help="The directory that contains downloaded tar files")
-    parser.add_argument('--target-dir', default=_TARGET_DIR,
+    parser.add_argument('--target-dir', default=path,
                         help="The directory to store extracted images")
     parser.add_argument('--checksum', action='store_true',
                         help="If check integrity before extracting.")
@@ -112,21 +113,23 @@ def extract_val(tar_fname, target_dir, with_rec=False, num_thread=1):
 def main():
     args = parse_args()
 
-    target_dir = os.path.expanduser(args.target_dir)
-    if os.path.exists(target_dir):
-        raise ValueError('Target dir ['+target_dir+'] exists. Remove it first')
+    # target_dir = os.path.expanduser(args.target_dir)
+    # if os.path.exists(target_dir):
+    #     raise ValueError('Target dir ['+target_dir+'] exists. Remove it first')
+    #
+    # download_dir = os.path.expanduser(args.download_dir)
+    # train_tar_fname = os.path.join(download_dir, _TRAIN_TAR)
+    # check_file(train_tar_fname, args.checksum, _TRAIN_TAR_SHA1)
+    # val_tar_fname = os.path.join(download_dir, _VAL_TAR)
+    # check_file(val_tar_fname, args.checksum, _VAL_TAR_SHA1)
+    #
+    # build_rec = args.with_rec
+    # if build_rec:
+    #     os.makedirs(os.path.join(target_dir, 'rec'))
+    # extract_train(train_tar_fname, os.path.join(target_dir, 'train'), build_rec, args.num_thread)
+    # extract_val(val_tar_fname, os.path.join(target_dir, 'val'), build_rec, args.num_thread)
 
-    download_dir = os.path.expanduser(args.download_dir)
-    #train_tar_fname = os.path.join(download_dir, _TRAIN_TAR)
-    #check_file(train_tar_fname, args.checksum, _TRAIN_TAR_SHA1)
-    val_tar_fname = os.path.join(download_dir, _VAL_TAR)
-    check_file(val_tar_fname, args.checksum, _VAL_TAR_SHA1)
-
-    build_rec = args.with_rec
-    if build_rec:
-        os.makedirs(os.path.join(target_dir, 'rec'))
-    #extract_train(train_tar_fname, os.path.join(target_dir, 'train'), build_rec, args.num_thread)
-    extract_val(val_tar_fname, os.path.join(target_dir, 'val'), build_rec, args.num_thread)
+    os.symlink(path, _TARGET_DIR)
 
 if __name__ == '__main__':
     main()

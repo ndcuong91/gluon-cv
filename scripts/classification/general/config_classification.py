@@ -1,7 +1,7 @@
 import os
 
 pc='duycuongAI'
-#pc='300'
+pc='300'
 
 
 if(pc=='duycuongAI'):
@@ -15,17 +15,21 @@ else:
     val_dir = os.path.join(dataset_dir, 'TrainVal1_fixed_class2/val')
     test_dir = os.path.join(dataset_dir, 'landmark/Test_Public')
 
-num_training_samples=100000 #full dataset with 100000
-model_name='resnext50_32x4d'
-input_sz=224
+    # dataset_dir = '/media/atsg/Data/datasets/ImageNet/imagenet'
+    # train_dir = os.path.join(dataset_dir, 'train')
+    # val_dir = os.path.join(dataset_dir, 'val')
+    # test_dir = os.path.join(dataset_dir, 'test')
+
+classes = 103
+model_name= 'resnext50_32x4d'  #'resnet18_v2'    #'resnext50_32x4d'
+input_sz=112
 
 #hyper parameters
 
 dataset='ZaloAILandmark'
-classes = 103
 batch_size=32
 epochs=200
-log_interval=200
+log_interval=20
 num_workers=6
 base_lr=0.00043
 lr_decay=0.75
@@ -34,7 +38,7 @@ lr_decay_epoch='10,20,30,50,80,110,150,200,450,900,1500'
 save_frequency=5
 
 #training
-resume_param='ZaloAILandmark-resnext50_32x4d-20.params'
+resume_param=''
 resume_state=''
 resume_epoch=0
 

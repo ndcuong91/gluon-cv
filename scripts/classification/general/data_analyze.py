@@ -110,7 +110,6 @@ def submission_with_manual_result(net, submission_dir = 'submission'):
     name, topk_labels, topk_probs = test.classify_dir(net, data_dir, [mx.gpu()], test_time_augment=1, topk=3,
                                                  use_tta_transform=False, sub_class=False)
 
-
     for i in range(len(img_1)):
         idx = (np.where(name == int(img_1[i].replace('.jpg', ''))))[0][0]
         replace_result = True
@@ -196,7 +195,6 @@ def draw_result(src_path, dst_path, topk_labels, topk_probs):
     cv2.imwrite(dst_path, origimg)
     os.remove(src_path)
 
-
 def draw_result_for_image():
     # public_classify_dir = '/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/22_landmark/22_Public_classified'
     # name, labels, topk_labels, topk_probs= classify_dir(finetune_net,public_classify_dir,[mx.gpu()],test_time_augment=1, topk=5, use_tta_transform=False)
@@ -279,12 +277,12 @@ def plot_distribution_of_images_in_folder(data_dir):
     plot_bar(index,[num_samples])
 
 
-def get_embedded_feature_and_draw_tSNE(net, ctx, data_dir,embedded_dir='data_analyze', save_prefix=''):
+def get_embedded_feature_and_draw_tSNE(net, ctx, data_dir, sub_class_inside=False,embedded_dir='data_analyze', save_prefix=''):
     print 'get_embedded_feature. start'
     print 'data_dir:', data_dir
 
     test_data = gluon.data.DataLoader(
-        utils.ImageFolderDatasetCustomized(data_dir, sub_class_inside=False).transform_first(test.transform_test),
+        utils.ImageFolderDatasetCustomized(data_dir, sub_class_inside=sub_class_inside).transform_first(test.transform_test),
         batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
     total_outputs = None
@@ -310,7 +308,7 @@ def get_embedded_feature_and_draw_tSNE(net, ctx, data_dir,embedded_dir='data_ana
     mx.nd.save(os.path.join(embedded_dir,'%s_%s_embedding_feature.ndarray' % (save_prefix,model_name)), total_outputs)
     mx.nd.save(os.path.join(embedded_dir,'%s_%s_name.ndarray' % (save_prefix,model_name)), total_name)
 
-    print 'Write mxboard data to', embedded_dir
+    print 'Write embedded data to', embedded_dir
     embedding_feature = mx.nd.load(os.path.join(embedded_dir,'%s_%s_embedding_feature.ndarray' % (save_prefix,model_name)))[0]
     names = mx.nd.load(os.path.join(embedded_dir,'%s_%s_name.ndarray' % (save_prefix,model_name)))[0].asnumpy()
 
@@ -318,8 +316,7 @@ def get_embedded_feature_and_draw_tSNE(net, ctx, data_dir,embedded_dir='data_ana
         sw.add_embedding(tag=model_name+'_codes', embedding=embedding_feature, labels=names)
 
     print 'Call Mxboard'
-    import subprocess
-    subprocess.call('tensorboard --logdir=./logs --host=127.0.0.1 --port=8888')
+    os.system('tensorboard --logdir=./logs --host=127.0.0.1 --port=8888')
 
 
 def cluster_images_base_on_embedded_feature(model_name, key_img_file='', embedded_dir='data_analyze', save_prefix='', dis_thres=0.5):
@@ -444,7 +441,7 @@ if __name__ == "__main__":
     # import subprocess
     # subprocess.call('tensorboard --logdir=./logs --host=127.0.0.1 --port=8888')
 
-    #get_embedded_feature_and_draw_tSNE(finetune_net,[mx.gpu()], test_dir)
+    #get_embedded_feature_and_draw_tSNE(finetune_net,[mx.gpu()], val_dir, sub_class_inside=True)
 
     #plot_distribution_result('/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/Test_Public_result')
     #plot_distribution_result('/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/TrainVal_origin')
@@ -454,7 +451,7 @@ if __name__ == "__main__":
     #cluster_images_base_on_embedded_feature(model_name, key_img_file='key_img_pubic1_test.txt', save_prefix='public1_test_imagenet')
 
     #process_data()
-    submission_with_manual_result(finetune_net)
+    #submission_with_manual_result(finetune_net)
 
     #lst=get_list_clustered_img('/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/Test_Public_clustered')
     #copy_img_that_did_not_clustered('/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/Test_Public',lst,'/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/Test_Public1')

@@ -28,3 +28,8 @@ tensor_name: "resnext50_32x4d_codes"
 tensor_path: "resnext50_32x4d_codes/tensors.tsv"
 metadata_path: "resnext50_32x4d_codes/metadata.tsv"
 }
+embeddings {
+tensor_name: "resnext50_32x4d_codes"
+tensor_path: "resnext50_32x4d_codes/tensors.tsv"
+metadata_path: "resnext50_32x4d_codes/metadata.tsv"
+}

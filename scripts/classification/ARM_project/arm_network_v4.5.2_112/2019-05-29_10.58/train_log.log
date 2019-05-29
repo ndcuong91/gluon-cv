@@ -1,0 +1,16 @@
+Namespace(batch_size=64, input_sz=112, log_interval=200, lr=0.01, lr_decay=0.75, lr_decay_epoch='10,20,30,40,50,70,110,150,200,500,1000', lr_decay_period=0, lr_mode='step', model='arm_network_v4.5.2', momentum=0.9, num_class=2, num_epochs=1500, num_gpus=1, num_workers=6, resume_epoch=0, resume_params='', resume_states='', save_frequency=5, warmup_epochs=0, wd=0.0001)
+[Epoch 0] Train-acc: 0.606, loss: 0.649 | Val-acc-top1: 0.649 | Val-acc-top5: 1.000 | time: 6.9 | Speed: 318.32 samples/sec | lr: 0.01000000
+[Epoch 1] Train-acc: 0.652, loss: 0.626 | Val-acc-top1: 0.673 | Val-acc-top5: 1.000 | time: 6.0 | Speed: 366.12 samples/sec | lr: 0.01000000
+[Epoch 2] Train-acc: 0.657, loss: 0.620 | Val-acc-top1: 0.680 | Val-acc-top5: 1.000 | time: 5.9 | Speed: 372.85 samples/sec | lr: 0.01000000
+[Epoch 3] Train-acc: 0.691, loss: 0.591 | Val-acc-top1: 0.725 | Val-acc-top5: 1.000 | time: 6.2 | Speed: 352.17 samples/sec | lr: 0.01000000
+[Epoch 4] Train-acc: 0.682, loss: 0.600 | Val-acc-top1: 0.674 | Val-acc-top5: 1.000 | time: 6.6 | Speed: 333.82 samples/sec | lr: 0.01000000
+[Epoch 5] Train-acc: 0.690, loss: 0.570 | Val-acc-top1: 0.615 | Val-acc-top5: 1.000 | time: 6.3 | Speed: 346.73 samples/sec | lr: 0.01000000
+[Epoch 6] Train-acc: 0.690, loss: 0.585 | Val-acc-top1: 0.719 | Val-acc-top5: 1.000 | time: 6.1 | Speed: 359.68 samples/sec | lr: 0.01000000
+[Epoch 7] Train-acc: 0.684, loss: 0.591 | Val-acc-top1: 0.617 | Val-acc-top5: 1.000 | time: 6.0 | Speed: 364.38 samples/sec | lr: 0.01000000
+[Epoch 8] Train-acc: 0.705, loss: 0.561 | Val-acc-top1: 0.592 | Val-acc-top5: 1.000 | time: 6.5 | Speed: 338.78 samples/sec | lr: 0.01000000
+[Epoch 9] Train-acc: 0.724, loss: 0.538 | Val-acc-top1: 0.676 | Val-acc-top5: 1.000 | time: 6.2 | Speed: 355.79 samples/sec | lr: 0.00750000
+[Epoch 10] Train-acc: 0.731, loss: 0.535 | Val-acc-top1: 0.775 | Val-acc-top5: 1.000 | time: 6.3 | Speed: 351.21 samples/sec | lr: 0.00750000
+[Epoch 11] Train-acc: 0.738, loss: 0.520 | Val-acc-top1: 0.707 | Val-acc-top5: 1.000 | time: 6.6 | Speed: 333.72 samples/sec | lr: 0.00750000
+[Epoch 12] Train-acc: 0.712, loss: 0.567 | Val-acc-top1: 0.552 | Val-acc-top5: 1.000 | time: 6.2 | Speed: 356.12 samples/sec | lr: 0.00750000
+[Epoch 13] Train-acc: 0.734, loss: 0.557 | Val-acc-top1: 0.710 | Val-acc-top5: 1.000 | time: 6.0 | Speed: 366.46 samples/sec | lr: 0.00750000
+[Epoch 14] Train-acc: 0.732, loss: 0.524 | Val-acc-top1: 0.540 | Val-acc-top5: 1.000 | time: 6.1 | Speed: 359.82 samples/sec | lr: 0.00750000

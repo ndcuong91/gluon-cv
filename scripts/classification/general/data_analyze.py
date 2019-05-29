@@ -436,18 +436,12 @@ def process_data(data_dir='/media/atsg/Data/datasets/ZaloAIChallenge2018/landmar
 if __name__ == "__main__":
 
     finetune_net = test.get_network_with_pretrained(model_name, pretrained_param)
-
-
     # import subprocess
     # subprocess.call('tensorboard --logdir=./logs --host=127.0.0.1 --port=8888')
 
-    #get_embedded_feature_and_draw_tSNE(finetune_net,[mx.gpu()], val_dir, sub_class_inside=True)
+    get_embedded_feature_and_draw_tSNE(finetune_net,[mx.gpu()], val_dir, sub_class_inside=True, save_prefix='val_result_github')
 
     #plot_distribution_result('/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/Test_Public_result')
-    #plot_distribution_result('/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/TrainVal_origin')
-
-    #get_embedded_feature(model_name,[mx.gpu()],'/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/TrainVal1/train/2',save_prefix='trainval1_train_2_imagenet')
-    #represent_tSNE_of_embedded_feature(model_name,save_prefix='trainval1_train_2_imagenet')
     #cluster_images_base_on_embedded_feature(model_name, key_img_file='key_img_pubic1_test.txt', save_prefix='public1_test_imagenet')
 
     #process_data()

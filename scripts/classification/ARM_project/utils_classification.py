@@ -20,7 +20,6 @@ def get_list_file_in_folder(dir, ext='jpg'):
                   if any(fn.endswith(ext) for ext in included_extensions)]
     return file_names
 
-
 def create_class_folder_inside_dir(dir, num_class=103):
     for i in range(num_class):
         class_dir=os.path.join(dir,str(i))

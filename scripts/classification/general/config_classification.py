@@ -20,8 +20,8 @@ else:
     # val_dir = os.path.join(dataset_dir, 'val')
     # test_dir = os.path.join(dataset_dir, 'test')
 
-classes = 103
-model_name= 'densenet161'  #'resnet18_v2'    #'resnext50_32x4d'
+classes = 2
+model_name= 'resnet101_v2'  #'resnet18_v2'    #'resnext50_32x4d'
 input_sz=224
 
 #hyper parameters
@@ -38,12 +38,12 @@ lr_decay_epoch='10,20,30,50,80,110,150,200,450,900,1500'
 save_frequency=5
 
 #training
-resume_param=''
-resume_state=''
-resume_epoch=0
+resume_param='densenet161_224/2019-05-28_21.24/ZaloAILandmark-densenet161-best-21.params'
+resume_state='densenet161_224/2019-05-28_21.24/ZaloAILandmark-densenet161-best-21.states'
+resume_epoch=22
 
 #testing
-pretrained_param='resnext50_32x4d_224/2019-05-24_16.33/ZaloAILandmark-resnext50_32x4d-best-39.params'
+pretrained_param='/home/atsg/PycharmProjects/gvh205/gluon-cv/scripts/classification/ARM_project/resnet101_v2_224_9532/2019-04-20_09.15/best.params'
 submission_prefix='38'
 
 #data analyze

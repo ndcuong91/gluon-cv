@@ -1,35 +1,20 @@
 embeddings {
-tensor_name: "resnext50_32x4d_codes"
-tensor_path: "resnext50_32x4d_codes/tensors.tsv"
-metadata_path: "resnext50_32x4d_codes/metadata.tsv"
+tensor_name: "resnet101_v2_codes"
+tensor_path: "resnet101_v2_codes/tensors.tsv"
+metadata_path: "resnet101_v2_codes/metadata.tsv"
+sprite {
+image_path: "resnet101_v2_codes/sprite.png"
+single_image_dim: 64
+single_image_dim: 64
+}
 }
 embeddings {
-tensor_name: "resnext50_32x4d_codes"
-tensor_path: "resnext50_32x4d_codes/tensors.tsv"
-metadata_path: "resnext50_32x4d_codes/metadata.tsv"
+tensor_name: "resnet101_v2_codes"
+tensor_path: "resnet101_v2_codes/tensors.tsv"
+metadata_path: "resnet101_v2_codes/metadata.tsv"
+sprite {
+image_path: "resnet101_v2_codes/sprite.png"
+single_image_dim: 64
+single_image_dim: 64
 }
-embeddings {
-tensor_name: "resnext50_32x4d_codes"
-tensor_path: "resnext50_32x4d_codes/tensors.tsv"
-metadata_path: "resnext50_32x4d_codes/metadata.tsv"
-}
-embeddings {
-tensor_name: "resnext50_32x4d_codes"
-tensor_path: "resnext50_32x4d_codes/tensors.tsv"
-metadata_path: "resnext50_32x4d_codes/metadata.tsv"
-}
-embeddings {
-tensor_name: "resnext50_32x4d_codes"
-tensor_path: "resnext50_32x4d_codes/tensors.tsv"
-metadata_path: "resnext50_32x4d_codes/metadata.tsv"
-}
-embeddings {
-tensor_name: "resnext50_32x4d_codes"
-tensor_path: "resnext50_32x4d_codes/tensors.tsv"
-metadata_path: "resnext50_32x4d_codes/metadata.tsv"
-}
-embeddings {
-tensor_name: "resnext50_32x4d_codes"
-tensor_path: "resnext50_32x4d_codes/tensors.tsv"
-metadata_path: "resnext50_32x4d_codes/metadata.tsv"
 }

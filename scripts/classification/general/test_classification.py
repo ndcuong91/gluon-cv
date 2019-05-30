@@ -36,6 +36,7 @@ transform_test = transforms.Compose([
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
 
+mean_args = {'mean_r': 123.68, 'mean_g': 116.779, 'mean_b': 103.939}
 
 transform_test_TTA = transforms.Compose([
     transforms.Resize(int(resize_factor * input_sz)),
@@ -104,7 +105,7 @@ def classify_img(net, file_path, topk=3, test_time_augment=2, print_data=True):
 
     return remap_pred, remap_topk_pred_idx
 
-def classify_dir_with_subclass(net, ctx, data_dir, use_tta_transform, seed=233):
+def classify_dir_with_subclass(net, ctx, data_dir, use_tta_transform, seed=233, export_image=False, export_image_size=64):
     print 'Classify_dir_with_subclass. seed:',seed
     print 'data_dir:',data_dir
     mx.random.seed(seed)
@@ -117,13 +118,30 @@ def classify_dir_with_subclass(net, ctx, data_dir, use_tta_transform, seed=233):
             utils.ImageFolderDatasetCustomized(data_dir).transform_first(transform_test),
             batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
-
+    resized_images = None
     for i, batch in enumerate(val_data):
         if (i % 50 == 0 and i > 0):
             print i, 'batches'
         data = gluon.utils.split_and_load(batch[0], ctx_list=ctx, batch_axis=0, even_split=False)
         label = gluon.utils.split_and_load(batch[1], ctx_list=ctx, batch_axis=0, even_split=False)
         name = gluon.utils.split_and_load(batch[2], ctx_list=ctx, batch_axis=0, even_split=False)
+
+        if(export_image==True):
+            images = data.copyto(mx.cpu(0))  # batch images in NCHW
+            images = images.transpose((0, 2, 3, 1))  # batch images in NHWC
+            images.wait_to_read()
+
+            for i in range(images.shape[0]):
+                resized_image = mx.img.resize_short(images[i], size=64).transpose((2, 0, 1)).expand_dims(axis=0)  # NCHW
+                resized_image[0][0] += mean_args['mean_r']
+                resized_image[0][1] += mean_args['mean_g']
+                resized_image[0][2] += mean_args['mean_b']
+                resized_image = mx.nd.clip(resized_image, 0, 255).astype('uint8')
+                if resized_images is None:
+                    resized_images = resized_image
+                else:
+                    resized_images = mx.nd.concat(*[resized_images, resized_image], dim=0)
+
 
         outputs=[]
         for y in data:
@@ -139,7 +157,7 @@ def classify_dir_with_subclass(net, ctx, data_dir, use_tta_transform, seed=233):
             total_output=np.concatenate((total_output, (nd.softmax(outputs[0],axis=1)).asnumpy().astype('float32')), axis=0)
 
     print
-    return total_name.asnumpy(),total_label.asnumpy(),total_output
+    return total_name.asnumpy(),total_label.asnumpy(),total_output, resized_images
 
 def classify_dir_wo_subclass(net, ctx, data_dir, use_tta_transform, seed=233):
     print 'classify_dir_wo_subclass. seed:',seed
@@ -174,14 +192,14 @@ def classify_dir_wo_subclass(net, ctx, data_dir, use_tta_transform, seed=233):
     print
     return total_name.asnumpy(),total_output
 
-def classify_dir(net,data_dir, ctx=[mx.gpu()], topk=3, test_time_augment=2, use_tta_transform=True, sub_class=True):
+def classify_dir(net,data_dir, ctx=[mx.gpu()], topk=3, test_time_augment=2, use_tta_transform=True, sub_class=True, export_image=False, export_image_size=64):
     print 'classify_dir. network:',model_name,', params:',pretrained_param
     print 'TTA =',test_time_augment,',topk =',topk,', batch_size:',batch_size
 
     list_pred=[]
     for n in range(test_time_augment):
         if(sub_class):
-            name, label, predict= classify_dir_with_subclass(net,ctx,data_dir,use_tta_transform, seed=10*n)
+            name, label, predict, data= classify_dir_with_subclass(net,ctx,data_dir,use_tta_transform, seed=10*n, export_image=export_image, export_image_size=export_image_size)
         else:
             name, predict= classify_dir_wo_subclass(net,ctx,data_dir,use_tta_transform, seed=10*n)
         list_pred.append(predict.flatten())

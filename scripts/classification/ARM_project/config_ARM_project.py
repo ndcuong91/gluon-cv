@@ -31,7 +31,7 @@ if(pc=='370'):
 
 classes = 2
 model_name= 'arm_network_v4.5.2'  #'resnet18_v2'    #'resnext50_32x4d'
-input_sz=112
+input_sz=160
 
 #hyper parameters
 dataset='ImageNet'

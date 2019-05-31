@@ -13,7 +13,7 @@ if(pc=='duycuongAI'):
     test_dir = os.path.join(dataset_dir, 'Test_Public')
 
 if(pc=='300'):
-    dataset_dir='/media/atsg/Data/datasets/SUN_ARM_project'
+    dataset_dir='/home/atsg/PycharmProjects/gvh205/ARM_New_Dataset_Resize'
     train_dir = os.path.join(dataset_dir, 'train')
     val_dir = os.path.join(dataset_dir, 'test')
     test_dir = os.path.join(dataset_dir, 'landmark/Test_Public')
@@ -30,15 +30,15 @@ if(pc=='370'):
     # test_dir = os.path.join(dataset_dir, 'test')
 
 classes = 2
-model_name= 'arm_network_v4.5.2'  #'resnet18_v2'    #'resnext50_32x4d'
-input_sz=160
+model_name= 'arm_network_v4.5.3'  #'resnet18_v2'    #'resnext50_32x4d'
+input_sz=180
 
 #hyper parameters
-dataset='ImageNet'
-batch_size=64
+dataset='ARM_New_Dataset'
+batch_size=128
 epochs=1500
 log_interval=200
-num_workers=6
+num_workers=4
 training=True
 
 if(training==True):
@@ -46,7 +46,7 @@ if(training==True):
     lr_decay=0.75
     lr_mode='step'
     lr_decay_epoch='10,20,30,40,50,70,110,150,200,500,1000'
-    resume_param = ''
+    resume_param = 'arm_network_v4.5.3_180/ImageNet-arm_network_v4.5.3-best-53.params'
     resume_state = ''
     resume_epoch = 0
 else: #finetuning
@@ -61,7 +61,7 @@ else: #finetuning
 save_frequency=5
 
 #testing
-pretrained_param='ZaloAILandmark-resnext50_32x4d-20.params'
+pretrained_param='arm_network_v4.5.3_180/ImageNet-arm_network_v4.5.3-best-53.params'
 submission_prefix='38'
 
 #data analyze

@@ -33,6 +33,8 @@ def get_arm_network(version, ctx):
         return arm_network_v3_10( ctx)
     if(version=='4.5.2'):
         return arm_network_v4_5_2( ctx)
+    if(version=='4.5.3'):
+        return arm_network_v4_5_3( ctx)
 
 def arm_network_v3_3(ctx):
     network = nn.HybridSequential()
@@ -584,6 +586,43 @@ def arm_network_v4_5_2(ctx):
         nn.MaxPool2D(pool_size=2, strides=2),
 
         nn.Conv2D(channels=256, kernel_size=3, padding=1), # conv5
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+        nn.GlobalAvgPool2D(),
+        nn.Dense(512, activation="relu"),
+        nn.Dense(128, activation="relu"))
+    network.initialize(init=init.Xavier(), ctx=ctx)
+    return network
+
+def arm_network_v4_5_3(ctx):
+    network = nn.HybridSequential()
+    network.add(
+        nn.Conv2D(channels=16, kernel_size=3, padding=1), # conv1
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+        nn.MaxPool2D(pool_size=2, strides=2),
+
+        nn.Conv2D(channels=32, kernel_size=3, padding=1), # conv2
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+        nn.MaxPool2D(pool_size=2, strides=2),
+
+        nn.Conv2D(channels=64, kernel_size=3, padding=1), # conv3
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+        nn.MaxPool2D(pool_size=2, strides=2),
+
+        nn.Conv2D(channels=128, kernel_size=3, padding=1), # conv4
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+        nn.MaxPool2D(pool_size=2, strides=2),
+
+        nn.Conv2D(channels=128, kernel_size=3, padding=1), # conv5
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+        nn.MaxPool2D(pool_size=2, strides=2),
+
+        nn.Conv2D(channels=256, kernel_size=3, padding=1), # conv6
         nn.BatchNorm(axis=1, center=True, scale=True),
         nn.Activation(activation='relu'),
         nn.GlobalAvgPool2D(),

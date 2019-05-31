@@ -279,79 +279,31 @@ def plot_distribution_of_images_in_folder(data_dir):
     plot_bar(index,[num_samples])
 
 
-def get_embedded_feature_and_draw_tSNE(net, ctx, data_dir, sub_class_inside=False,embedded_dir='data_analyze', save_prefix=''):
+def get_embedded_feature_and_draw_tSNE(net, ctx, data_dir, sub_class_inside=False,embedded_dir='data_analyze', icon=False, save_data=False, save_prefix=''):
     print 'get_embedded_feature. start'
     print 'data_dir:', data_dir
 
-    test_data = gluon.data.DataLoader(
-        utils.ImageFolderDatasetCustomized(data_dir, sub_class_inside=sub_class_inside).transform_first(test.transform_test),
-        batch_size=batch_size, shuffle=False, num_workers=num_workers)
+    if (sub_class_inside):
+        total_name, total_label, total_outputs, total_resized_images = test.classify_dir_with_subclass(net, ctx, data_dir,use_tta_transform=False, seed=1, export_image=icon, soft_max=False)
+    else:
+        total_name, total_outputs, total_resized_images = test.classify_dir_wo_subclass(net, ctx, data_dir,use_tta_transform=False, seed=1, export_image=icon, soft_max=False)
 
-    total_outputs = None
-    total_name=None
-    total_label=None
-    resized_images = None
-
-    for i, batch in enumerate(test_data):
-        if (i % 50 == 0 and i > 0):
-            print 'Tested:', i, 'batches'
-        data = gluon.utils.split_and_load(batch[0], ctx_list=ctx, batch_axis=0, even_split=False)
-        label = gluon.utils.split_and_load(batch[1], ctx_list=ctx, batch_axis=0, even_split=False)
-        name = gluon.utils.split_and_load(batch[2], ctx_list=ctx, batch_axis=0, even_split=False)
+    if(save_data):
+        print 'Write embedded data to', embedded_dir
+        mx.nd.save(os.path.join(embedded_dir, '%s_%s_embedding_feature.ndarray' % (save_prefix, model_name)),total_outputs)
+        if (sub_class_inside):
+            mx.nd.save(os.path.join(embedded_dir, '%s_%s_label.ndarray' % (save_prefix, model_name)), total_label)
+        mx.nd.save(os.path.join(embedded_dir, '%s_%s_name.ndarray' % (save_prefix, model_name)), total_name)
+        mx.nd.save(os.path.join(embedded_dir, '%s_%s_image_data.ndarray' % (save_prefix, model_name)),total_resized_images)
 
 
-        #kk=batch.data[0]
-        images = data[0].copyto(mx.cpu(0))  # batch images in NCHW
-        images = images.transpose((0, 2, 3, 1))  # batch images in NHWC
-        images.wait_to_read()
-
-        for j in range(images.shape[0]):
-            resized_image = mx.img.resize_short(images[j], size=64).transpose((2, 0, 1)).expand_dims(axis=0)  # NCHW
-
-            resized_image[0][0] *= std_args['std_r']
-            resized_image[0][1] *= std_args['std_g']
-            resized_image[0][2] *= std_args['std_b']
-
-            resized_image[0][0] += mean_args['mean_r']
-            resized_image[0][1] += mean_args['mean_g']
-            resized_image[0][2] += mean_args['mean_b']
-
-            resized_image = mx.nd.clip(resized_image, 0, 255).astype('uint8')
-            if resized_images is None:
-                resized_images = resized_image
-            else:
-                resized_images = mx.nd.concat(*[resized_images, resized_image], dim=0)
-
-        outputs = []
-        for y in data:
-            outputs.append(net(y))
-
-
-        if (i == 0):
-            total_outputs=outputs[0]
-            total_name=name[0]
-            total_label=label[0]
-        else:
-            total_outputs = mx.nd.concat(*[total_outputs, outputs[0]], dim=0)
-            total_name = ndarray.concat(total_name, name[0], dim=0)
-            total_label = ndarray.concat(total_label, label[0], dim=0)
-
-
-    mx.nd.save(os.path.join(embedded_dir,'%s_%s_embedding_feature.ndarray' % (save_prefix,model_name)), total_outputs)
-    mx.nd.save(os.path.join(embedded_dir,'%s_%s_label.ndarray' % (save_prefix,model_name)), total_label)
-    mx.nd.save(os.path.join(embedded_dir,'%s_%s_name.ndarray' % (save_prefix,model_name)), total_name)
-    mx.nd.save(os.path.join(embedded_dir,'%s_%s_image_data.ndarray' % (save_prefix,model_name)), resized_images)
-
-    print 'Write embedded data to', embedded_dir
-    embedding_feature = mx.nd.load(os.path.join(embedded_dir,'%s_%s_embedding_feature.ndarray' % (save_prefix,model_name)))[0]
-    labels = mx.nd.load(os.path.join(embedded_dir,'%s_%s_label.ndarray' % (save_prefix,model_name)))[0].asnumpy()
-    names = mx.nd.load(os.path.join(embedded_dir,'%s_%s_name.ndarray' % (save_prefix,model_name)))[0].asnumpy()
-    image_data= mx.nd.load(os.path.join(embedded_dir,'%s_%s_image_data.ndarray' % (save_prefix,model_name)))[0]
 
     with SummaryWriter(logdir='./logs') as sw:
-        sw.add_image(tag=model_name+'_images', image=image_data)
-        sw.add_embedding(tag=model_name+'_codes', embedding=embedding_feature, labels=labels, names=names, images=image_data)
-
+        #sw.add_image(tag=model_name+'_images', image=total_resized_images)
+        if (sub_class_inside):
+            sw.add_embedding(tag=model_name+'_codes', embedding=total_outputs, labels=total_label, names=total_name, images=total_resized_images)
+        else:
+            sw.add_embedding(tag=model_name+'_codes', embedding=total_outputs, names=total_name, images=total_resized_images)
 
     print 'Call Mxboard'
     call_mxboard()
@@ -475,17 +427,19 @@ def process_data(data_dir='/media/atsg/Data/datasets/ZaloAIChallenge2018/landmar
 
 
 if __name__ == "__main__":
-
     finetune_net = test.get_network_with_pretrained(model_name, pretrained_param)
-    # import subprocess
-    # subprocess.call('tensorboard --logdir=./logs --host=127.0.0.1 --port=8888')
 
-    get_embedded_feature_and_draw_tSNE(finetune_net,[mx.gpu()], '/media/atsg/Data/datasets/SUN_ARM_project/test', sub_class_inside=True, save_prefix='sun_arm_train')
+    get_embedded_feature_and_draw_tSNE(finetune_net,[mx.gpu()], '/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/TrainVal1_fixed_class2/val', sub_class_inside=True)
     #call_mxboard()
     #plot_distribution_result('/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/Test_Public_result')
     #cluster_images_base_on_embedded_feature(model_name, key_img_file='key_img_pubic1_test.txt', save_prefix='public1_test_imagenet')
 
     #process_data()
+
+    # name, topk_labels, topk_probs = test.classify_dir(finetune_net, '/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/22_landmark_2605/22_Hand_classified', [mx.gpu()], test_time_augment=1, topk=3,
+    #                                              use_tta_transform=False, sub_class=True)
+    #test.cla
+    #'/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/22_landmark_2605/22_Hand_classified'
     #submission_with_manual_result(finetune_net)
 
     #lst=get_list_clustered_img('/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/Test_Public_clustered')

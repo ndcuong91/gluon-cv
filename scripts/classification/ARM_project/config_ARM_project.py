@@ -30,15 +30,15 @@ if(pc=='370'):
     # test_dir = os.path.join(dataset_dir, 'test')
 
 classes = 2
-model_name= 'arm_network_v4.5.3'  #'resnet18_v2'    #'resnext50_32x4d'
-input_sz=180
+model_name= 'arm_network_v3.4'  #'resnet18_v2'    #'resnext50_32x4d'
+input_sz=112
 
 #hyper parameters
 dataset='ARM_New_Dataset'
 batch_size=128
 epochs=1500
 log_interval=200
-num_workers=4
+num_workers=6
 training=True
 
 if(training==True):
@@ -46,15 +46,15 @@ if(training==True):
     lr_decay=0.75
     lr_mode='step'
     lr_decay_epoch='10,20,30,40,50,70,110,150,200,500,1000'
-    resume_param = 'arm_network_v4.5.3_180/ImageNet-arm_network_v4.5.3-best-53.params'
+    resume_param = ''
     resume_state = ''
     resume_epoch = 0
 else: #finetuning
     base_lr=0.0001
     lr_decay=0.5
     lr_mode='step'
-    lr_decay_epoch='10,20,30,40,50,70,110,150,200,500,1000'
-    resume_param = ''
+    lr_decay_epoch='500,1000'
+    resume_param = 'arm_network_v4.5.3_180_8758/2019-06-01_22.10/ARM_New_Dataset-arm_network_v4.5.3-best-1072.params'
     resume_state = ''
     resume_epoch = 0
 

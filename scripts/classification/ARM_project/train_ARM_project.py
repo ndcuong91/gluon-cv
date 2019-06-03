@@ -149,12 +149,13 @@ def get_network(model, opts, frozen=False):
     if ('arm_network' in model):
         version = model.replace('arm_network_v', '')
         network = get_arm_network(version, ctx)
-        if opts.resume_params is not '':
-            network.load_parameters(opts.resume_params, ctx=ctx, allow_missing=True, ignore_extra=True)
         network.output = nn.Dense(opts.num_class)
         network.output.initialize(init.Xavier(), ctx=ctx)
+        if opts.resume_params is not '':
+            network.load_parameters(opts.resume_params, ctx=ctx, allow_missing=True, ignore_extra=True)
         network.hybridize()
-        # viz.plot_network(network,shape=(1,3,112,112),save_prefix='test')
+        viz.plot_network(network,shape=(1,3,112,112),save_prefix='test')
+        kk=1
     else:
         network = get_model(model, pretrained=True)
 
@@ -204,7 +205,6 @@ def train(train_path, test_path):
     train_history = TrainingHistory(['training-error', 'validation-error'])
 
     transform_train = transforms.Compose([
-
         transforms.RandomResizedCrop(opts.input_sz),
         transforms.RandomFlipLeftRight(),
         transforms.RandomColorJitter(brightness=jitter_param, contrast=jitter_param,

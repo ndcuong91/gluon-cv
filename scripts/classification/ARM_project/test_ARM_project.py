@@ -12,17 +12,16 @@ from datetime import datetime
 from arm_network import get_arm_network
 
 data_dir='/media/atsg/Data/datasets/SUN_ARM_project'
-model='squeezenet1.0'
-model='arm_network_v3.3'
-best_param_dir = 'arm_network_v3.3_112_8273/2019-04-21_07.21_8273'
+model='arm_network_v4.5.3'
+best_param_path = 'arm_network_v4.5.3_180_9208/2019-06-01_09.31_9209/ARM_New_Dataset-arm_network_v4.5.3-best-273.params'
 classes = 2
-input_sz=112
+input_sz=180
 batch_size=64
 ctx=[mx.gpu()]
 num_workers=4
 
 test_path = os.path.join(data_dir, 'test')
-resize_factor=1.5
+resize_factor=1.0
 
 
 def test(net, val_data, ctx):
@@ -52,7 +51,11 @@ def setup_logger(log_file_path):
 def get_network(model):
     if('arm_network' in model):
         version=model.replace('arm_network_v','')
-        network=get_arm_network(version,classes,ctx)
+        network = get_arm_network(version, ctx)
+        network.output = nn.Dense(classes)
+        network.output.initialize(init.Xavier(), ctx=ctx)
+        if best_param_path is not '':
+            network.load_parameters(best_param_path, ctx=ctx, allow_missing=True, ignore_extra=True)
         #network.hybridize()
     else:
         network = get_model(model, pretrained=True)
@@ -68,12 +71,13 @@ def test_network(model, params_path, val_path):
     finetune_net.load_parameters(params_path)
 
     transform_test = transforms.Compose([
-        transforms.Resize(input_sz),
+        transforms.Resize(int(resize_factor * input_sz)),
         # transforms.Resize(opts.input_sz, keep_ratio=True),
-        transforms.CenterCrop(input_sz),
+        #transforms.CenterCrop(input_sz),
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
+
     test_data = gluon.data.DataLoader(
         gluon.data.vision.ImageFolderDataset(val_path).transform_first(transform_test),
         batch_size=batch_size, shuffle=False, num_workers = num_workers)
@@ -83,5 +87,4 @@ def test_network(model, params_path, val_path):
 
 
 if __name__ == "__main__":
-    test_network(model,os.path.join(best_param_dir,'best.params'),test_path)
-    mx.image.random_crop()
+    test_network(model,best_param_path,test_path)

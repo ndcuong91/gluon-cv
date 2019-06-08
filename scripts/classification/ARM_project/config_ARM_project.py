@@ -5,7 +5,7 @@ import os
 pc='duycuongAI'
 pc='300'
 
-
+dataset='imagenet'
 if(pc=='duycuongAI'):
     dataset_dir='/media/duycuong/Data/Dataset/ZaloAIChallenge2018/landmark'
     train_dir = os.path.join(dataset_dir, 'TrainVal/train')
@@ -13,10 +13,10 @@ if(pc=='duycuongAI'):
     test_dir = os.path.join(dataset_dir, 'Test_Public')
 
 if(pc=='300'):
-    dataset_dir='/home/atsg/PycharmProjects/gvh205/ARM_New_Dataset_Resize'
-    train_dir = os.path.join(dataset_dir, 'train')
-    val_dir = os.path.join(dataset_dir, 'test')
-    test_dir = os.path.join(dataset_dir, 'landmark/Test_Public')
+    if(dataset=='imagenet'):
+        dataset_dir='/home/atsg/.mxnet/datasets/imagenet'
+        train_dir = os.path.join(dataset_dir, 'train')
+        val_dir = os.path.join(dataset_dir, 'val')
 
 if(pc=='370'):
     dataset_dir='/media/atsg/Data/datasets/SUN_ARM_project'
@@ -30,14 +30,14 @@ if(pc=='370'):
     # test_dir = os.path.join(dataset_dir, 'test')
 
 classes = 2
-model_name= 'arm_network_v3.4'  #'resnet18_v2'    #'resnext50_32x4d'
+model_name= 'arm_network_v3.4'
 input_sz=112
 
 #hyper parameters
 dataset='ARM_New_Dataset'
 batch_size=128
 epochs=1500
-log_interval=200
+log_interval=20
 num_workers=6
 training=True
 

@@ -1,0 +1,86 @@
+#Instruction
+author: Nguyen Duy Cuong
+
+## ENVIRONMENT + PRE-REQUISITE
+1. python2.7 + PC with CUDA toolkit installed
+
+2. Install mxnet: 		"pip install mxnet-cuxx" 
+				(xx refer to CUDA version in your PC. For me, the command was: "pip install mxnet-cu90")
+3. Clone and install gluon-cv:	"git clone https://github.com/dmlc/gluon-cv.git"
+				"cd gluon-cv"
+				"python setup.py install" 
+
+3. Put all dataset you downloaded from FTP server (all data were resize to 300x300 for faster training) to folder "dataset". After that you will get data structure like this: 
+
+GVH205_ARM_project_training_environment
+│ 
+├── arm_network.py
+├── config_ARM_project.py
+├── dataset
+│   ├── dataset3_resize300
+│   │   ├── test
+│   │   │   ├── clean_normal
+│   │   │   │   ├── 2221.jpg
+│   │   │   │   └── ...
+│   │   │   └── messy_dirty
+│   │   │       ├── 4557.jpg
+│   │   │       └── ...
+│   │   └── train
+│   │       ├── clean_normal
+│   │       │   ├── 4557.jpg
+│   │       │   └── ...
+│   │       └── messy_dirty
+│   │           ├── 4557.jpg
+│   │           └── ..
+│   └── new_dataset1_resize300
+│       ├── test
+│       │   ├── clean
+│       │   │   ├── 654000130.jpg
+│       │   │   └── ...
+│       │   └── dirty
+│       │       ├── 6542-000130.jpg
+│       │       └── ...
+│       └── train
+│           ├── clean
+│           │   ├── 3453-000030.jpg
+│           │   └── ...
+│           └── dirty
+│               ├── 3089-000171.jpg
+│               └── ...
+├── output
+├── pretrained
+│   ├── ImageNet_v3.4_3452.params
+│   ├── ImageNet_v3.5.2_3440.params
+│   ├── ImageNet_v4.1_4352.params
+│   └── ImageNet_v4.2_4551.params
+├── README
+└── train_ARM_project.py
+
+## TRAINING
+
+1. Modify "config_ARM_project.py" parameter:
+- line 5: dataset you want to use
+- line 9: model version you want to you (e.g: arm_network_v3.4, arm_network_v4.2...) For now i have Imagenet's pretrained for 4 version v3.4, v3.5.2, v4.2, v4.2
+- set another hyper parameters if you want
+
+2. Run "python train_ARM_project.py" to training, the output should be the same as "training_example.jpg"
+
+## RESULT
+
+All result will be put on "output" folder. For example:
+
+output
+└── arm_network_v3.4_112_new_dataset_resize300
+    └── 2019-06-06_14.16
+        ├── arm_network_v3.4-30.params
+        ├── arm_network_v3.4-30.states
+        ├── arm_network_v3.4-best-33.params
+        ├── arm_network_v3.4-best-33.states
+        ├── arm_network_v3.4_history.png
+        ├── best_acc.log
+        └── train_log.log
+
+this output contain training log, the best accuracy log and snapshot for model.
+
+
+

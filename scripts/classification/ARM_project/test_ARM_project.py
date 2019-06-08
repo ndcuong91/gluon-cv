@@ -10,17 +10,19 @@ from gluoncv.utils import makedirs, TrainingHistory
 from gluoncv.model_zoo import get_model
 from datetime import datetime
 from arm_network import get_arm_network
+import utils_classification as util
 
 data_dir='/media/atsg/Data/datasets/SUN_ARM_project'
-model='arm_network_v4.5.3'
-best_param_path = 'arm_network_v4.5.3_180_9208/2019-06-01_09.31_9209/ARM_New_Dataset-arm_network_v4.5.3-best-273.params'
+#data_dir='/home/atsg/PycharmProjects/gvh205/ARM_New_Dataset_Resize'
+model='arm_network_v4.4'
+best_param_path = '/home/atsg/PycharmProjects/gvh205/arm_project/model/v4.4/arm_v4.4_7986_160.params'
 classes = 2
-input_sz=180
+input_sz=160
 batch_size=64
 ctx=[mx.gpu()]
 num_workers=4
 
-test_path = os.path.join(data_dir, 'test')
+test_path = os.path.join(data_dir, 'temp')
 resize_factor=1.0
 
 
@@ -29,10 +31,10 @@ def test(net, val_data, ctx):
     #metric = mx.metric._BinaryClassificationMetrics()
     for i, batch in enumerate(val_data):
         data = gluon.utils.split_and_load(batch[0], ctx_list=ctx, batch_axis=0, even_split=False)
+        first_img= data[0][0].asnumpy()
         label = gluon.utils.split_and_load(batch[1], ctx_list=ctx, batch_axis=0, even_split=False)
         outputs = [net(X) for X in data]
         metric.update(label, outputs)
-
     return metric.get()
 
 def setup_logger(log_file_path):
@@ -73,9 +75,9 @@ def test_network(model, params_path, val_path):
     transform_test = transforms.Compose([
         transforms.Resize(int(resize_factor * input_sz)),
         # transforms.Resize(opts.input_sz, keep_ratio=True),
-        #transforms.CenterCrop(input_sz),
+        transforms.CenterCrop(input_sz),
         transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        transforms.Normalize([0.485, 0.456, 0.406], [1, 1, 1])
     ])
 
     test_data = gluon.data.DataLoader(

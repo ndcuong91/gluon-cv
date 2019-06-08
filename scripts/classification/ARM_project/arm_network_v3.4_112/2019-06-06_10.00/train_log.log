@@ -1,0 +1,2 @@
+Namespace(batch_size=128, input_sz=112, log_interval=20, lr=0.01, lr_decay=0.75, lr_decay_epoch='10,20,30,40,50,70,110,150,200,500,1000', lr_decay_period=0, lr_mode='step', model='arm_network_v3.4', momentum=0.9, num_class=2, num_epochs=1500, num_gpus=1, num_workers=6, resume_epoch=0, resume_params='', resume_states='', save_frequency=5, warmup_epochs=0, wd=0.0001)
+Epoch[0] Batch [19] 	Speed: 29.207381 samples/sec	loss: 0.000210	accuracy=0.001563	lr=0.010000

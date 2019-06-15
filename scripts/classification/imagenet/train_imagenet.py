@@ -27,23 +27,25 @@ def parse_args():
                         help='the index of validation data')
     parser.add_argument('--use-rec', action='store_true',
                         help='use image record iter for data input. default is false.')
-    parser.add_argument('--batch-size', type=int, default=32,
+    parser.add_argument('--batch-size', type=int, default=128,
                         help='training batch size per device (CPU/GPU).')
-    parser.add_argument('--dtype', type=str, default='float32',
+    parser.add_argument('--dtype', type=str, default='float16',
                         help='data type for training. default is float32')
+    parser.add_argument('--input-size', type=int, default=224,
+                        help='size of the input image size. default is 224')
     parser.add_argument('--num-gpus', type=int, default=1,
                         help='number of gpus to use.')
-    parser.add_argument('-j', '--num-data-workers', dest='num_workers', default=4, type=int,
+    parser.add_argument('-j', '--num-data-workers', dest='num_workers', default=8, type=int,
                         help='number of preprocessing workers')
     parser.add_argument('--num-epochs', type=int, default=3,
                         help='number of training epochs.')
-    parser.add_argument('--lr', type=float, default=0.1,
+    parser.add_argument('--lr', type=float, default=0.4,
                         help='learning rate. default is 0.1.')
     parser.add_argument('--momentum', type=float, default=0.9,
                         help='momentum value for optimizer, default is 0.9.')
     parser.add_argument('--wd', type=float, default=0.0001,
                         help='weight decay rate. default is 0.0001.')
-    parser.add_argument('--lr-mode', type=str, default='step',
+    parser.add_argument('--lr-mode', type=str, default='cosine',
                         help='learning rate scheduler mode. options are step, poly and cosine.')
     parser.add_argument('--lr-decay', type=float, default=0.1,
                         help='decay rate of learning rate. default is 0.1.')
@@ -57,12 +59,10 @@ def parse_args():
                         help='number of warmup epochs.')
     parser.add_argument('--last-gamma', action='store_true',
                         help='whether to init gamma of the last BN layer in each bottleneck to 0.')
-    parser.add_argument('--mode', type=str,
+    parser.add_argument('--mode', type=str, default='hybrid',
                         help='mode in which to train the model. options are symbolic, imperative, hybrid')
-    parser.add_argument('--model', type=str, default='ResNet50_v2',
+    parser.add_argument('--model', type=str, default='mobilenet0.5',
                         help='type of model to use. see vision_model for options.')
-    parser.add_argument('--input-size', type=int, default=224,
-                        help='size of the input image size. default is 224')
     parser.add_argument('--crop-ratio', type=float, default=0.875,
                         help='Crop ratio during validation. default is 0.875')
     parser.add_argument('--use-pretrained', action='store_true',
@@ -75,9 +75,9 @@ def parse_args():
                         help='beta distribution parameter for mixup sampling, default is 0.2.')
     parser.add_argument('--mixup-off-epoch', type=int, default=0,
                         help='how many last epochs to train without mixup, default is 0.')
-    parser.add_argument('--label-smoothing', action='store_true',
-                        help='use label smoothing or not in training. default is false.')
-    parser.add_argument('--no-wd', action='store_true',
+    parser.add_argument('--label-smoothing', action='store_false',
+                        help='use label smoothing or not in training. default is true.')
+    parser.add_argument('--no-wd', action='store_false',
                         help='whether to remove weight decay on bias, and beta/gamma for batchnorm layers.')
     parser.add_argument('--teacher', type=str, default=None,
                         help='teacher model for distillation training')
@@ -97,7 +97,7 @@ def parse_args():
                         help='path of parameters to load from.')
     parser.add_argument('--resume-states', type=str, default='',
                         help='path of trainer state to load from.')
-    parser.add_argument('--log-interval', type=int, default=50,
+    parser.add_argument('--log-interval', type=int, default=200,
                         help='Number of batches to wait before logging.')
     parser.add_argument('--logging-file', type=str, default='train_imagenet.log',
                         help='name of training log file')

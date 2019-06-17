@@ -3,16 +3,18 @@ import argparse, time, logging, os, math
 import numpy as np
 import mxnet as mx
 import gluoncv as gcv
-from mxnet import gluon, nd
+from mxnet import gluon, nd, init
 from mxnet import autograd as ag
 from mxnet.gluon import nn
 from mxnet.gluon.data.vision import transforms
 
 from gluoncv.data import imagenet
 from gluoncv.model_zoo import get_model
-from gluoncv.utils import makedirs, LRSequential, LRScheduler
+from gluoncv.utils import makedirs, LRSequential, LRScheduler, viz
+from arm_network import get_arm_network
 
 # CLI
+model='arm_network_v4.4'
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a model for image classification.')
     parser.add_argument('--data-dir', type=str, default='~/.mxnet/datasets/imagenet',
@@ -37,7 +39,7 @@ def parse_args():
                         help='number of gpus to use.')
     parser.add_argument('-j', '--num-data-workers', dest='num_workers', default=8, type=int,
                         help='number of preprocessing workers')
-    parser.add_argument('--num-epochs', type=int, default=3,
+    parser.add_argument('--num-epochs', type=int, default=120,
                         help='number of training epochs.')
     parser.add_argument('--lr', type=float, default=0.4,
                         help='learning rate. default is 0.1.')
@@ -53,15 +55,11 @@ def parse_args():
                         help='interval for periodic learning rate decays. default is 0 to disable.')
     parser.add_argument('--lr-decay-epoch', type=str, default='40,60',
                         help='epochs at which learning rate decays. default is 40,60.')
-    parser.add_argument('--warmup-lr', type=float, default=0.0,
-                        help='starting warmup learning rate. default is 0.0.')
-    parser.add_argument('--warmup-epochs', type=int, default=0,
-                        help='number of warmup epochs.')
     parser.add_argument('--last-gamma', action='store_true',
                         help='whether to init gamma of the last BN layer in each bottleneck to 0.')
     parser.add_argument('--mode', type=str, default='hybrid',
                         help='mode in which to train the model. options are symbolic, imperative, hybrid')
-    parser.add_argument('--model', type=str, default='mobilenet0.5',
+    parser.add_argument('--model', type=str, default=model,
                         help='type of model to use. see vision_model for options.')
     parser.add_argument('--crop-ratio', type=float, default=0.875,
                         help='Crop ratio during validation. default is 0.875')
@@ -103,8 +101,13 @@ def parse_args():
                         help='name of training log file')
     parser.add_argument('--use-gn', action='store_true',
                         help='whether to use group norm.')
+    parser.add_argument('--warmup-lr', type=float, default=0.0,
+                        help='starting warmup learning rate. default is 0.0.')
+    parser.add_argument('--warmup-epochs', type=int, default=5,
+                        help='number of warmup epochs.')
     opt = parser.parse_args()
     return opt
+
 
 
 def main():
@@ -167,7 +170,17 @@ def main():
     if opt.dtype != 'float32':
         optimizer_params['multi_precision'] = True
 
-    net = get_model(model_name, **kwargs)
+    if ('arm_network' in model_name):
+        version = model.replace('arm_network_v', '')
+        net = get_arm_network(version, context)
+        net.output = nn.Dense(1000)
+        net.output.initialize(init.Xavier(), ctx=context)
+        net.hybridize()
+    else:
+        net = get_model(model_name, **kwargs)
+
+
+
     net.cast(opt.dtype)
     if opt.resume_params is not '':
         net.load_parameters(opt.resume_params, ctx = context)

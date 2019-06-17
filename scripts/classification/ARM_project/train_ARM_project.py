@@ -178,7 +178,7 @@ def get_network(model, opts, frozen=False):
             if opts.resume_params is not '':
                 network.load_parameters(opts.resume_params, ctx=ctx)
         network.hybridize()
-        # viz.plot_network(network, shape=(1, 3, 112, 112), save_prefix='test')
+        viz.plot_network(network, shape=(1, 3, 112, 112), save_prefix='test')
         return network
     return network
 

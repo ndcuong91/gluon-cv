@@ -9,7 +9,7 @@ from mxnet.gluon.data.vision import transforms
 from gluoncv.utils import makedirs, TrainingHistory, LRSequential, LRScheduler, viz
 from gluoncv.model_zoo import get_model
 from datetime import datetime
-import config_ARM_project as config
+import config_arm_project as config
 import utils_classification as utils
 from arm_network import get_arm_network
 
@@ -99,21 +99,30 @@ batch_size = batch_size * max(num_gpus, 1)
 
 jitter_param = 0.4
 lighting_param = 0.1
-resize_factor=1.5
+resize_factor=1.0
+
+transform_train = transforms.Compose([
+    transforms.RandomResizedCrop(opts.input_sz),
+    transforms.RandomFlipLeftRight(),
+    transforms.RandomColorJitter(brightness=jitter_param, contrast=jitter_param,
+                                 saturation=jitter_param),
+    transforms.RandomLighting(lighting_param),
+    transforms.ToTensor(),
+    transforms.Normalize([0.485, 0.456, 0.406], [1, 1, 1])
+])
 
 transform_test = transforms.Compose([
     transforms.Resize(int(resize_factor * opts.input_sz)),
     # transforms.Resize(opts.input_sz, keep_ratio=True),
     transforms.CenterCrop(opts.input_sz),
     transforms.ToTensor(),
-    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    transforms.Normalize([0.485, 0.456, 0.406], [1, 1, 1])
 ])
 
 
 def test(net, val_data, ctx):
     acc_top1 = mx.metric.Accuracy()
     acc_top5 = mx.metric.TopKAccuracy(5)
-    #metric = mx.metric._BinaryClassificationMetrics()
     for i, batch in enumerate(val_data):
         data = gluon.utils.split_and_load(batch[0], ctx_list=ctx, batch_axis=0, even_split=False)
         label = gluon.utils.split_and_load(batch[1], ctx_list=ctx, batch_axis=0, even_split=False)
@@ -178,7 +187,7 @@ def get_network(model, opts, frozen=False):
             if opts.resume_params is not '':
                 network.load_parameters(opts.resume_params, ctx=ctx)
         network.hybridize()
-        viz.plot_network(network, shape=(1, 3, 112, 112), save_prefix='test')
+        #viz.plot_network(network, shape=(1, 3, 112, 112), save_prefix='test')
         return network
     return network
 
@@ -197,23 +206,13 @@ def test_network(model, params_path, val_path):
 
 def train(train_path, test_path):
     finetune_net = get_network(opts.model,opts)
+    if resume_param is '':
+        finetune_net.initialize(mx.init.MSRAPrelu(), ctx=ctx)
     folder = opts.model+'_'+str(opts.input_sz)
     date_time = datetime.now().strftime('%Y-%m-%d_%H.%M')
     logger=setup_logger(os.path.join(folder,date_time,'train_log.log'))
 
     train_history = TrainingHistory(['training-error', 'validation-error'])
-
-    transform_train = transforms.Compose([
-        transforms.RandomResizedCrop(opts.input_sz),
-        transforms.RandomFlipLeftRight(),
-        transforms.RandomColorJitter(brightness=jitter_param, contrast=jitter_param,
-                                     saturation=jitter_param),
-        transforms.RandomLighting(lighting_param),
-        transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-    ])
-
-    # Define DataLoader
 
     train_data = gluon.data.DataLoader(
         gluon.data.vision.ImageFolderDataset(train_path).transform_first(transform_train),
@@ -248,7 +247,6 @@ def train(train_path, test_path):
     optimizer_params = {'wd': opts.wd, 'momentum': opts.momentum, 'lr_scheduler': lr_scheduler}
 
     # Define Trainer
-    #trainer = gluon.Trainer(finetune_net.collect_params(), 'sgd', {'learning_rate': lr, 'momentum': momentum, 'wd': wd})
     trainer = gluon.Trainer(finetune_net.collect_params(), optimizer, optimizer_params)
     if opts.resume_states is not '':
         trainer.load_states(opts.resume_states)
@@ -289,7 +287,6 @@ def train(train_path, test_path):
                     epoch, idx, batch_size * opts.log_interval / (time.time() - btic), train_bloss,
                     train_metric_name, train_metric_score, trainer.learning_rate))
                 btic = time.time()
-                # test_layer = finetune_net.output.collect_params()['resnetv20_dense1_weight']._data
                 # print test_layer
 
         _, train_acc = metric_train.get()
@@ -300,8 +297,8 @@ def train(train_path, test_path):
         train_history.update([1 - train_acc, 1 - val_acc_top1])
         train_history.plot(save_path=os.path.join(folder,date_time,'%s_history.png' % (model_name)))
 
-        logger.info('[Epoch %d] Train-acc: %.3f, loss: %.3f | Val-acc-top1: %.3f | Val-acc-top5: %.3f | time: %.1f | Speed: %.2f samples/sec | lr: %.8f' %
-                 (epoch, train_acc, train_loss, val_acc_top1, val_acc_top5,time.time() - tic, num_training_samples/(time.time()-tic), trainer.learning_rate))
+        logger.info('[Epoch %d] Train-acc: %.3f, loss: %.3f | Val-acc-top1: %.3f | time: %.1f | Speed: %.2f samples/sec | lr: %.8f' %
+                 (epoch, train_acc, train_loss, val_acc_top1, time.time() - tic, num_training_samples/(time.time()-tic), trainer.learning_rate))
         val_acc_top1 = float(val_acc_top1)
         if val_acc_top1 > best_acc:
             best_acc = val_acc_top1
@@ -315,11 +312,8 @@ def train(train_path, test_path):
             trainer.save_states(os.path.join(folder, date_time, '%s-%s-%d.states' % (dataset, model_name, epoch)))
 
     #_, test_acc = test(finetune_net, test_data, ctx)
-    os.rename(folder,'{:s}_{:d}'.format(folder,int(10000*best_acc)))
+    # os.rename(folder,'{:s}_{:d}'.format(folder,int(10000*best_acc)))
     logger.info('[Finished]')
 
 if __name__ == "__main__":
-    #test_aug()
     train(train_path, test_path)
-    #best_param_dir='arm_network_v3.3_112_8273/2019-04-21_07.21_8273'
-    #test_network('arm_network_v3.3',os.path.join(best_param_dir,'best.params'),test_path)

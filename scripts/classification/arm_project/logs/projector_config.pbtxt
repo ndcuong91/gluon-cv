@@ -1,0 +1,5 @@
+embeddings {
+tensor_name: "arm_network_v4.4_codes"
+tensor_path: "arm_network_v4.4_codes/tensors.tsv"
+metadata_path: "arm_network_v4.4_codes/metadata.tsv"
+}

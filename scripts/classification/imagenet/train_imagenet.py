@@ -14,7 +14,7 @@ from gluoncv.utils import makedirs, LRSequential, LRScheduler, viz
 from arm_network import get_arm_network
 
 # CLI
-model='arm_network_v4.4'
+model='mobilenet0.25'
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a model for image classification.')
     parser.add_argument('--data-dir', type=str, default='~/.mxnet/datasets/imagenet',

@@ -16,7 +16,7 @@ if(pc=='300'):
     val_dir = os.path.join(dataset_dir, 'test')
 
 classes = 2
-model_name= 'arm_network_v4.4.1'
+model_name= 'arm_network_v4.4'
 
 #hyper parameters
 batch_size=128

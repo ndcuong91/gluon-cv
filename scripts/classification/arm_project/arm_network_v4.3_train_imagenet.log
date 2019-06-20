@@ -1,0 +1,46 @@
+Namespace(batch_norm=False, batch_size=32, crop_ratio=0.875, data_dir='~/.mxnet/datasets/imagenet', dtype='float32', hard_weight=0.5, input_size=180, label_smoothing=True, last_gamma=False, log_interval=200, logging_file='arm_network_v4.3_train_imagenet.log', lr=0.4, lr_decay=0.3, lr_decay_epoch='10,18,28,40,60,90,140,200,500,900,1400', lr_decay_period=0, lr_mode='step', mixup=False, mixup_alpha=0.2, mixup_off_epoch=0, mode='hybrid', model='arm_network_v4.3', momentum=0.9, no_wd=True, num_epochs=120, num_gpus=1, num_workers=8, rec_train='~/.mxnet/datasets/imagenet/rec/train.rec', rec_train_idx='~/.mxnet/datasets/imagenet/rec/train.idx', rec_val='~/.mxnet/datasets/imagenet/rec/val.rec', rec_val_idx='~/.mxnet/datasets/imagenet/rec/val.idx', resume_epoch=0, resume_params='', resume_states='', save_dir='params', save_frequency=10, teacher=None, temperature=20, use_gn=False, use_pretrained=False, use_rec=False, use_se=False, warmup_epochs=5, warmup_lr=0.0, wd=0.0001)
+Epoch[0] Batch [199]	Speed: 1129.489828 samples/sec	accuracy=0.000937	lr=0.000400
+Epoch[0] Batch [399]	Speed: 1256.538643 samples/sec	accuracy=0.001406	lr=0.000799
+Epoch[0] Batch [599]	Speed: 1259.964768 samples/sec	accuracy=0.001406	lr=0.001199
+Epoch[0] Batch [799]	Speed: 1252.474376 samples/sec	accuracy=0.001289	lr=0.001599
+Epoch[0] Batch [999]	Speed: 1216.154322 samples/sec	accuracy=0.001281	lr=0.001998
+Epoch[0] Batch [1199]	Speed: 1249.275588 samples/sec	accuracy=0.001120	lr=0.002398
+Epoch[0] Batch [1399]	Speed: 1241.938556 samples/sec	accuracy=0.001250	lr=0.002797
+Epoch[0] Batch [1599]	Speed: 1244.454615 samples/sec	accuracy=0.001289	lr=0.003197
+Epoch[0] Batch [1799]	Speed: 1210.545908 samples/sec	accuracy=0.001267	lr=0.003597
+Namespace(batch_norm=False, batch_size=32, crop_ratio=0.875, data_dir='~/.mxnet/datasets/imagenet', dtype='float32', hard_weight=0.5, input_size=180, label_smoothing=True, last_gamma=False, log_interval=200, logging_file='arm_network_v4.3_train_imagenet.log', lr=0.1, lr_decay=0.3, lr_decay_epoch='10,18,28,40,60,90,140,200,500,900,1400', lr_decay_period=0, lr_mode='step', mixup=False, mixup_alpha=0.2, mixup_off_epoch=0, mode='hybrid', model='arm_network_v4.3', momentum=0.9, no_wd=True, num_epochs=120, num_gpus=1, num_workers=8, rec_train='~/.mxnet/datasets/imagenet/rec/train.rec', rec_train_idx='~/.mxnet/datasets/imagenet/rec/train.idx', rec_val='~/.mxnet/datasets/imagenet/rec/val.rec', rec_val_idx='~/.mxnet/datasets/imagenet/rec/val.idx', resume_epoch=0, resume_params='', resume_states='', save_dir='params', save_frequency=10, teacher=None, temperature=20, use_gn=False, use_pretrained=False, use_rec=False, use_se=False, warmup_epochs=5, warmup_lr=0.0, wd=0.0001)
+Namespace(batch_norm=False, batch_size=32, crop_ratio=0.875, data_dir='~/.mxnet/datasets/imagenet', dtype='float32', hard_weight=0.5, input_size=180, label_smoothing=True, last_gamma=False, log_interval=200, logging_file='arm_network_v4.3_train_imagenet.log', lr=0.1, lr_decay=0.3, lr_decay_epoch='10,18,28,40,60,90,140,200,500,900,1400', lr_decay_period=0, lr_mode='step', mixup=False, mixup_alpha=0.2, mixup_off_epoch=0, mode='hybrid', model='arm_network_v4.3', momentum=0.9, no_wd=True, num_epochs=120, num_gpus=1, num_workers=8, rec_train='~/.mxnet/datasets/imagenet/rec/train.rec', rec_train_idx='~/.mxnet/datasets/imagenet/rec/train.idx', rec_val='~/.mxnet/datasets/imagenet/rec/val.rec', rec_val_idx='~/.mxnet/datasets/imagenet/rec/val.idx', resume_epoch=0, resume_params='', resume_states='', save_dir='params', save_frequency=10, teacher=None, temperature=20, use_gn=False, use_pretrained=False, use_rec=False, use_se=False, warmup_epochs=0, warmup_lr=0.0, wd=0.0001)
+Epoch[0] Batch [199]	Speed: 1126.760172 samples/sec	accuracy=0.001094	lr=0.100000
+Epoch[0] Batch [399]	Speed: 1259.334303 samples/sec	accuracy=0.001094	lr=0.100000
+Epoch[0] Batch [599]	Speed: 1264.243257 samples/sec	accuracy=0.000990	lr=0.100000
+Epoch[0] Batch [799]	Speed: 1249.400428 samples/sec	accuracy=0.001133	lr=0.100000
+Epoch[0] Batch [999]	Speed: 1261.462299 samples/sec	accuracy=0.001156	lr=0.100000
+Epoch[0] Batch [1199]	Speed: 1248.299189 samples/sec	accuracy=0.001276	lr=0.100000
+Epoch[0] Batch [1399]	Speed: 1255.953498 samples/sec	accuracy=0.001250	lr=0.100000
+Epoch[0] Batch [1599]	Speed: 1248.175034 samples/sec	accuracy=0.001172	lr=0.100000
+Epoch[0] Batch [1799]	Speed: 1253.181646 samples/sec	accuracy=0.001146	lr=0.100000
+Epoch[0] Batch [1999]	Speed: 1247.964276 samples/sec	accuracy=0.001141	lr=0.100000
+Epoch[0] Batch [2199]	Speed: 1264.100195 samples/sec	accuracy=0.001165	lr=0.100000
+Epoch[0] Batch [2399]	Speed: 1226.852529 samples/sec	accuracy=0.001146	lr=0.100000
+Epoch[0] Batch [2599]	Speed: 1235.014856 samples/sec	accuracy=0.001130	lr=0.100000
+Epoch[0] Batch [2799]	Speed: 1250.959969 samples/sec	accuracy=0.001205	lr=0.100000
+Epoch[0] Batch [2999]	Speed: 1254.707364 samples/sec	accuracy=0.001208	lr=0.100000
+Epoch[0] Batch [3199]	Speed: 1252.948374 samples/sec	accuracy=0.001221	lr=0.100000
+Epoch[0] Batch [3399]	Speed: 1227.674813 samples/sec	accuracy=0.001176	lr=0.100000
+Epoch[0] Batch [3599]	Speed: 1233.202221 samples/sec	accuracy=0.001146	lr=0.100000
+Epoch[0] Batch [3799]	Speed: 1257.656005 samples/sec	accuracy=0.001143	lr=0.100000
+Epoch[0] Batch [3999]	Speed: 1253.889538 samples/sec	accuracy=0.001125	lr=0.100000
+Epoch[0] Batch [4199]	Speed: 1253.975760 samples/sec	accuracy=0.001146	lr=0.100000
+Epoch[0] Batch [4399]	Speed: 1211.168130 samples/sec	accuracy=0.001122	lr=0.100000
+Namespace(batch_norm=False, batch_size=32, crop_ratio=0.875, data_dir='~/.mxnet/datasets/imagenet', dtype='float32', hard_weight=0.5, input_size=180, label_smoothing=False, last_gamma=False, log_interval=200, logging_file='arm_network_v4.3_train_imagenet.log', lr=0.1, lr_decay=0.3, lr_decay_epoch='10,18,28,40,60,90,140,200,500,900,1400', lr_decay_period=0, lr_mode='step', mixup=False, mixup_alpha=0.2, mixup_off_epoch=0, mode='hybrid', model='arm_network_v4.3', momentum=0.9, no_wd=True, num_epochs=120, num_gpus=1, num_workers=8, rec_train='~/.mxnet/datasets/imagenet/rec/train.rec', rec_train_idx='~/.mxnet/datasets/imagenet/rec/train.idx', rec_val='~/.mxnet/datasets/imagenet/rec/val.rec', rec_val_idx='~/.mxnet/datasets/imagenet/rec/val.idx', resume_epoch=0, resume_params='', resume_states='', save_dir='params', save_frequency=10, teacher=None, temperature=20, use_gn=False, use_pretrained=False, use_rec=False, use_se=False, warmup_epochs=0, warmup_lr=0.0, wd=0.0001)
+Epoch[0] Batch [199]	Speed: 1117.473525 samples/sec	accuracy=0.001250	lr=0.100000
+Epoch[0] Batch [399]	Speed: 1244.155609 samples/sec	accuracy=0.001016	lr=0.100000
+Epoch[0] Batch [599]	Speed: 1244.261318 samples/sec	accuracy=0.001042	lr=0.100000
+Epoch[0] Batch [799]	Speed: 1257.149060 samples/sec	accuracy=0.000977	lr=0.100000
+Epoch[0] Batch [999]	Speed: 1245.250759 samples/sec	accuracy=0.000969	lr=0.100000
+Epoch[0] Batch [1199]	Speed: 1249.189488 samples/sec	accuracy=0.001042	lr=0.100000
+Epoch[0] Batch [1399]	Speed: 1255.878579 samples/sec	accuracy=0.001027	lr=0.100000
+Epoch[0] Batch [1599]	Speed: 1245.677855 samples/sec	accuracy=0.001094	lr=0.100000
+Epoch[0] Batch [1799]	Speed: 1250.864660 samples/sec	accuracy=0.001059	lr=0.100000
+Epoch[0] Batch [1999]	Speed: 1231.225233 samples/sec	accuracy=0.001078	lr=0.100000
+Epoch[0] Batch [2199]	Speed: 1211.437273 samples/sec	accuracy=0.001065	lr=0.100000

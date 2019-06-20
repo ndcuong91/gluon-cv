@@ -8,7 +8,6 @@ from mxnet.gluon import nn
 from mxnet.gluon.data.vision import transforms
 from gluoncv.utils import makedirs, TrainingHistory, LRSequential, LRScheduler, viz
 from gluoncv.model_zoo import get_model
-import gluoncv as gcv
 from datetime import datetime
 import config_arm_project as config
 import utils_classification as utils
@@ -80,20 +79,6 @@ def parse_opts():
                         help='path of trainer state to load from.')
     parser.add_argument('--resume_epoch', type=int, default=resume_epoch,
                         help='epoch to resume training from.')
-
-    #for distillation training
-    parser.add_argument('--teacher', type=str, default=None, #None #'resnext50_32x4d'
-                        help='teacher model for distillation training')
-    parser.add_argument('--temperature', type=float, default=20,
-                        help='temperature parameter for distillation teacher model')
-    parser.add_argument('--hard-weight', type=float, default=0.5,
-                        help='weight for the loss of one-hot label for distillation training')
-    parser.add_argument('--label-smoothing', default=False,
-                        help='use label smoothing or not in training. default is False.')
-    parser.add_argument('--dtype', type=str, default='float32',
-                        help='data type for training. default is float32')
-    parser.add_argument('--mode', type=str, default='hybrid',
-                        help='mode in which to train the model. options are symbolic, imperative, hybrid')
     opts = parser.parse_args()
     return opts
 
@@ -116,10 +101,6 @@ jitter_param = 0.4
 lighting_param = 0.1
 resize_factor=1.0
 
-mean=[0.485, 0.456, 0.406]
-mean=[0, 0, 0]
-std=[1, 1, 1]
-
 transform_train = transforms.Compose([
     transforms.RandomResizedCrop(opts.input_sz),
     transforms.RandomFlipLeftRight(),
@@ -127,7 +108,7 @@ transform_train = transforms.Compose([
                                  saturation=jitter_param),
     transforms.RandomLighting(lighting_param),
     transforms.ToTensor(),
-    transforms.Normalize(mean, std)
+    transforms.Normalize([0.485, 0.456, 0.406], [1, 1, 1])
 ])
 
 transform_test = transforms.Compose([
@@ -135,8 +116,9 @@ transform_test = transforms.Compose([
     # transforms.Resize(opts.input_sz, keep_ratio=True),
     transforms.CenterCrop(opts.input_sz),
     transforms.ToTensor(),
-    transforms.Normalize(mean, std)
+    transforms.Normalize([0.485, 0.456, 0.406], [1, 1, 1])
 ])
+
 
 def test(net, val_data, ctx):
     acc_top1 = mx.metric.Accuracy()
@@ -172,10 +154,8 @@ def save_params(net, best_acc, current_acc, epoch, prefix):
         with open(prefix+'_best_map.log', 'a') as f:
             f.write('{:04d}:\t{:.4f}\n'.format(epoch, current_acc))
 
-
 def get_network(model, opts, frozen=False):
     if ('arm_network' in model):
-        #ctx=[mx.cpu()]
         version = model.replace('arm_network_v', '')
         network = get_arm_network(version, ctx)
         if opts.resume_params is not '':
@@ -183,10 +163,6 @@ def get_network(model, opts, frozen=False):
         network.output = nn.Dense(opts.num_class)
         network.output.initialize(init.Xavier(), ctx=ctx)
         network.hybridize()
-        # from gluoncv.utils import export_block
-        # export_block('arm_network_v3.4.1', network, preprocess=True, layout='HWC')
-
-        print('Done.')
         #viz.plot_network(network,shape=(1,3,112,112),save_prefix='test')
     else:
         network = get_model(model, pretrained=True)
@@ -227,20 +203,12 @@ def test_network(model, params_path, val_path):
     _, test_acc = test(finetune_net, val_data, ctx)
     print 'Test accuracy: '+str(test_acc)
 
-def smooth(label, classes, eta=0.1):
-    if isinstance(label, nd.NDArray):
-        label = [label]
-    smoothed = []
-    for l in label:
-        res = l.one_hot(classes, on_value = 1 - eta + eta/classes, off_value = eta/classes)
-        smoothed.append(res)
-    return smoothed
 
 def train(train_path, test_path):
     finetune_net = get_network(opts.model,opts)
-    if resume_param is '' and 'arm_network' in model:
+    if resume_param is '':
         finetune_net.initialize(mx.init.MSRAPrelu(), ctx=ctx)
-    folder = 'output/'+opts.model+'_'+str(opts.input_sz)+'_' + dataset
+    folder = opts.model+'_'+str(opts.input_sz)
     date_time = datetime.now().strftime('%Y-%m-%d_%H.%M')
     logger=setup_logger(os.path.join(folder,date_time,'train_log.log'))
 
@@ -275,20 +243,6 @@ def train(train_path, test_path):
                     step_factor=lr_decay, power=2)
     ])
 
-    if opts.teacher is not None and opts.hard_weight < 1.0:
-        teacher_name = opts.teacher
-        teacher = get_model(teacher_name, pretrained=False, classes=classes, ctx=ctx)
-        teacher.load_parameters('resnext50_32x4d_getty_dataset1_9508.params', ctx=ctx, allow_missing=True, ignore_extra=True)
-        teacher.cast(opts.dtype)
-        distillation = True
-    else:
-        distillation = False
-
-    if opts.mode == 'hybrid':
-        #finetune_net.hybridize(static_alloc=True, static_shape=True)
-        if distillation:
-            teacher.hybridize(static_alloc=True, static_shape=True)
-
     optimizer = 'sgd'
     optimizer_params = {'wd': opts.wd, 'momentum': opts.momentum, 'lr_scheduler': lr_scheduler}
 
@@ -298,20 +252,7 @@ def train(train_path, test_path):
         trainer.load_states(opts.resume_states)
 
     metric_train = mx.metric.Accuracy()
-
-    if opts.label_smoothing:
-        sparse_label_loss = False
-    else:
-        sparse_label_loss = True
-
-    if distillation:
-        L = gcv.loss.DistillationSoftmaxCrossEntropyLoss(temperature=opts.temperature,
-                                                         hard_weight=opts.hard_weight,
-                                                         sparse_label=sparse_label_loss)
-    else:
-        L = gluon.loss.SoftmaxCrossEntropyLoss(sparse_label=sparse_label_loss)
-        #L = gluon.loss.SoftmaxCrossEntropyLoss()
-
+    L = gluon.loss.SoftmaxCrossEntropyLoss()
     num_batch = len(train_data)
 
     print 'Begin training', model_name, opts.input_sz
@@ -328,36 +269,17 @@ def train(train_path, test_path):
         for idx, batch in enumerate(train_data):
             data = gluon.utils.split_and_load(batch[0], ctx_list=ctx, batch_axis=0, even_split=False)
             label = gluon.utils.split_and_load(batch[1], ctx_list=ctx, batch_axis=0, even_split=False)
-
-            if opts.label_smoothing:
-                hard_label = label
-                label = smooth(label, classes)
-
-            if distillation:
-                teacher_prob = [nd.softmax(teacher(X.astype(opts.dtype, copy=False)) / opts.temperature) for X in data]
-                #teacher_prob = [teacher(X.astype(opts.dtype, copy=False) / opts.temperature) for X in data]
-
             with ag.record():
-                outputs = [finetune_net(X.astype(opts.dtype, copy=False)) for X in data]
-                if distillation:
-                    loss = [L(yhat.astype('float32', copy=False),
-                              y.astype('float32', copy=False),
-                              p.astype('float32', copy=False)) for yhat, y, p in zip(outputs, label, teacher_prob)]
-                else:
-                    loss = [L(yhat, y.astype(opts.dtype, copy=False)) for yhat, y in zip(outputs, label)]
-                    #outputs = [finetune_net(X) for X in data]
-                    #loss = [L(yhat, y) for yhat, y in zip(outputs, label)]
-
+                outputs = [finetune_net(X) for X in data]
+                loss = [L(yhat, y) for yhat, y in zip(outputs, label)]
             for l in loss:
                 l.backward()
+
             trainer.step(batch_size)
             train_bloss = 0
             train_bloss += sum([l.mean().asscalar() for l in loss]) / len(loss)
             train_loss+=train_bloss
-            if opts.label_smoothing:
-                metric_train.update(hard_label, outputs)
-            else:
-                metric_train.update(label, outputs)
+            metric_train.update(label, outputs)
 
             if opts.log_interval and not (idx + 1) % opts.log_interval:
                 train_metric_name, train_metric_score = metric_train.get()
@@ -380,14 +302,14 @@ def train(train_path, test_path):
         val_acc_top1 = float(val_acc_top1)
         if val_acc_top1 > best_acc:
             best_acc = val_acc_top1
-            finetune_net.save_parameters(os.path.join(folder,date_time,'%s-best-%d.params' % (model_name, epoch)))
-            #trainer.save_states(os.path.join(folder, date_time, '%s-%s-best-%d.states' % (model_name, epoch)))
-            with open(os.path.join(folder,date_time,'best_acc.log'), 'a') as f:
+            finetune_net.save_parameters(os.path.join(folder,date_time,'%s-%s-best-%d.params' % (dataset, model_name, epoch)))
+            trainer.save_states(os.path.join(folder, date_time, '%s-%s-best-%d.states' % (dataset, model_name, epoch)))
+            with open(os.path.join(folder,date_time,'best_map.log'), 'a') as f:
                 f.write('{:04d}:\t{:.4f}\n'.format(epoch, val_acc_top1))
 
         if opts.save_frequency and epoch % opts.save_frequency == 0 and epoch>0:
-            finetune_net.save_parameters(os.path.join(folder,date_time,'%s-%d.params' % (model_name, epoch)))
-            #trainer.save_states(os.path.join(folder, date_time, '%s-%s-%d.states' % (model_name, epoch)))
+            finetune_net.save_parameters(os.path.join(folder,date_time,'%s-%s-%d.params' % (dataset, model_name, epoch)))
+            trainer.save_states(os.path.join(folder, date_time, '%s-%s-%d.states' % (dataset, model_name, epoch)))
 
     #_, test_acc = test(finetune_net, test_data, ctx)
     # os.rename(folder,'{:s}_{:d}'.format(folder,int(10000*best_acc)))

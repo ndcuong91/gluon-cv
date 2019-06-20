@@ -16,19 +16,24 @@ import config_arm_project as config
 
 # CLI
 model=config.model_name
-input_sz=224
+input_sz=180
 batch_size=config.batch_size
-epochs=config.epochs
-log_interval=config.log_interval
+epochs=120
+log_interval=200
 num_workers=config.num_workers
 imagenet_dir='~/.mxnet/datasets/imagenet'
-base_lr=config.base_lr
-lr_decay=config.lr_decay
-lr_decay_epoch=config.lr_decay_epoch
-lr_mode=config.lr_mode
-save_frequency=config.save_frequency
+base_lr=0.4
+lr_decay=0.1
+lr_mode='cosine'
+lr_decay_epoch='40,60'
+save_frequency=10
 
-resume_param=config.resume_param
+base_lr=0.1
+lr_decay=0.3
+lr_decay_epoch='10,18,28,40,60,90,140,200,500,900,1400'
+lr_mode='step'
+
+resume_param=''
 resume_state=config.resume_state
 resume_epoch=config.resume_epoch
 
@@ -90,8 +95,8 @@ def parse_args():
                         help='beta distribution parameter for mixup sampling, default is 0.2.')
     parser.add_argument('--mixup-off-epoch', type=int, default=0,
                         help='how many last epochs to train without mixup, default is 0.')
-    parser.add_argument('--label-smoothing', action='store_false',
-                        help='use label smoothing or not in training. default is true.')
+    parser.add_argument('--label-smoothing', action='store_true',
+                        help='use label smoothing or not in training. default is false.')
     parser.add_argument('--no-wd', action='store_false',
                         help='whether to remove weight decay on bias, and beta/gamma for batchnorm layers.')
     parser.add_argument('--teacher', type=str, default=None,
@@ -120,7 +125,7 @@ def parse_args():
                         help='whether to use group norm.')
     parser.add_argument('--warmup-lr', type=float, default=0.0,
                         help='starting warmup learning rate. default is 0.0.')
-    parser.add_argument('--warmup-epochs', type=int, default=5,
+    parser.add_argument('--warmup-epochs', type=int, default=0,
                         help='number of warmup epochs.')
     opt = parser.parse_args()
     return opt

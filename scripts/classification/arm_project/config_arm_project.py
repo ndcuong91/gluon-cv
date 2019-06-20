@@ -16,11 +16,11 @@ if(pc=='300'):
     val_dir = os.path.join(dataset_dir, 'test')
 
 classes = 2
-model_name= 'arm_network_v4.4'
+model_name= 'arm_network_v4.3'# 'resnext50_32x4d'
 
 #hyper parameters
-batch_size=128
-epochs=120
+batch_size=32
+epochs=2500
 log_interval=200
 num_workers=8
 
@@ -29,38 +29,44 @@ resume_param = ''
 resume_state = ''
 resume_epoch = 0
 
-if (model_name=='arm_network_v3.4'):
+if ('arm_network_v3.4' in model_name):
     input_sz=112
     resume_param = 'pretrained/ImageNet_v3.4_3452.params'
-    resume_param = ''
-if (model_name=='arm_network_v3.5.2'):
+    #resume_param = 'arm_network_v3.4.1-best-52.params'
+elif ('arm_network_v3.5.2' in model_name):
     input_sz=112
     resume_param = 'pretrained/ImageNet_v3.5.2_3440.params'
-if (model_name=='arm_network_v4.1'):
+elif ('arm_network_v4.1' in model_name):
     input_sz=160
     resume_param = 'pretrained/ImageNet_v4.1_4352.params'
-if (model_name=='arm_network_v4.2'):
+elif ('arm_network_v4.2' in model_name):
     input_sz=180
     resume_param = 'pretrained/ImageNet_v4.2_4551.params'
-if (model_name=='arm_network_v4.3'):
+elif ('arm_network_v4.3' in model_name):
     input_sz=180
     resume_param = 'pretrained/ImageNet_v4.3_4150.params'
-if (model_name=='arm_network_v4.4' or model_name=='arm_network_v4.4.1'):
+elif ('arm_network_v4.4' in model_name):
     input_sz=180
     resume_param = 'pretrained/ImageNet_v4.4_4000_180.params'
+else:
+    input_sz=160
+
 
 if(training==True):
-    base_lr=0.4
-    lr_decay=0.1
-    lr_mode='cosine'
-    lr_decay_epoch='40,60'
+    base_lr=0.01
+    lr_decay=0.7
+    lr_mode='step'
+    lr_decay_epoch='10,20,30,40,50,70,110,150,200,500,900,1400'
 else: #finetuning
     base_lr=0.0001
     lr_decay=0.5
     lr_mode='step'
     lr_decay_epoch='500,1000'
-    resume_param = 'arm_network_v4.5.3_180_8758/2019-06-01_22.10/ARM_New_Dataset-arm_network_v4.5.3-best-1072.params'
+    resume_param = 'resnext50_32x4d_180/2019-06-18_16.30.params'
     resume_state = ''
     resume_epoch = 0
 
-save_frequency=50
+#resume_param = 'resnext50_32x4d_180/2019-06-18_16.30/new_dataset1_resize300-resnext50_32x4d-best-48.params'
+#resume_state = 'resnext50_32x4d_180/2019-06-18_16.30/new_dataset1_resize300-resnext50_32x4d-best-48.states'
+teacher=''
+save_frequency=200

@@ -7,10 +7,10 @@ def get_arm_network(version, ctx):
         return arm_network_v3_3( ctx)
     if(version=='3.4'):
         return arm_network_v3_4( ctx)
-    if(version=='4.1'):
-        return arm_network_v4_1( ctx)
-    if(version=='4.2'):
-        return arm_network_v4_2( ctx)
+    if(version=='3.4.1'):
+        return arm_network_v3_4_1( ctx)
+    if(version=='3.4.2'):
+        return arm_network_v3_4_2( ctx)
     if(version=='3.5'):
         return arm_network_v3_5( ctx)
     if(version=='3.5.1'):
@@ -114,6 +114,80 @@ def arm_network_v3_4(ctx):
         nn.Dense(256),
         nn.Dense(128))
     network.initialize(init=init.Xavier(), ctx=ctx)
+    return network
+
+def arm_network_v3_4_1(ctx):
+    network = nn.HybridSequential()
+    network.add(
+        nn.Conv2D(channels=8, kernel_size=3, padding=1), # conv1
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+        nn.MaxPool2D(pool_size=2, strides=2),
+
+        nn.Conv2D(channels=16, kernel_size=3, padding=1), # conv2
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+        nn.MaxPool2D(pool_size=2, strides=2),
+
+        nn.Conv2D(channels=32, kernel_size=3, padding=1), # conv3
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+        nn.MaxPool2D(pool_size=2, strides=2),
+
+        nn.Conv2D(channels=64, kernel_size=3, padding=1),  # conv4
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+
+        nn.Conv2D(channels=96, kernel_size=3, padding=1),  # conv5
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+        nn.MaxPool2D(pool_size=2, strides=2),
+
+        nn.Conv2D(channels=160, kernel_size=3, padding=1), # conv6
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+        nn.GlobalAvgPool2D())
+        # ,
+        # nn.Dense(256),
+        # nn.Dense(128))
+    network.initialize(init=init.Xavier(), ctx=ctx)
+    return network
+
+def arm_network_v3_4_2(ctx):
+    network = nn.HybridSequential()
+    network.add(
+        nn.Conv2D(channels=8, kernel_size=3, padding=1), # conv1
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+        nn.MaxPool2D(pool_size=2, strides=2),
+
+        nn.Conv2D(channels=16, kernel_size=3, padding=1), # conv2
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+        nn.MaxPool2D(pool_size=2, strides=2),
+
+        nn.Conv2D(channels=32, kernel_size=3, padding=1), # conv3
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+        nn.MaxPool2D(pool_size=2, strides=2),
+
+        nn.Conv2D(channels=64, kernel_size=3, padding=1),  # conv4
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+
+        nn.Conv2D(channels=96, kernel_size=3, padding=1),  # conv5
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+        nn.MaxPool2D(pool_size=2, strides=2),
+
+        nn.Conv2D(channels=200, kernel_size=3, padding=1), # conv6
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+        nn.GlobalAvgPool2D())
+        # ,
+        # nn.Dense(256),
+        # nn.Dense(128))
+    #network.initialize(init=init.Xavier(), ctx=ctx)
     return network
 
 def arm_network_v3_5(ctx):

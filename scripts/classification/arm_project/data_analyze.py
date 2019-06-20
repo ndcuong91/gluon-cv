@@ -418,7 +418,6 @@ def process_data(data_dir='/media/atsg/Data/datasets/ZaloAIChallenge2018/landmar
 
 if __name__ == "__main__":
     finetune_net = test.get_network_with_pretrained(config.model_name, 'arm_v4.4_180_9180.params')
-
     get_embedded_feature_and_draw_tSNE(finetune_net,[mx.gpu()], '/media/atsg/Data/datasets/gvh205_arm_project/new_dataset1_resize300_rename/test', sub_class_inside=True)
     #call_mxboard()
     #plot_distribution_result('/media/atsg/Data/datasets/ZaloAIChallenge2018/landmark/Test_Public_result')

@@ -33,6 +33,8 @@ save_frequency=config.save_frequency
 resume_param=config.resume_param
 resume_state=config.resume_state
 resume_epoch=config.resume_epoch
+teacher=config.teacher
+teacher_params=config.teacher_params
 
 
 def parse_opts():
@@ -82,7 +84,7 @@ def parse_opts():
                         help='epoch to resume training from.')
 
     #for distillation training
-    parser.add_argument('--teacher', type=str, default=None, #None #'resnext50_32x4d'
+    parser.add_argument('--teacher', type=str, default=teacher, #None #'resnext50_32x4d'
                         help='teacher model for distillation training')
     parser.add_argument('--temperature', type=float, default=20,
                         help='temperature parameter for distillation teacher model')
@@ -117,11 +119,12 @@ lighting_param = 0.1
 resize_factor=1.0
 
 mean=[0.485, 0.456, 0.406]
-mean=[0, 0, 0]
+#mean=[0, 0, 0]
 std=[1, 1, 1]
+#std=[0.229, 0.224, 0.225]
 
 transform_train = transforms.Compose([
-    transforms.RandomResizedCrop(opts.input_sz),
+    transforms.RandomResizedCrop(int(resize_factor * opts.input_sz)),
     transforms.RandomFlipLeftRight(),
     transforms.RandomColorJitter(brightness=jitter_param, contrast=jitter_param,
                                  saturation=jitter_param),
@@ -278,7 +281,7 @@ def train(train_path, test_path):
     if opts.teacher is not None and opts.hard_weight < 1.0:
         teacher_name = opts.teacher
         teacher = get_model(teacher_name, pretrained=False, classes=classes, ctx=ctx)
-        teacher.load_parameters('resnext50_32x4d_getty_dataset1_9508.params', ctx=ctx, allow_missing=True, ignore_extra=True)
+        teacher.load_parameters(teacher_params, ctx=ctx, allow_missing=True, ignore_extra=True)
         teacher.cast(opts.dtype)
         distillation = True
     else:

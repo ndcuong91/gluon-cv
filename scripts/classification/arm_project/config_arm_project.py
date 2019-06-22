@@ -16,11 +16,11 @@ if(pc=='300'):
     val_dir = os.path.join(dataset_dir, 'test')
 
 classes = 2
-model_name= 'arm_network_v4.3'# 'resnext50_32x4d'
+model_name= 'arm_network_v3.4.1'# ''mobilenet0.25'# 'resnext50_32x4d' 'arm_network_v5.1'
 
 #hyper parameters
-batch_size=32
-epochs=2500
+batch_size=128
+epochs=2000
 log_interval=200
 num_workers=8
 
@@ -29,10 +29,15 @@ resume_param = ''
 resume_state = ''
 resume_epoch = 0
 
-if ('arm_network_v3.4' in model_name):
+if ('arm_network_v3.4.2' in model_name):
+    input_sz=112
+    resume_param = 'pretrained/ImageNet_v3.4.2_3378.params'
+    #resume_param = 'arm_network_v3.4.1-best-52.params'
+elif ('arm_network_v3.4' in model_name):
     input_sz=112
     resume_param = 'pretrained/ImageNet_v3.4_3452.params'
-    #resume_param = 'arm_network_v3.4.1-best-52.params'
+    resume_param = 'output/arm_network_v3.4.1_112_new_dataset1_resize300/arm_network_v3.4.1_8993.params'
+    resume_param=''
 elif ('arm_network_v3.5.2' in model_name):
     input_sz=112
     resume_param = 'pretrained/ImageNet_v3.5.2_3440.params'
@@ -49,13 +54,13 @@ elif ('arm_network_v4.4' in model_name):
     input_sz=180
     resume_param = 'pretrained/ImageNet_v4.4_4000_180.params'
 else:
-    input_sz=160
+    input_sz=224
 
 
 if(training==True):
     base_lr=0.01
-    lr_decay=0.7
     lr_mode='step'
+    lr_decay=0.7
     lr_decay_epoch='10,20,30,40,50,70,110,150,200,500,900,1400'
 else: #finetuning
     base_lr=0.0001
@@ -68,5 +73,11 @@ else: #finetuning
 
 #resume_param = 'resnext50_32x4d_180/2019-06-18_16.30/new_dataset1_resize300-resnext50_32x4d-best-48.params'
 #resume_state = 'resnext50_32x4d_180/2019-06-18_16.30/new_dataset1_resize300-resnext50_32x4d-best-48.states'
-teacher=''
+# base_lr=0.001
+# lr_decay=0.1
+# lr_decay_epoch='800'
+teacher=None
+#teacher='resnext50_32x4d'
+teacher_params='params/resnext50_32x4d_getty_dataset1_112_9412.params'
+label_smoothing=True
 save_frequency=200

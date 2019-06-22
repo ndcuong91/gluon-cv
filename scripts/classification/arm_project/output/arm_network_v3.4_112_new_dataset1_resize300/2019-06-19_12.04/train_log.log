@@ -1,9 +1,0 @@
-Namespace(batch_size=32, dtype='float32', hard_weight=0.5, input_sz=112, label_smoothing=True, log_interval=200, lr=0.01, lr_decay=0.7, lr_decay_epoch='10,20,30,40,50,70,110,150,200,500,900,1400', lr_decay_period=0, lr_mode='step', mode='hybrid', model='arm_network_v3.4', momentum=0.9, num_class=2, num_epochs=1500, num_gpus=1, num_workers=8, resume_epoch=0, resume_params='', resume_states='', save_frequency=200, teacher='resnext50_32x4d', temperature=20, warmup_epochs=0, wd=0.0001)
-[Epoch 0] Train-acc: 0.494, loss: 139.395 | Val-acc-top1: 0.424 | time: 7.7 | Speed: 220.85 samples/sec | lr: 0.01000000
-[Epoch 1] Train-acc: 0.559, loss: 138.715 | Val-acc-top1: 0.604 | time: 2.4 | Speed: 698.35 samples/sec | lr: 0.01000000
-[Epoch 2] Train-acc: 0.562, loss: 138.799 | Val-acc-top1: 0.614 | time: 2.4 | Speed: 697.55 samples/sec | lr: 0.01000000
-[Epoch 3] Train-acc: 0.575, loss: 138.665 | Val-acc-top1: 0.567 | time: 2.5 | Speed: 687.10 samples/sec | lr: 0.01000000
-[Epoch 4] Train-acc: 0.559, loss: 138.549 | Val-acc-top1: 0.593 | time: 2.4 | Speed: 699.61 samples/sec | lr: 0.01000000
-[Epoch 5] Train-acc: 0.567, loss: 138.768 | Val-acc-top1: 0.604 | time: 2.4 | Speed: 698.34 samples/sec | lr: 0.01000000
-[Epoch 6] Train-acc: 0.583, loss: 138.318 | Val-acc-top1: 0.616 | time: 2.5 | Speed: 691.25 samples/sec | lr: 0.01000000
-[Epoch 7] Train-acc: 0.634, loss: 137.882 | Val-acc-top1: 0.639 | time: 2.5 | Speed: 667.03 samples/sec | lr: 0.01000000

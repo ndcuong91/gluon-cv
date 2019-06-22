@@ -105,6 +105,9 @@ lr_decay_count = 0
 log_interval = 200
 lr_decay_period=0
 
+best_val_score=1
+save_dir='output'
+
 for epoch in range(epochs):
     tic = time.time()
     btic = time.time()
@@ -143,5 +146,10 @@ for epoch in range(epochs):
     print('[Epoch %d] training: err-top1=%f err-top5=%f'%(epoch, err_top1, err_top5))
     print('[Epoch %d] time cost: %f'%(epoch, time.time()-tic))
     print('[Epoch %d] validation: err-top1=%f err-top5=%f'%(epoch, err_top1_val, err_top5_val))
+
+    if err_top1_val < best_val_score:
+        best_val_score = err_top1_val
+        net.save_parameters('%s/%.4f-imagenet-%s-%d-best.params' % (save_dir, best_val_score, model_name, epoch))
+        trainer.save_states('%s/%.4f-imagenet-%s-%d-best.states' % (save_dir, best_val_score, model_name, epoch))
 
 train_history.plot(['training-top1-err', 'validation-top1-err'])

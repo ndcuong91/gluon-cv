@@ -7,6 +7,7 @@ from mxnet import gluon, nd, init
 from mxnet import autograd as ag
 from mxnet.gluon import nn
 from mxnet.gluon.data.vision import transforms
+from datetime import datetime
 
 from gluoncv.data import imagenet
 from gluoncv.model_zoo import get_model
@@ -16,7 +17,7 @@ import config_arm_project as config
 
 # CLI
 model=config.model_name
-input_sz=112
+input_sz=208
 batch_size=config.batch_size
 epochs=120
 log_interval=200
@@ -109,8 +110,6 @@ def parse_args():
                         help='enable batch normalization or not in vgg. default is false.')
     parser.add_argument('--save-frequency', type=int, default=save_frequency,
                         help='frequency of model saving.')
-    parser.add_argument('--save-dir', type=str, default='params',
-                        help='directory of saved models')
     parser.add_argument('--resume-epoch', type=int, default=0,
                         help='epoch to resume training from.')
     parser.add_argument('--resume-params', type=str, default='',
@@ -130,18 +129,31 @@ def parse_args():
     opt = parser.parse_args()
     return opt
 
+
+def setup_logger(log_file_path):
+    # set up logger
+    logging.basicConfig()
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+    log_dir = os.path.dirname(log_file_path)
+    if log_dir and not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+    fh = logging.FileHandler(log_file_path)
+    logger.addHandler(fh)
+    return logger
+
 def main():
     opt = parse_args()
 
-    filehandler = logging.FileHandler(opt.logging_file)
-    streamhandler = logging.StreamHandler()
+    folder = 'output/'+opt.model+'_'+str(opt.input_size)+'_ImageNet'
+    date_time = datetime.now().strftime('%Y-%m-%d_%H.%M')
 
-    logger = logging.getLogger('')
-    logger.setLevel(logging.INFO)
-    logger.addHandler(filehandler)
-    logger.addHandler(streamhandler)
+    save_dir = os.path.join(folder, date_time)
+    makedirs(save_dir)
+    logger=setup_logger(os.path.join(save_dir,'train_log.log'))
 
     logger.info(opt)
+
 
     batch_size = opt.batch_size
     classes = 1000
@@ -328,12 +340,6 @@ def main():
     acc_top5 = mx.metric.TopKAccuracy(5)
 
     save_frequency = opt.save_frequency
-    if opt.save_dir and save_frequency:
-        save_dir = opt.save_dir
-        makedirs(save_dir)
-    else:
-        save_dir = ''
-        save_frequency = 0
 
     def mixup_transform(label, classes, lam=1, eta=0.0):
         if isinstance(label, nd.NDArray):
@@ -466,16 +472,18 @@ def main():
 
             if err_top1_val < best_val_score:
                 best_val_score = err_top1_val
-                net.save_parameters('%s/%.4f-imagenet-%s-%d-best.params'%(save_dir, best_val_score, model_name, epoch))
-                trainer.save_states('%s/%.4f-imagenet-%s-%d-best.states'%(save_dir, best_val_score, model_name, epoch))
+                net.save_parameters('%s/ImageNet-%s--best.params'%(save_dir, model_name))
+                #trainer.save_states('%s/%.4f-imagenet-%s-%d-best.states'%(save_dir, best_val_score, model_name, epoch))
+                with open(os.path.join(save_dir, 'best_imagenet_acc.log'), 'a') as f:
+                    f.write('{:04d}:\t{:.4f}\n'.format(epoch, (1-err_top1_val)))
 
             if save_frequency and save_dir and (epoch + 1) % save_frequency == 0:
                 net.save_parameters('%s/imagenet-%s-%d.params'%(save_dir, model_name, epoch))
-                trainer.save_states('%s/imagenet-%s-%d.states'%(save_dir, model_name, epoch))
+                #trainer.save_states('%s/imagenet-%s-%d.states'%(save_dir, model_name, epoch))
 
         if save_frequency and save_dir:
             net.save_parameters('%s/imagenet-%s-%d.params'%(save_dir, model_name, opt.num_epochs-1))
-            trainer.save_states('%s/imagenet-%s-%d.states'%(save_dir, model_name, opt.num_epochs-1))
+            #trainer.save_states('%s/imagenet-%s-%d.states'%(save_dir, model_name, opt.num_epochs-1))
 
 
     if opt.mode == 'hybrid':

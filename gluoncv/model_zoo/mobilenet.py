@@ -156,15 +156,12 @@ class MobileNet(HybridBlock):
             with self.features.name_scope():
                 _add_conv(self.features, channels=int(32 * multiplier), kernel=3, pad=1, stride=2,
                           norm_layer=BatchNorm, norm_kwargs=None)
+                print 'Change stride 2 to conv1. change to mobilenet_customized2'
                 dw_channels = [int(x * multiplier) for x in [32, 64] + [128] * 2 +
-                               [256] *
-                               2 +
-                               [512] *
-                               6 +
-                               [1024]]
+                               [256] * 2 + [512] * 3]
                 channels = [int(x * multiplier) for x in [64] +
-                            [128] * 2 + [256] * 2 + [512] * 6 + [1024] * 2]
-                strides = [1, 2] * 3 + [1] * 5 + [2, 1]
+                            [128] * 2 + [256] * 2 + [512] * 3 + [1024]]
+                strides =[2,1]+ [1, 2] * 2 + [1] * 2 + [2]
                 for dwc, c, s in zip(dw_channels, channels, strides):
                     _add_conv_dw(self.features, dw_channels=dwc, channels=c, stride=s,
                                  norm_layer=BatchNorm, norm_kwargs=None)

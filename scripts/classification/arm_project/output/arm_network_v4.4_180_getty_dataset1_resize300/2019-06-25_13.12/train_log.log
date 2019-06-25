@@ -1,0 +1,3 @@
+Namespace(batch_size=128, dtype='float32', hard_weight=0.5, input_sz=180, label_smoothing=False, log_interval=200, lr=0.01, lr_decay=0.7, lr_decay_epoch='10,20,30,40,50,70,110,150,200,500,900,1400', lr_decay_period=0, lr_mode='step', mode='hybrid', model='arm_network_v4.4', momentum=0.9, num_class=2, num_epochs=2000, num_gpus=1, num_workers=8, resume_epoch=0, resume_params='pretrained/ImageNet_v4.4_4000_180.params', resume_states='', save_frequency=200, teacher=None, temperature=20, warmup_epochs=0, wd=0.0001)
+[Epoch 0] Train-acc: 0.721, loss: 1.082 | Val-acc-top1: 0.770 | time: 4.6 | Speed: 368.57 samples/sec | lr: 0.01000000
+[Epoch 1] Train-acc: 0.786, loss: 0.501 | Val-acc-top1: 0.831 | time: 2.5 | Speed: 684.56 samples/sec | lr: 0.01000000

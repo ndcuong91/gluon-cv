@@ -3,7 +3,7 @@ import os
 pc='duycuongAI'
 pc='300'
 
-dataset='new_dataset1_resize300' #dataset3_resize300
+dataset='getty_dataset1_resize300' #dataset3_resize300
 if(pc=='duycuongAI'):
     dataset_dir='/media/duycuong/Data/Dataset/ZaloAIChallenge2018/landmark'
     train_dir = os.path.join(dataset_dir, 'TrainVal/train')
@@ -16,7 +16,7 @@ if(pc=='300'):
     val_dir = os.path.join(dataset_dir, 'test')
 
 classes = 2
-model_name= 'arm_network_v3.4.1'# ''mobilenet0.25'# 'resnext50_32x4d' 'arm_network_v5.1'
+model_name= 'mobilenet0.5'# ''mobilenet0.25'# 'resnext50_32x4d' 'arm_network_v5.1'
 
 #hyper parameters
 batch_size=128
@@ -33,11 +33,11 @@ if ('arm_network_v3.4.2' in model_name):
     input_sz=112
     resume_param = 'pretrained/ImageNet_v3.4.2_3378.params'
     #resume_param = 'arm_network_v3.4.1-best-52.params'
-elif ('arm_network_v3.4' in model_name):
+elif ('arm_network_v3.4.1' in model_name):
     input_sz=112
-    resume_param = 'pretrained/ImageNet_v3.4_3452.params'
-    resume_param = 'output/arm_network_v3.4.1_112_new_dataset1_resize300/arm_network_v3.4.1_8993.params'
-    resume_param=''
+    resume_param = 'pretrained/ImageNet_v3.4.1_3527.params'
+    #resume_param = 'output/arm_network_v3.4.1_112_new_dataset1_resize300/arm_network_v3.4.1_8993.params'
+    #resume_param=''
 elif ('arm_network_v3.5.2' in model_name):
     input_sz=112
     resume_param = 'pretrained/ImageNet_v3.5.2_3440.params'
@@ -53,8 +53,12 @@ elif ('arm_network_v4.3' in model_name):
 elif ('arm_network_v4.4' in model_name):
     input_sz=180
     resume_param = 'pretrained/ImageNet_v4.4_4000_180.params'
+elif ('arm_network_v5.2' in model_name):
+    input_sz=208
+    resume_param = 'pretrained/Imagenet_v5.2_3083.params'
 else:
-    input_sz=224
+    input_sz=208
+    resume_param='params/0.5177-imagenet-mobilenet0.5-50-best.params'
 
 
 if(training==True):

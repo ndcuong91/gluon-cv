@@ -121,7 +121,7 @@ resize_factor=1.0
 mean=[0.485, 0.456, 0.406]
 #mean=[0, 0, 0]
 std=[1, 1, 1]
-#std=[0.229, 0.224, 0.225]
+std=[0.229, 0.224, 0.225]
 
 transform_train = transforms.Compose([
     transforms.RandomResizedCrop(int(resize_factor * opts.input_sz)),
@@ -186,13 +186,14 @@ def get_network(model, opts, frozen=False):
         network.output = nn.Dense(opts.num_class)
         network.output.initialize(init.Xavier(), ctx=ctx)
         network.hybridize()
-        # from gluoncv.utils import export_block
-        # export_block('arm_network_v3.4.1', network, preprocess=True, layout='HWC')
+        #from gluoncv.utils import export_block
+        #export_block('arm_network_v4.4', network, preprocess=True, layout='HWC')
 
         print('Done.')
         #viz.plot_network(network,shape=(1,3,112,112),save_prefix='test')
     else:
-        network = get_model(model, pretrained=True)
+        network = get_model(model, pretrained=False)
+
 
         if (frozen):
             print 'Frozen'
@@ -203,17 +204,24 @@ def get_network(model, opts, frozen=False):
         else:
             print 'No frozen'
 
+        if opts.resume_params is not '':
+            network.load_parameters(opts.resume_params, ctx=ctx, allow_missing=True, ignore_extra=True)
+
+        network.initialize(init=init.Xavier(), ctx=ctx)
         with network.name_scope():
             network.output = nn.Dense(opts.num_class)
             network.output.initialize(init.Xavier(), ctx=ctx)
 
             # test_layer = network.output.collect_params()['resnetv20_dense1_weight']._data
             # print test_layer
+            # if opts.resume_params is not '':
+            #     network.load_parameters(opts.resume_params, ctx=ctx, allow_missing=True, ignore_extra=True)
 
             network.collect_params().reset_ctx(ctx)
-            if opts.resume_params is not '':
-                network.load_parameters(opts.resume_params, ctx=ctx)
-        network.hybridize()
+        #network.hybridize()
+
+        # x = mx.nd.ones((1, 3, 208, 208))
+        # network.summary(x)
         #viz.plot_network(network, shape=(1, 3, 112, 112), save_prefix='test')
         return network
     return network
@@ -383,7 +391,7 @@ def train(train_path, test_path):
         val_acc_top1 = float(val_acc_top1)
         if val_acc_top1 > best_acc:
             best_acc = val_acc_top1
-            finetune_net.save_parameters(os.path.join(folder,date_time,'%s-best-%d.params' % (model_name, epoch)))
+            finetune_net.save_parameters(os.path.join(folder,date_time,'%s-best.params' % model_name))
             #trainer.save_states(os.path.join(folder, date_time, '%s-%s-best-%d.states' % (model_name, epoch)))
             with open(os.path.join(folder,date_time,'best_acc.log'), 'a') as f:
                 f.write('{:04d}:\t{:.4f}\n'.format(epoch, val_acc_top1))

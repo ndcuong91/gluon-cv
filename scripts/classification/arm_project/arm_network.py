@@ -47,6 +47,10 @@ def get_arm_network(version, ctx):
         return arm_network_v5_1( ctx)
     if(version=='5.2'):
         return arm_network_v5_2( ctx)
+    if(version=='5.3'):
+        return arm_network_v5_3( ctx)
+    if(version=='5.4'):
+        return arm_network_v5_4( ctx)
 
 def arm_network_v3_3(ctx):
     network = nn.HybridSequential()
@@ -796,7 +800,6 @@ def arm_network_v5_1(ctx):
     network.initialize(init=init.Xavier(), ctx=ctx)
     return network
 
-
 def arm_network_v5_2(ctx):
     network = nn.HybridSequential()
     network.add(
@@ -804,46 +807,261 @@ def arm_network_v5_2(ctx):
         nn.BatchNorm(axis=1, center=True, scale=True),
         nn.Activation(activation='relu'),
 
-        nn.Conv2D(channels=32, groups=32, kernel_size=3, padding=1, use_bias=False),  # conv1 dw
+        nn.Conv2D(channels=16, groups=16, kernel_size=3, padding=1, use_bias=False),  # conv1 dw
         nn.BatchNorm(axis=1, center=True, scale=True),
         nn.Activation(activation='relu'),
 
-        nn.Conv2D(channels=32, kernel_size=1, padding=1, use_bias=False),  # conv1 pw
+        nn.Conv2D(channels=32, kernel_size=1, strides=2, use_bias=False),  # conv1 pw
         nn.BatchNorm(axis=1, center=True, scale=True),
         nn.Activation(activation='relu'),
 
-        nn.Conv2D(channels=64, groups=64, kernel_size=3, strides=2, padding=1, use_bias=False),  # conv2 dw
+        nn.Conv2D(channels=32, groups=32, kernel_size=3, padding=1, use_bias=False),  # conv2 dw
         nn.BatchNorm(axis=1, center=True, scale=True),
         nn.Activation(activation='relu'),
 
-        nn.Conv2D(channels=64, kernel_size=1, padding=1, use_bias=False),  # conv2 pw
+        nn.Conv2D(channels=64, kernel_size=1, strides=2, use_bias=False),  # conv2 pw
         nn.BatchNorm(axis=1, center=True, scale=True),
         nn.Activation(activation='relu'),
 
-        nn.Conv2D(channels=128, groups=128, kernel_size=3, strides=2, padding=1, use_bias=False),  # conv3 dw
+        nn.Conv2D(channels=64, groups=64, kernel_size=3, padding=1, use_bias=False),  # conv3 dw
         nn.BatchNorm(axis=1, center=True, scale=True),
         nn.Activation(activation='relu'),
 
-        nn.Conv2D(channels=128, kernel_size=1, padding=1, use_bias=False),  # conv3 pw
+        nn.Conv2D(channels=128, kernel_size=1, use_bias=False),  # conv3 pw
         nn.BatchNorm(axis=1, center=True, scale=True),
         nn.Activation(activation='relu'),
 
-        nn.Conv2D(channels=128, groups=128, kernel_size=3, strides=2, padding=1, use_bias=False),  # conv4 dw
+        nn.Conv2D(channels=128, groups=128, kernel_size=3, padding=1, use_bias=False),  # conv4 dw
         nn.BatchNorm(axis=1, center=True, scale=True),
         nn.Activation(activation='relu'),
 
-        nn.Conv2D(channels=128, kernel_size=1, padding=1, use_bias=False),  # conv4 pw
+        nn.Conv2D(channels=128, kernel_size=1, strides=2, use_bias=False),  # conv4 pw
         nn.BatchNorm(axis=1, center=True, scale=True),
         nn.Activation(activation='relu'),
 
-        nn.Conv2D(channels=256, groups=128, kernel_size=3, strides=2, padding=1, use_bias=False),  # conv5 dw
+        nn.Conv2D(channels=128, groups=128, kernel_size=3, padding=1, use_bias=False),  # conv5 dw
         nn.BatchNorm(axis=1, center=True, scale=True),
         nn.Activation(activation='relu'),
 
-        nn.Conv2D(channels=256, kernel_size=1, padding=1, use_bias=False),  # conv5 pw
+        nn.Conv2D(channels=256, kernel_size=1, strides=2, use_bias=False),  # conv5 pw
         nn.BatchNorm(axis=1, center=True, scale=True),
         nn.Activation(activation='relu'),
 
         nn.GlobalAvgPool2D())
+    network.initialize(init=init.Xavier(), ctx=ctx)
+    return network
+
+def arm_network_v5_3(ctx):
+    network = nn.HybridSequential()
+    network.add(
+        nn.Conv2D(channels=16, kernel_size=3, padding=1, strides=2, use_bias=False), # conv0
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+        #conv1
+        nn.Conv2D(channels=16, groups=16, kernel_size=3, padding=1, use_bias=False),  # conv1 dw
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+
+        nn.Conv2D(channels=32, kernel_size=1, use_bias=False),  # conv1 pw
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+        #conv2
+        nn.Conv2D(channels=32, groups=32, kernel_size=3, strides=2, padding=1, use_bias=False),  # conv2 dw
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+
+        nn.Conv2D(channels=64, kernel_size=1, use_bias=False),  # conv2 pw
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+        # conv3
+        nn.Conv2D(channels=64, groups=64, kernel_size=3, strides=2, padding=1, use_bias=False),  # conv3 dw
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+
+        nn.Conv2D(channels=128, kernel_size=1, use_bias=False),  # conv3 pw
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+        # conv4
+        nn.Conv2D(channels=128, groups=128, kernel_size=3, padding=1, use_bias=False),  # conv4 dw
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+
+        nn.Conv2D(channels=128, kernel_size=1, use_bias=False),  # conv4 pw
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+        # conv5
+        nn.Conv2D(channels=128, groups=128, kernel_size=3, strides=2, padding=1, use_bias=False),  # conv5 dw
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+
+        nn.Conv2D(channels=256, kernel_size=1, use_bias=False),  # conv5 pw
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+        # conv6
+        nn.Conv2D(channels=256, groups=256, kernel_size=3, padding=1, use_bias=False),  # conv5 dw
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+
+        nn.Conv2D(channels=256, kernel_size=1, use_bias=False),  # conv5 pw
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+        # conv7
+        nn.Conv2D(channels=256, groups=256, kernel_size=3, padding=1, use_bias=False),  # conv5 dw
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+
+        nn.Conv2D(channels=256, kernel_size=1, use_bias=False),  # conv5 pw
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+        # conv8
+        nn.Conv2D(channels=256, groups=256, kernel_size=3, padding=1, use_bias=False),  # conv5 dw
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+
+        nn.Conv2D(channels=256, kernel_size=1, use_bias=False),  # conv5 pw
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+        # conv9
+        nn.Conv2D(channels=256, groups=256, kernel_size=3, padding=1, use_bias=False),  # conv5 dw
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+
+        nn.Conv2D(channels=256, kernel_size=1, use_bias=False),  # conv5 pw
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+        # conv10
+        nn.Conv2D(channels=256, groups=256, strides=2, kernel_size=3, padding=1, use_bias=False),  # conv5 dw
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+
+        nn.Conv2D(channels=512, kernel_size=1, use_bias=False),  # conv5 pw
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+        # conv10
+        nn.Conv2D(channels=512, groups=512, kernel_size=3, padding=1, use_bias=False),  # conv5 dw
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+
+        nn.Conv2D(channels=512, kernel_size=1, use_bias=False),  # conv5 pw
+        nn.BatchNorm(axis=1, center=True, scale=True),
+        nn.Activation(activation='relu'),
+
+        nn.GlobalAvgPool2D())
+    network.initialize(init=init.Xavier(), ctx=ctx)
+    return network
+
+def arm_network_v5_4(ctx): #mobilenet0.5 model
+    network = nn.HybridSequential()
+    network.add(
+        nn.Conv2D(channels=16, kernel_size=3, padding=1, strides=2, use_bias=False), # conv0
+        nn.BatchNorm(use_global_stats=False, momentum=0.9, axis=1, in_channels=16),
+        nn.Activation(activation='relu'),
+#conv1
+        nn.Conv2D(channels=16, groups=16, kernel_size=3, padding=1, use_bias=False),
+        nn.BatchNorm(use_global_stats=False, momentum=0.9, axis=1, in_channels=16),
+        nn.Activation(activation='relu'),
+
+        nn.Conv2D(channels=32, kernel_size=1, use_bias=False),
+        nn.BatchNorm(use_global_stats=False, momentum=0.9, axis=1, in_channels=32),
+        nn.Activation(activation='relu'),
+#conv2
+        nn.Conv2D(channels=32, groups=32, kernel_size=3, strides=2, padding=1, use_bias=False),
+        nn.BatchNorm(use_global_stats=False, momentum=0.9, axis=1, in_channels=32),
+        nn.Activation(activation='relu'),
+
+        nn.Conv2D(channels=64, kernel_size=1, use_bias=False),
+        nn.BatchNorm(use_global_stats=False, momentum=0.9, axis=1, in_channels=64),
+        nn.Activation(activation='relu'),
+#conv3
+        nn.Conv2D(channels=64, groups=64, kernel_size=3, padding=1, use_bias=False),
+        nn.BatchNorm(use_global_stats=False, momentum=0.9, axis=1, in_channels=64),
+        nn.Activation(activation='relu'),
+
+        nn.Conv2D(channels=64, kernel_size=1, use_bias=False),
+        nn.BatchNorm(use_global_stats=False, momentum=0.9, axis=1, in_channels=64),
+        nn.Activation(activation='relu'),
+#conv4
+        nn.Conv2D(channels=64, groups=64, kernel_size=3, strides=2, padding=1, use_bias=False),
+        nn.BatchNorm(use_global_stats=False, momentum=0.9, axis=1, in_channels=64),
+        nn.Activation(activation='relu'),
+
+        nn.Conv2D(channels=128, kernel_size=1, use_bias=False),
+        nn.BatchNorm(use_global_stats=False, momentum=0.9, axis=1, in_channels=128),
+        nn.Activation(activation='relu'),
+#conv5
+        nn.Conv2D(channels=128, groups=128, kernel_size=3, padding=1, use_bias=False),
+        nn.BatchNorm(use_global_stats=False, momentum=0.9, axis=1, in_channels=128),
+        nn.Activation(activation='relu'),
+
+        nn.Conv2D(channels=128, kernel_size=1, use_bias=False),
+        nn.BatchNorm(use_global_stats=False, momentum=0.9, axis=1, in_channels=128),
+        nn.Activation(activation='relu'),
+#conv6
+        nn.Conv2D(channels=128, groups=128, strides=2, kernel_size=3, padding=1, use_bias=False),
+        nn.BatchNorm(use_global_stats=False, momentum=0.9, axis=1, in_channels=128),
+        nn.Activation(activation='relu'),
+
+        nn.Conv2D(channels=256, kernel_size=1, use_bias=False),
+        nn.BatchNorm(use_global_stats=False, momentum=0.9, axis=1, in_channels=256),
+        nn.Activation(activation='relu'),
+#conv7
+        nn.Conv2D(channels=256, groups=256, kernel_size=3, padding=1, use_bias=False),
+        nn.BatchNorm(use_global_stats=False, momentum=0.9, axis=1, in_channels=256),
+        nn.Activation(activation='relu'),
+
+        nn.Conv2D(channels=256, kernel_size=1, use_bias=False),
+        nn.BatchNorm(use_global_stats=False, momentum=0.9, axis=1, in_channels=256),
+        nn.Activation(activation='relu'),
+#conv8
+        nn.Conv2D(channels=256, groups=256, kernel_size=3, padding=1, use_bias=False),
+        nn.BatchNorm(use_global_stats=False, momentum=0.9, axis=1, in_channels=256),
+        nn.Activation(activation='relu'),
+
+        nn.Conv2D(channels=256, kernel_size=1, use_bias=False),
+        nn.BatchNorm(use_global_stats=False, momentum=0.9, axis=1, in_channels=256),
+        nn.Activation(activation='relu'),
+#conv9
+        nn.Conv2D(channels=256, groups=256, kernel_size=3, padding=1, use_bias=False),
+        nn.BatchNorm(use_global_stats=False, momentum=0.9, axis=1, in_channels=256),
+        nn.Activation(activation='relu'),
+
+        nn.Conv2D(channels=256, kernel_size=1, use_bias=False),
+        nn.BatchNorm(use_global_stats=False, momentum=0.9, axis=1, in_channels=256),
+        nn.Activation(activation='relu'),
+#conv10
+        nn.Conv2D(channels=256, groups=256, kernel_size=3, padding=1, use_bias=False),
+        nn.BatchNorm(use_global_stats=False, momentum=0.9, axis=1, in_channels=256),
+        nn.Activation(activation='relu'),
+
+        nn.Conv2D(channels=256, kernel_size=1, use_bias=False),
+        nn.BatchNorm(use_global_stats=False, momentum=0.9, axis=1, in_channels=256),
+        nn.Activation(activation='relu'),
+#conv11
+        nn.Conv2D(channels=256, groups=256, kernel_size=3, padding=1, use_bias=False),
+        nn.BatchNorm(use_global_stats=False, momentum=0.9, axis=1, in_channels=256),
+        nn.Activation(activation='relu'),
+
+        nn.Conv2D(channels=256, kernel_size=1, use_bias=False),
+        nn.BatchNorm(use_global_stats=False, momentum=0.9, axis=1, in_channels=256),
+        nn.Activation(activation='relu'),
+#conv12
+        nn.Conv2D(channels=256, groups=256, kernel_size=3, strides=2, padding=1, use_bias=False),
+        nn.BatchNorm(use_global_stats=False, momentum=0.9, axis=1, in_channels=256),
+        nn.Activation(activation='relu'),
+
+        nn.Conv2D(channels=512, kernel_size=1, use_bias=False),
+        nn.BatchNorm(use_global_stats=False, momentum=0.9, axis=1, in_channels=512),
+        nn.Activation(activation='relu'),
+#conv13
+        nn.Conv2D(channels=512, groups=512, kernel_size=3, padding=1, use_bias=False),
+        nn.BatchNorm(use_global_stats=False, momentum=0.9, axis=1, in_channels=512),
+        nn.Activation(activation='relu'),
+
+        nn.Conv2D(channels=512, kernel_size=1, use_bias=False),
+        nn.BatchNorm(use_global_stats=False, momentum=0.9, axis=1, in_channels=512),
+        nn.Activation(activation='relu'),
+
+        nn.GlobalAvgPool2D(),
+        nn.Flatten())
     network.initialize(init=init.Xavier(), ctx=ctx)
     return network

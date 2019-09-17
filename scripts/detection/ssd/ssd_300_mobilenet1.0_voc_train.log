@@ -1,2 +1,18 @@
 Namespace(batch_size=32, data_shape=300, dataset='voc', epochs=240, gpus='0', log_interval=100, lr=0.001, lr_decay=0.1, lr_decay_epoch='20,100', momentum=0.9, network='mobilenet1.0', num_workers=4, resume='train_mobilenetSSD_same_as_Caffe_parse_params_7337/mobilenet_v1_300_rebuild_similar_parsed_fromCaffe.params', save_interval=5, save_prefix='ssd_300_mobilenet1.0_voc', seed=233, start_epoch=0, syncbn=False, val_interval=1, wd=0.0005)
 Start training from [Epoch 0]
+Namespace(batch_size=32, data_shape=300, dataset='voc', epochs=240, gpus='0', log_interval=100, lr=0.001, lr_decay=0.1, lr_decay_epoch='20,100', momentum=0.9, network='mobilenet1.0', num_workers=4, resume='', save_interval=5, save_prefix='ssd_300_mobilenet1.0_voc', seed=233, start_epoch=0, syncbn=False, val_interval=1, wd=0.0005)
+Start training from [Epoch 0]
+[Epoch 0][Batch 99], Speed: 62.014 samples/sec, CrossEntropy=12.783, SmoothL1=4.367
+[Epoch 0][Batch 199], Speed: 211.972 samples/sec, CrossEntropy=11.988, SmoothL1=4.010
+[Epoch 0][Batch 299], Speed: 46.516 samples/sec, CrossEntropy=11.485, SmoothL1=3.848
+[Epoch 0][Batch 399], Speed: 89.443 samples/sec, CrossEntropy=11.040, SmoothL1=3.723
+[Epoch 0][Batch 499], Speed: 211.496 samples/sec, CrossEntropy=10.584, SmoothL1=3.606
+[Epoch 0] Training cost: 222.176, CrossEntropy=10.504, SmoothL1=3.589
+Namespace(batch_size=32, data_shape=300, dataset='voc', epochs=240, gpus='0', log_interval=100, lr=0.001, lr_decay=0.1, lr_decay_epoch='20,100', momentum=0.9, network='mobilenet1.0', num_workers=4, resume='', save_interval=5, save_prefix='ssd_300_mobilenet1.0_voc', seed=233, start_epoch=0, syncbn=False, val_interval=1, wd=0.0005)
+Start training from [Epoch 0]
+[Epoch 0][Batch 99], Speed: 88.515 samples/sec, CrossEntropy=12.338, SmoothL1=3.991
+[Epoch 0][Batch 199], Speed: 183.578 samples/sec, CrossEntropy=11.585, SmoothL1=3.632
+[Epoch 0][Batch 299], Speed: 72.169 samples/sec, CrossEntropy=10.971, SmoothL1=3.471
+[Epoch 0][Batch 399], Speed: 41.797 samples/sec, CrossEntropy=10.292, SmoothL1=3.354
+[Epoch 0][Batch 499], Speed: 62.194 samples/sec, CrossEntropy=9.618, SmoothL1=3.261
+[Epoch 0] Training cost: 228.007, CrossEntropy=9.509, SmoothL1=3.247

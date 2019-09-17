@@ -161,13 +161,15 @@ class SSD(HybridBlock):
             asz = anchor_alloc_size
             im_size = (base_size, base_size)
 
-            print("ssd.py. Same sizes for anchor box as Caffe's model")
-            sizes[0] = (60,)
-            sizes[1] = (105, 150)
-            sizes[2] = (150, 195)
-            sizes[3] = (195, 240)
-            sizes[4] = (240, 285)
-            sizes[5] = (285, 300)
+            model = ''
+            if (model == 'mobilenet_ssd_300'):
+                print("ssd.py. Same sizes for anchor box as Caffe's model")
+                sizes[0] = (60,)
+                sizes[1] = (105, 150)
+                sizes[2] = (150, 195)
+                sizes[3] = (195, 240)
+                sizes[4] = (240, 285)
+                sizes[5] = (285, 300)
 
             for i, s, r, st in zip(range(num_layers), sizes, ratios, steps):
                 anchor_generator = SSDAnchorGenerator(i, im_size, s, r, st, (asz, asz))
@@ -242,9 +244,14 @@ class SSD(HybridBlock):
             results.append(per_result)
         result = F.concat(*results, dim=1)
         if self.nms_thresh > 0 and self.nms_thresh < 1:
+            force_suppress=False
+            model = ''
+            if (model == 'mobilenet_ssd_300'):
+                print ('ssd.py. Set force_suppress to True')
+                force_suppress=True
             result = F.contrib.box_nms(
                 result, overlap_thresh=self.nms_thresh, topk=self.nms_topk, valid_thresh=0.01,
-                id_index=0, score_index=1, coord_start=2, force_suppress=True)
+                id_index=0, score_index=1, coord_start=2, force_suppress=force_suppress)
             if self.post_nms > 0:
                 result = result.slice_axis(axis=1, begin=0, end=self.post_nms)
         ids = F.slice_axis(result, axis=2, begin=0, end=1)

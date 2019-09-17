@@ -1,0 +1,5 @@
+Namespace(batch_norm=False, batch_size=64, crop_ratio=0.875, data_dir='/home/duycuong/.mxnet/datasets/TrainVal', dtype='float32', hard_weight=0.5, input_size=112, label_smoothing=False, last_gamma=False, log_interval=200, lr=0.1, lr_decay=0.1, lr_decay_epoch='40,60', lr_decay_period=0, lr_mode='cosine', mixup=False, mixup_alpha=0.2, mixup_off_epoch=0, mode=None, model='resnet152_v2', momentum=0.9, no_wd=False, num_epochs=120, num_gpus=1, num_workers=4, rec_train='train.rec', rec_train_idx='train.idx', rec_val='val.rec', rec_val_idx='val.idx', resume_epoch=0, resume_params='', resume_states='', save_frequency=5, teacher=None, temperature=20, use_gn=False, use_pretrained=False, use_rec=False, use_se=False, warmup_epochs=0, warmup_lr=0.0, wd=0.0001)
+Epoch[0] Batch [199]	Speed: 260.983900 samples/sec	accuracy=0.037734	lr=0.100000
+Epoch[0] Batch [399]	Speed: 269.077279 samples/sec	accuracy=0.050000	lr=0.099998
+Epoch[0] Batch [599]	Speed: 274.274634 samples/sec	accuracy=0.063542	lr=0.099996
+Epoch[0] Batch [799]	Speed: 275.251734 samples/sec	accuracy=0.071563	lr=0.099993

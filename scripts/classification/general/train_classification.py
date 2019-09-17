@@ -13,19 +13,20 @@ from gluoncv.model_zoo import get_model
 from gluoncv.utils import makedirs, LRSequential, LRScheduler
 
 # CLI
-data_dir='/media/atsg/Data/CuongND/challenge/zaloAIchallenge/landmark/data/TrainVal'
+data_dir='/home/duycuong/.mxnet/datasets/TrainVal'
+#data_dir='/home/duycuong/PycharmProjects/research/ZaloAIchallenge2018/TrainVal'
 train_path = os.path.join(data_dir, 'train')
 val_path = os.path.join(data_dir, 'val')
 
 rec_train, rec_train_idx, rec_val, rec_val_idx = 'train.rec', 'train.idx', 'val.rec', 'val.idx'
-input_size=224
+input_size=112
 classes = 102
 num_training_samples = 79640
 dataset='ZaloLandmark'
 save_dir=''
 model='resnet152_v2'
 use_rec=False
-batch_size=16
+batch_size=64
 base_lr=0.1
 lr_mode='cosine' #'step'
 log_interval=200
@@ -52,7 +53,7 @@ def parse_args():
                         help='number of gpus to use, 0 indicates cpu only.')
     parser.add_argument('-j', '--num-data-workers', dest='num_workers', default=4, type=int,
                         help='number of preprocessing workers')
-    parser.add_argument('--num-epochs', type=int, default=3,
+    parser.add_argument('--num-epochs', type=int, default=120,
                         help='number of training epochs.')
     parser.add_argument('--lr', type=float, default=base_lr,
                         help='learning rate. default is 0.1.')

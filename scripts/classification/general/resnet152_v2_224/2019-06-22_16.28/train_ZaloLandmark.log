@@ -1,0 +1,20 @@
+Namespace(batch_norm=False, batch_size=16, crop_ratio=0.875, data_dir='/media/duycuong/Data/Dataset/ZaloAIChallenge2018/landmark/TrainVal', dtype='float32', hard_weight=0.5, input_size=224, label_smoothing=False, last_gamma=False, log_interval=200, lr=0.1, lr_decay=0.1, lr_decay_epoch='40,60', lr_decay_period=0, lr_mode='cosine', mixup=False, mixup_alpha=0.2, mixup_off_epoch=0, mode=None, model='resnet152_v2', momentum=0.9, no_wd=False, num_epochs=3, num_gpus=1, num_workers=4, rec_train='train.rec', rec_train_idx='train.idx', rec_val='val.rec', rec_val_idx='val.idx', resume_epoch=0, resume_params='', resume_states='', save_frequency=5, teacher=None, temperature=20, use_gn=False, use_pretrained=False, use_rec=False, use_se=False, warmup_epochs=0, warmup_lr=0.0, wd=0.0001)
+Epoch[0] Batch [199]	Speed: 33.563282 samples/sec	accuracy=0.029375	lr=0.099956
+Epoch[0] Batch [399]	Speed: 34.662999 samples/sec	accuracy=0.031875	lr=0.099823
+Epoch[0] Batch [599]	Speed: 34.673624 samples/sec	accuracy=0.036979	lr=0.099602
+Epoch[0] Batch [799]	Speed: 38.061501 samples/sec	accuracy=0.039766	lr=0.099293
+Epoch[0] Batch [999]	Speed: 40.486943 samples/sec	accuracy=0.043125	lr=0.098897
+Epoch[0] Batch [1199]	Speed: 44.724632 samples/sec	accuracy=0.045000	lr=0.098414
+Epoch[0] Batch [1399]	Speed: 45.800482 samples/sec	accuracy=0.047411	lr=0.097846
+Epoch[0] Batch [1599]	Speed: 47.469726 samples/sec	accuracy=0.048633	lr=0.097193
+Epoch[0] Batch [1799]	Speed: 51.063134 samples/sec	accuracy=0.049583	lr=0.096456
+Epoch[0] Batch [1999]	Speed: 48.200191 samples/sec	accuracy=0.051437	lr=0.095637
+Epoch[0] Batch [2199]	Speed: 49.646602 samples/sec	accuracy=0.053750	lr=0.094737
+Epoch[0] Batch [2399]	Speed: 49.557199 samples/sec	accuracy=0.056042	lr=0.093758
+Epoch[0] Batch [2599]	Speed: 34.817801 samples/sec	accuracy=0.058750	lr=0.092702
+Epoch[0] Batch [2799]	Speed: 24.881643 samples/sec	accuracy=0.061384	lr=0.091570
+Epoch[0] Batch [2999]	Speed: 27.835063 samples/sec	accuracy=0.064687	lr=0.090364
+Epoch[0] Batch [3199]	Speed: 28.081517 samples/sec	accuracy=0.068164	lr=0.089087
+Epoch[0] Batch [3399]	Speed: 27.871182 samples/sec	accuracy=0.070827	lr=0.087740
+Epoch[0] Batch [3599]	Speed: 28.996999 samples/sec	accuracy=0.073524	lr=0.086327
+Epoch[0] Batch [3799]	Speed: 32.136431 samples/sec	accuracy=0.076859	lr=0.084850

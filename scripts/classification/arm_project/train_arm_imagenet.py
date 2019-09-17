@@ -22,13 +22,15 @@ batch_size=config.batch_size
 epochs=120
 log_interval=200
 num_workers=config.num_workers
-imagenet_dir='~/.mxnet/datasets/imagenet'
+imagenet_dir='~/.mxnet/datasets/imagenet300'
 base_lr=0.05
 lr_decay=0.1
 lr_mode='cosine'
 lr_decay_epoch='40,60'
 save_frequency=10
 
+kk=np.array([1, 2, 3])
+kk.shape[0]
 # base_lr=0.1
 # lr_decay=0.3
 # lr_decay_epoch='10,18,28,40,60,90,140,200,500,900,1400'
@@ -184,6 +186,7 @@ def main():
     ])
 
     model_name = opt.model
+
 
     kwargs = {'ctx': context, 'pretrained': opt.use_pretrained, 'classes': classes}
     if opt.use_gn:

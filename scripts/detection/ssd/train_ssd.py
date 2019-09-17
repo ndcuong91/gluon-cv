@@ -21,11 +21,12 @@ from gluoncv.utils.metrics.coco_detection import COCODetectionMetric
 from gluoncv.utils.metrics.accuracy import Accuracy
 
 resume='train_mobilenetSSD_same_as_Caffe_parse_params_7337/mobilenet_v1_300_rebuild_similar_parsed_fromCaffe.params'
+resume=''
 def parse_args():
     parser = argparse.ArgumentParser(description='Train SSD networks.')
     parser.add_argument('--network', type=str, default='mobilenet1.0',
                         help="Base network name which serves as feature extraction base.")
-    parser.add_argument('--data-shape', type=int, default=300,
+    parser.add_argument('--data-shape', type=int, default=512,
                         help="Input data shape, use 300, 512.")
     parser.add_argument('--batch-size', type=int, default=32,
                         help='Training mini-batch size')
@@ -228,7 +229,6 @@ def train(net, train_data, val_data, eval_metric, ctx, args):
 
         name1, loss1 = ce_metric.get()
         name2, loss2 = smoothl1_metric.get()
-
 
 
         logger.info('[Epoch {}] Training cost: {:.3f}, {}={:.3f}, {}={:.3f}'.format(

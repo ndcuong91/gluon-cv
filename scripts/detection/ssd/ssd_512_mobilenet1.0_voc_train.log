@@ -1,0 +1,8 @@
+Namespace(batch_size=32, data_shape=512, dataset='voc', epochs=240, gpus='0', log_interval=100, lr=0.001, lr_decay=0.1, lr_decay_epoch='20,100', momentum=0.9, network='mobilenet1.0', num_workers=4, resume='', save_interval=5, save_prefix='ssd_512_mobilenet1.0_voc', seed=233, start_epoch=0, syncbn=False, val_interval=1, wd=0.0005)
+Start training from [Epoch 0]
+[Epoch 0][Batch 99], Speed: 81.136 samples/sec, CrossEntropy=7.914, SmoothL1=3.264
+[Epoch 0][Batch 199], Speed: 78.361 samples/sec, CrossEntropy=6.544, SmoothL1=3.007
+[Epoch 0][Batch 299], Speed: 47.864 samples/sec, CrossEntropy=5.975, SmoothL1=2.830
+[Epoch 0][Batch 399], Speed: 80.004 samples/sec, CrossEntropy=5.636, SmoothL1=2.715
+[Epoch 0][Batch 499], Speed: 79.064 samples/sec, CrossEntropy=5.413, SmoothL1=2.621
+[Epoch 0] Training cost: 261.921, CrossEntropy=5.382, SmoothL1=2.611

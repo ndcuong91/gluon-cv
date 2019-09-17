@@ -1,0 +1,6 @@
+Namespace(batch_size=128, input_sz=180, log_interval=200, lr=0.4, lr_decay=0.1, lr_decay_epoch='40,60', lr_decay_period=0, lr_mode='cosine', model='arm_network_v4.4', momentum=0.9, num_class=2, num_epochs=120, num_gpus=1, num_workers=8, resume_epoch=0, resume_params='', resume_states='', save_frequency=10, warmup_epochs=0, wd=0.0001)
+Epoch[0] Batch [199] 	Speed: 1416.675947 samples/sec	loss: nan	accuracy=0.001367	lr=0.400000
+Epoch[0] Batch [399] 	Speed: 1540.277843 samples/sec	loss: nan	accuracy=0.001211	lr=0.400000
+Epoch[0] Batch [599] 	Speed: 1528.332017 samples/sec	loss: nan	accuracy=0.001055	lr=0.400000
+Epoch[0] Batch [799] 	Speed: 1532.168971 samples/sec	loss: nan	accuracy=0.001025	lr=0.400000
+Epoch[0] Batch [999] 	Speed: 1486.588460 samples/sec	loss: nan	accuracy=0.001008	lr=0.399999

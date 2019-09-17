@@ -138,20 +138,35 @@ class FeatureExpander(SymbolBlock):
         weight_init = mx.init.Xavier(rnd_type='gaussian', factor_type='out', magnitude=2)
         for i, f in enumerate(num_filters):
             if use_1x1_transition:
+
+            #for mobilenet_ssd_300
+            #     id = 14 + i
+            #     y = mx.sym.Convolution(
+            #         y, num_filter=f, kernel=(1, 1), no_bias=use_bn,
+            #         name='expand_conv{}_1'.format(id), attr={'__init__': weight_init})
+            #     if use_bn:
+            #         y = mx.sym.BatchNorm(y, name='expand_bn{}_1'.format(id))
+            #     y = mx.sym.Activation(y, act_type='relu', name='expand_relu{}_1'.format(id))
+            # y = mx.sym.Convolution(
+            #     y, num_filter=2 * f, kernel=(3, 3), pad=(1, 1), stride=(2, 2),
+            #     no_bias=use_bn, name='expand_conv{}_2'.format(id), attr={'__init__': weight_init})
+            # if use_bn:
+            #     y = mx.sym.BatchNorm(y, name='expand_bn{}_2'.format(id), fix_gamma=False, attr={'lr_mult': '0'})
+            # y = mx.sym.Activation(y, act_type='relu', name='expand_relu{}_2'.format(id))
+
                 num_trans = max(min_depth, int(round(f * reduce_ratio)))
-                id = 14 + i
                 y = mx.sym.Convolution(
-                    y, num_filter=f, kernel=(1, 1), no_bias=use_bn,
-                    name='expand_conv{}_1'.format(id), attr={'__init__': weight_init})
+                    y, num_filter=num_trans, kernel=(1, 1), no_bias=use_bn,
+                    name='expand_trans_conv{}'.format(i), attr={'__init__': weight_init})
                 if use_bn:
-                    y = mx.sym.BatchNorm(y, name='expand_bn{}_1'.format(id))
-                y = mx.sym.Activation(y, act_type='relu', name='expand_relu{}_1'.format(id))
+                    y = mx.sym.BatchNorm(y, name='expand_trans_bn{}'.format(i))
+                y = mx.sym.Activation(y, act_type='relu', name='expand_trans_relu{}'.format(i))
             y = mx.sym.Convolution(
-                y, num_filter=2 * f, kernel=(3, 3), pad=(1, 1), stride=(2, 2),
-                no_bias=use_bn, name='expand_conv{}_2'.format(id), attr={'__init__': weight_init})
+                y, num_filter=f, kernel=(3, 3), pad=(1, 1), stride=(2, 2),
+                no_bias=use_bn, name='expand_conv{}'.format(i), attr={'__init__': weight_init})
             if use_bn:
-                y = mx.sym.BatchNorm(y, name='expand_bn{}_2'.format(id), fix_gamma=False, attr={'lr_mult': '0'})
-            y = mx.sym.Activation(y, act_type='relu', name='expand_relu{}_2'.format(id))
+                y = mx.sym.BatchNorm(y, name='expand_bn{}'.format(i))
+            y = mx.sym.Activation(y, act_type='relu', name='expand_reu{}'.format(i))
             outputs.append(y)
         if global_pool:
             outputs.append(mx.sym.Pooling(y, pool_type='avg', global_pool=True, kernel=(1, 1)))

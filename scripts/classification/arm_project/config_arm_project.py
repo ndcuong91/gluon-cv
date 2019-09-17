@@ -1,14 +1,24 @@
 import os
 
 pc='duycuongAI'
-pc='300'
+#pc='300'
 
+<<<<<<< HEAD
+dataset='imagenet' #dataset3_resize300
+=======
 dataset='getty_dataset1_resize300' #dataset3_resize300
+>>>>>>> 32295961ced0b34b492ad34a23ec83eeed2c9661
 if(pc=='duycuongAI'):
-    dataset_dir='/media/duycuong/Data/Dataset/ZaloAIChallenge2018/landmark'
-    train_dir = os.path.join(dataset_dir, 'TrainVal/train')
-    val_dir = os.path.join(dataset_dir, '/TrainVal/val')
-    test_dir = os.path.join(dataset_dir, 'Test_Public')
+    if dataset=='imagenet':
+        dataset_dir='~/.mxnet/datasets/imagenet300'
+        train_dir = os.path.join(dataset_dir, 'train')
+        val_dir = os.path.join(dataset_dir, 'val')
+        test_dir = os.path.join(dataset_dir, 'public')
+    else:
+        dataset_dir='/home/atsg/PycharmProjects/gvh205/arm_proj/to_customer/GVH205_ARM_project_training_environment/dataset/'+dataset
+        train_dir = os.path.join(dataset_dir, 'train')
+        val_dir = os.path.join(dataset_dir, 'test')
+
 
 if(pc=='300'):
     dataset_dir='/home/atsg/PycharmProjects/gvh205/arm_proj/to_customer/GVH205_ARM_project_training_environment/dataset/'+dataset

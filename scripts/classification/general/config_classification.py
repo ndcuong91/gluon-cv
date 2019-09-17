@@ -27,7 +27,7 @@ input_sz=224
 #hyper parameters
 
 dataset='ZaloAILandmark'
-batch_size=16
+batch_size=32
 epochs=200
 log_interval=200
 num_workers=6

@@ -1,0 +1,21 @@
+Namespace(batch_size=128, input_sz=112, log_interval=20, lr=0.01, lr_decay=0.75, lr_decay_epoch='10,20,30,40,50,70,110,150,200,500,1000', lr_decay_period=0, lr_mode='step', model='arm_network_v3.4', momentum=0.9, num_class=2, num_epochs=1500, num_gpus=1, num_workers=6, resume_epoch=0, resume_params='', resume_states='', save_frequency=5, warmup_epochs=0, wd=0.0001)
+Epoch[0] Batch [19] 	Speed: 1224.777741 samples/sec	loss: 0.000266	accuracy=0.000781	lr=0.010000
+Epoch[0] Batch [39] 	Speed: 1347.072711 samples/sec	loss: 0.000040	accuracy=0.000391	lr=0.010000
+Epoch[0] Batch [59] 	Speed: 1563.273834 samples/sec	loss: 0.000048	accuracy=0.000521	lr=0.010000
+Epoch[0] Batch [79] 	Speed: 1395.289317 samples/sec	loss: 0.000109	accuracy=0.000684	lr=0.010000
+Epoch[0] Batch [99] 	Speed: 1433.838641 samples/sec	loss: 0.000201	accuracy=0.000625	lr=0.010000
+Epoch[0] Batch [119] 	Speed: 1338.445193 samples/sec	loss: 0.000363	accuracy=0.000521	lr=0.010000
+Epoch[0] Batch [139] 	Speed: 1498.773647 samples/sec	loss: 0.000450	accuracy=0.000670	lr=0.010000
+Epoch[0] Batch [159] 	Speed: 1520.588068 samples/sec	loss: 0.000439	accuracy=0.000684	lr=0.010000
+Epoch[0] Batch [179] 	Speed: 1355.390302 samples/sec	loss: 0.000462	accuracy=0.000781	lr=0.010000
+Epoch[0] Batch [199] 	Speed: 1492.373893 samples/sec	loss: 0.056231	accuracy=0.000898	lr=0.010000
+Epoch[0] Batch [219] 	Speed: 1608.604875 samples/sec	loss: 0.000629	accuracy=0.000994	lr=0.010000
+Epoch[0] Batch [239] 	Speed: 1359.997153 samples/sec	loss: 0.000638	accuracy=0.001074	lr=0.010000
+Epoch[0] Batch [259] 	Speed: 1352.388660 samples/sec	loss: 0.000840	accuracy=0.001052	lr=0.010000
+Epoch[0] Batch [279] 	Speed: 1356.536387 samples/sec	loss: 0.001027	accuracy=0.001088	lr=0.010000
+Epoch[0] Batch [299] 	Speed: 1307.129542 samples/sec	loss: 0.001205	accuracy=0.001120	lr=0.010000
+Epoch[0] Batch [319] 	Speed: 1114.424446 samples/sec	loss: 0.000943	accuracy=0.001123	lr=0.010000
+Epoch[0] Batch [339] 	Speed: 1502.682561 samples/sec	loss: 0.000913	accuracy=0.001126	lr=0.010000
+Epoch[0] Batch [359] 	Speed: 1453.619569 samples/sec	loss: 0.000817	accuracy=0.001085	lr=0.010000
+Epoch[0] Batch [379] 	Speed: 1536.541744 samples/sec	loss: 0.000797	accuracy=0.001090	lr=0.010000
+Epoch[0] Batch [399] 	Speed: 1345.197753 samples/sec	loss: 0.001091	accuracy=0.001113	lr=0.010000
